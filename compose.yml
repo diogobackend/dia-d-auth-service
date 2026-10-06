@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: diad-auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: diad_auth
+      POSTGRES_USER: diad_auth
+      POSTGRES_PASSWORD: diad_auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - diad_auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diad_auth -d diad_auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  diad_auth_postgres_data:

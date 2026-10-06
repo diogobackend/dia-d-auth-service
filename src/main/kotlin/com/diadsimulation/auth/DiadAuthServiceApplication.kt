@@ -1,4 +1,4 @@
-package com.diadsimulation_auth
+package com.diadsimulation.auth
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class DiadAuthServiceApplication
 
 fun main(args: Array<String>) {
-	runApplication<DiadAuthServiceApplication>(*args)
+    runApplication<DiadAuthServiceApplication>(*args)
 }

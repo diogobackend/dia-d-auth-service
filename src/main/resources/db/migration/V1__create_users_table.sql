@@ -1,0 +1,18 @@
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    status VARCHAR(30) NOT NULL,
+
+    phone VARCHAR(30),
+    address VARCHAR(500),
+
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    CONSTRAINT uk_users_email UNIQUE (email)
+);
+
+CREATE INDEX idx_users_status
+    ON users (status);

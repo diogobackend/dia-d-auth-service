@@ -1,3 +1,17 @@
 spring:
   application:
     name: diad-auth-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/diad_auth
+    username: diad_auth
+    password: diad_auth
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
