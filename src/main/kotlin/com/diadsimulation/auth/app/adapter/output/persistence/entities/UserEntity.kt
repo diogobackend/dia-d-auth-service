@@ -36,6 +36,12 @@ class UserEntity(
     @Column(length = 30)
     var phone: String?,
 
+    @Column(unique = true, length = 14)
+    var cpf: String?,
+
+    @Column(unique = true, length = 20)
+    var rg: String?,
+
     @Column(length = 500)
     var address: String?,
 

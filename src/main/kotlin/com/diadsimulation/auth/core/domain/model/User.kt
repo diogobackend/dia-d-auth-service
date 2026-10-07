@@ -12,6 +12,8 @@ class User(
     var role: UserRole,
     var status: UserStatus,
     var phone: String? = null,
+    var cpf: String? = null,
+    var rg: String? = null,
     var address: String? = null,
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
     var updatedAt: OffsetDateTime = OffsetDateTime.now()

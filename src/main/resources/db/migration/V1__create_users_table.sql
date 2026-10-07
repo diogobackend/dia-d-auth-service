@@ -7,11 +7,15 @@ CREATE TABLE users (
 
     phone VARCHAR(30),
     address VARCHAR(500),
+    cpf VARCHAR(14),
+    rg VARCHAR(20),
 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
-    CONSTRAINT uk_users_email UNIQUE (email)
+    CONSTRAINT uk_users_email UNIQUE (email),
+    CONSTRAINT uk_users_cpf UNIQUE (cpf),
+    CONSTRAINT uk_users_rg UNIQUE (rg)
 );
 
 CREATE INDEX idx_users_status
