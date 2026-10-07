@@ -19,7 +19,7 @@ class UserPersistenceAdapter(
         return UserPersistenceMapper.toDomain(savedEntity)
     }
 
-    override fun findByUserId(userId: UUID): User? =
+    override fun findById(userId: UUID): User? =
         userJpaRepository.findById(userId)
             .map(UserPersistenceMapper::toDomain)
             .orElse(null)
@@ -32,4 +32,10 @@ class UserPersistenceAdapter(
 
     override fun existsByEmail(email: String): Boolean =
         userJpaRepository.existsByEmail(email)
+
+    override fun existsByCpf(cpf: String): Boolean =
+        userJpaRepository.existsByCpf(cpf)
+
+    override fun existsByRg(rg: String): Boolean =
+        userJpaRepository.existsByRg(rg)
 }

@@ -13,10 +13,10 @@ object RegisterUserMapper {
             passwordHash = request.password,
             role = request.role,
             status = UserStatus.ACTIVE,
-            phone = request.phone,
-            address = request.address,
-            cpf = request.cpf,
-            rg = request.rg
+            phone = normalizeOptional(request.phone),
+            address = normalizeOptional(request.address),
+            cpf = normalizeOptional(request.cpf),
+            rg = normalizeOptional(request.rg)
         )
 
     fun toResponse(user: User): RegisterUserResponse =
@@ -31,4 +31,16 @@ object RegisterUserMapper {
             rg = user.rg,
             createdAt = user.createdAt
         )
+
+    private fun normalizeOptional(value: String?): String? {
+        if (value == null) {
+            return null
+        }
+
+        if (value.length == 0) {
+            return null
+        }
+
+        return value
+    }
 }

@@ -2,6 +2,7 @@ package com.diadsimulation.auth.app.adapter.input.web.swagger
 
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.exception.ApiErrorResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -38,15 +39,39 @@ interface UserApi {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Dados da requisição inválidos"
+                description = "Dados da requisição inválidos",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(
+                            implementation = ApiErrorResponse::class
+                        )
+                    )
+                ]
             ),
             ApiResponse(
                 responseCode = "409",
-                description = "Usuário já cadastrado"
+                description = "E-mail, CPF ou RG já cadastrado",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(
+                            implementation = ApiErrorResponse::class
+                        )
+                    )
+                ]
             ),
             ApiResponse(
                 responseCode = "500",
-                description = "Erro interno do servidor"
+                description = "Erro interno do servidor",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(
+                            implementation = ApiErrorResponse::class
+                        )
+                    )
+                ]
             )
         ]
     )

@@ -8,4 +8,6 @@ interface UserJpaRepository : JpaRepository<UserEntity, UUID> {
 
     fun findByEmail(email: String): UserEntity?
     fun existsByEmail(email: String): Boolean
+    fun existsByCpf(cpf: String): Boolean
+    fun existsByRg(rg: String): Boolean
 }
