@@ -85,8 +85,6 @@ O serviço adota **arquitetura hexagonal (Ports & Adapters)**, isolando as regra
 | RabbitMQ | Processamento assíncrono de comandos e tarefas direcionadas | Solicitação de e-mail de recuperação, notificação de segurança |
 | PostgreSQL | Dados transacionais do Auth Service | Usuários, sessões, credenciais e auditoria |
 
-Os nomes dos tópicos, filas e contratos acima são **referências de arquitetura** e devem ser consolidados nos contratos de integração.
-
 ### Fluxo de autenticação
 
 ![img_1.png](docs/images/img_1.png)
