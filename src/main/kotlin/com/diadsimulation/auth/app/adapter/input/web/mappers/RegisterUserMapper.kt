@@ -2,7 +2,7 @@ package com.diadsimulation.auth.app.adapter.input.web.mappers
 
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserResponse
-import com.diadsimulation.auth.core.domain.enums.UserStatus
+import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 
 object RegisterUserMapper {
@@ -12,7 +12,7 @@ object RegisterUserMapper {
             email = request.email,
             passwordHash = request.password,
             role = request.role,
-            status = UserStatus.ACTIVE,
+            status = ACTIVE,
             phone = normalizeOptional(request.phone),
             address = normalizeOptional(request.address),
             cpf = normalizeOptional(request.cpf),

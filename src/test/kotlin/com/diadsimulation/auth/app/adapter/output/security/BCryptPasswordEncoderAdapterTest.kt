@@ -1,5 +1,6 @@
 package com.diadsimulation.auth.app.adapter.output.security
 
+import com.diadsimulation.auth.core.common.Messages.PASSWORD_ENCODING_FAILED
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
@@ -57,7 +58,7 @@ class BCryptPasswordEncoderAdapterTest {
             adapter.encode(PASSWORD)
         }
 
-        assertEquals("Falha ao codificar a senha", exception.message)
+        assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
     }
 
     @Test

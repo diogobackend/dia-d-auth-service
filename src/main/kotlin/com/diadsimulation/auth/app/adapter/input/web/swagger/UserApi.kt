@@ -3,6 +3,8 @@ package com.diadsimulation.auth.app.adapter.input.web.swagger
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.exception.ApiErrorResponse
+import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
+import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -39,7 +41,7 @@ interface UserApi {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Dados da requisição inválidos",
+                description = INVALID_REQUEST_DATA,
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -63,7 +65,7 @@ interface UserApi {
             ),
             ApiResponse(
                 responseCode = "500",
-                description = "Erro interno do servidor",
+                description = INTERNAL_SERVER_ERROR_MESSAGE,
                 content = [
                     Content(
                         mediaType = "application/json",

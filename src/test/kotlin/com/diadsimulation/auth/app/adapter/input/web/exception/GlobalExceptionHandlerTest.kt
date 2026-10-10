@@ -1,5 +1,12 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
+import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
+import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
+import com.diadsimulation.auth.core.common.Messages.REGISTER_USER_REQUEST
+import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
+import com.diadsimulation.auth.core.common.Messages.SENSITIVE_DATABASE_INFORMATION
+import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import io.mockk.every
 import io.mockk.mockk
@@ -29,7 +36,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     fun `should return conflict when email already exists`() {
-        val message = "Já existe um usuário cadastrado com o e-mail: candidate@diadsimulation.com"
+        val message = "${USER_ALREADY_EXISTS}e-mail: candidate@diadsimulation.com"
 
         val response = handler.handleConflict(
             UserAlreadyExistsException(message),
@@ -41,7 +48,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     fun `should return conflict when cpf already exists`() {
-        val message = "Já existe um usuário cadastrado com o CPF: 123.456.789-00"
+        val message = "${USER_ALREADY_EXISTS}CPF: 123.456.789-00"
 
         val response = handler.handleConflict(
             UserAlreadyExistsException(message),
@@ -53,7 +60,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     fun `should return conflict when rg already exists`() {
-        val message = "Já existe um usuário cadastrado com o RG: 123456789"
+        val message = "${USER_ALREADY_EXISTS}RG: 123456789"
 
         val response = handler.handleConflict(
             UserAlreadyExistsException(message),
@@ -73,7 +80,7 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             CONFLICT,
-            "Conflito ao processar a requisição"
+            REQUEST_CONFLICT
         )
     }
 
@@ -81,13 +88,13 @@ class GlobalExceptionHandlerTest {
     fun `should return bad request with field validation message`() {
         val exception = validationException(
             FieldError(
-                "registerUserRequest",
+                REGISTER_USER_REQUEST,
                 "email",
                 "",
                 false,
                 null,
                 null,
-                "E-mail é obrigatório"
+                EMAIL_REQUIRED
             )
         )
 
@@ -96,7 +103,7 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             BAD_REQUEST,
-            "E-mail é obrigatório"
+            EMAIL_REQUIRED
         )
     }
 
@@ -104,7 +111,7 @@ class GlobalExceptionHandlerTest {
     fun `should return default message when field validation message is null`() {
         val exception = validationException(
             FieldError(
-                "registerUserRequest",
+                REGISTER_USER_REQUEST,
                 "email",
                 null,
                 false,
@@ -119,7 +126,7 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             BAD_REQUEST,
-            "Dados da requisição inválidos"
+            INVALID_REQUEST_DATA
         )
     }
 
@@ -132,14 +139,14 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             BAD_REQUEST,
-            "Dados da requisição inválidos"
+            INVALID_REQUEST_DATA
         )
     }
 
     @Test
     fun `should return bad request when request body is invalid`() {
         val exception = HttpMessageNotReadableException(
-            "Invalid JSON",
+            INVALID_REQUEST_DATA,
             MockHttpInputMessage(ByteArray(0))
         )
 
@@ -148,14 +155,14 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             BAD_REQUEST,
-            "Corpo da requisição inválido"
+            INVALID_REQUEST_DATA
         )
     }
 
     @Test
     fun `should return internal server error without exposing exception details`() {
         val exception = IllegalStateException(
-            "Sensitive database information"
+            SENSITIVE_DATABASE_INFORMATION
         )
 
         val response = handler.handleUnexpectedException(exception, request)
@@ -163,7 +170,7 @@ class GlobalExceptionHandlerTest {
         assertError(
             response,
             INTERNAL_SERVER_ERROR,
-            "Erro interno do servidor"
+            INTERNAL_SERVER_ERROR_MESSAGE
         )
     }
 
@@ -172,7 +179,7 @@ class GlobalExceptionHandlerTest {
     ): MethodArgumentNotValidException {
         val bindingResult = BeanPropertyBindingResult(
             Any(),
-            "registerUserRequest"
+            REGISTER_USER_REQUEST
         )
 
         errors.forEach(bindingResult::addError)

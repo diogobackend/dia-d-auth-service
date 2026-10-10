@@ -1,5 +1,6 @@
 package com.diadsimulation.auth.core.usecase
 
+import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
@@ -19,19 +20,19 @@ class RegisterUserUseCaseImpl(
 
         if (userRepositoryPort.existsByEmail(email)) {
             throw UserAlreadyExistsException(
-                "Já existe um usuário cadastrado com o e-mail: $email"
+                "${USER_ALREADY_EXISTS}E-mail: $email"
             )
         }
 
         if (cpf != null && userRepositoryPort.existsByCpf(cpf)) {
             throw UserAlreadyExistsException(
-                "Já existe um usuário cadastrado com o CPF: $cpf"
+                "${USER_ALREADY_EXISTS}CPF: $cpf"
             )
         }
 
         if (rg != null && userRepositoryPort.existsByRg(rg)) {
             throw UserAlreadyExistsException(
-                "Já existe um usuário cadastrado com o RG: $rg"
+                "${USER_ALREADY_EXISTS}RG: $rg"
             )
         }
 

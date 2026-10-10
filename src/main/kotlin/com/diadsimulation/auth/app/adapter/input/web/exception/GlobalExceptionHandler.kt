@@ -1,5 +1,8 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
+import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
+import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
+import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
@@ -22,7 +25,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = CONFLICT,
-            message = exception.message ?: "Conflito ao processar a requisição",
+            message = exception.message ?: REQUEST_CONFLICT,
             request = request
         )
 
@@ -34,7 +37,7 @@ class GlobalExceptionHandler {
         val message = exception.bindingResult.fieldErrors
             .firstOrNull()
             ?.defaultMessage
-            ?: "Dados da requisição inválidos"
+            ?: INVALID_REQUEST_DATA
 
         return buildResponse(
             status = BAD_REQUEST,
@@ -50,7 +53,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = BAD_REQUEST,
-            message = "Corpo da requisição inválido",
+            message = INVALID_REQUEST_DATA,
             request = request
         )
 
@@ -61,7 +64,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = INTERNAL_SERVER_ERROR,
-            message = "Erro interno do servidor",
+            message = INTERNAL_SERVER_ERROR_MESSAGE,
             request = request
         )
 

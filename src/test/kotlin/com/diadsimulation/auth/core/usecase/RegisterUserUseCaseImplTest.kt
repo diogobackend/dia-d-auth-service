@@ -1,6 +1,9 @@
 package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.builders.buildUser
+import com.diadsimulation.auth.core.common.Messages.PASSWORD_ENCODING_FAILED
+import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
+import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
@@ -35,8 +38,6 @@ class RegisterUserUseCaseImplTest {
     fun setUp() {
         user = buildUser(passwordHash = "Diad@123456")
     }
-
-
 
     @Test
     fun `should register user successfully`() {
@@ -86,7 +87,7 @@ class RegisterUserUseCaseImplTest {
         } returns true
 
         assertUserAlreadyExists(
-            "Já existe um usuário cadastrado com o e-mail: ${user.email}"
+            "${USER_ALREADY_EXISTS}E-mail: ${user.email}"
         )
     }
 
@@ -101,7 +102,7 @@ class RegisterUserUseCaseImplTest {
         } returns true
 
         assertUserAlreadyExists(
-            "Já existe um usuário cadastrado com o CPF: ${user.cpf}"
+            "${USER_ALREADY_EXISTS}CPF: ${user.cpf}"
         )
     }
 
@@ -120,7 +121,7 @@ class RegisterUserUseCaseImplTest {
         } returns true
 
         assertUserAlreadyExists(
-            "Já existe um usuário cadastrado com o RG: ${user.rg}"
+            "${USER_ALREADY_EXISTS}RG: ${user.rg}"
         )
     }
 
@@ -130,13 +131,13 @@ class RegisterUserUseCaseImplTest {
 
         every {
             passwordEncoderPort.encode(user.passwordHash)
-        } throws IllegalStateException("Password encoding failed")
+        } throws IllegalStateException(PASSWORD_ENCODING_FAILED)
 
         val exception = assertThrows(IllegalStateException::class.java) {
             useCase.execute(user)
         }
 
-        assertEquals("Password encoding failed", exception.message)
+        assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
 
         verify(exactly = 0) {
             userRepositoryPort.save(any())
@@ -153,13 +154,13 @@ class RegisterUserUseCaseImplTest {
 
         every {
             userRepositoryPort.save(user)
-        } throws IllegalStateException("Persistence failed")
+        } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception = assertThrows(IllegalStateException::class.java) {
             useCase.execute(user)
         }
 
-        assertEquals("Persistence failed", exception.message)
+        assertEquals(PERSISTENCE_FAILED, exception.message)
 
         verify(exactly = 1) {
             userRepositoryPort.save(user)

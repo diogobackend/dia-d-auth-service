@@ -5,7 +5,7 @@ import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.mappers.RegisterUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,7 +25,7 @@ class UserController(
         val registeredUser = registerUserUseCase.execute(user)
 
         return ResponseEntity
-            .status(HttpStatus.CREATED)
+            .status(CREATED)
             .body(RegisterUserMapper.toResponse(registeredUser))
     }
 }
