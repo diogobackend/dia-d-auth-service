@@ -23,8 +23,7 @@
 
 ## Visão geral
 
-### Documentação/repositório principal:
-https://github.com/diogobackend/diad-simulation-platform
+**Documentação/repositório principal** -> https://github.com/diogobackend/diad-simulation-platform
 
 O **DIAD Simulation** é um ecossistema de aplicações voltadas à gestão de usuários e experiências educacionais, como avaliações, simulados, resultados e comunicação. O **Auth Service** atua como autoridade central de identidade, responsável por autenticar usuários e fornecer informações verificáveis de acesso às demais aplicações.
 
