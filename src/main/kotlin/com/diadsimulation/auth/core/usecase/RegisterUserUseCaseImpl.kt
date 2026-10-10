@@ -1,8 +1,6 @@
 package com.diadsimulation.auth.core.usecase
 
-import com.diadsimulation.auth.core.domain.exceptions.CpfAlreadyExistsException
-import com.diadsimulation.auth.core.domain.exceptions.EmailAlreadyExistsException
-import com.diadsimulation.auth.core.domain.exceptions.RgAlreadyExistsException
+import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
 import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
@@ -20,15 +18,21 @@ class RegisterUserUseCaseImpl(
         val email = user.email
 
         if (userRepositoryPort.existsByEmail(email)) {
-            throw EmailAlreadyExistsException(email)
+            throw UserAlreadyExistsException(
+                "Já existe um usuário cadastrado com o e-mail: $email"
+            )
         }
 
         if (cpf != null && userRepositoryPort.existsByCpf(cpf)) {
-            throw CpfAlreadyExistsException(cpf)
+            throw UserAlreadyExistsException(
+                "Já existe um usuário cadastrado com o CPF: $cpf"
+            )
         }
 
         if (rg != null && userRepositoryPort.existsByRg(rg)) {
-            throw RgAlreadyExistsException(rg)
+            throw UserAlreadyExistsException(
+                "Já existe um usuário cadastrado com o RG: $rg"
+            )
         }
 
         user.passwordHash = passwordEncoderPort.encode(user.passwordHash)

@@ -1,9 +1,15 @@
+import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestResult
+import org.gradle.kotlin.dsl.KotlinClosure2
+import java.lang.IO.println
+
 plugins {
     kotlin("jvm") version "2.4.20"
     kotlin("plugin.spring") version "2.4.20"
 	id("org.springframework.boot") version "4.0.8"
 	id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.4.20"
+    jacoco
 }
 
 group = "com.diadsimulation"
@@ -38,6 +44,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("io.mockk:mockk:1.14.9")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -55,4 +62,54 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+
+    afterSuite(
+        KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
+            if (descriptor.parent == null) {
+                println(
+                    "Resultado: ${result.testCount} testes | " +
+                            "${result.successfulTestCount} passaram | " +
+                            "${result.failedTestCount} falharam | " +
+                            "${result.skippedTestCount} ignorados"
+                )
+            }
+        })
+    )
+}
+
+val jacocoExclusions = listOf(
+    "**/DiadAuthServiceApplication*",
+    "**/app/configuration/**",
+    "**/app/adapter/input/web/controllers/**",
+    "**/app/adapter/input/web/dtos/**",
+    "**/app/adapter/input/web/swagger/**",
+    "**/app/adapter/output/persistence/entities/**",
+    "**/core/domain/enums/**"
+)
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map { directory ->
+                fileTree(directory) {
+                    exclude(jacocoExclusions)
+                }
+            }
+        )
+    )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
 }
