@@ -2,6 +2,7 @@ package com.diadsimulation.auth.app.adapter.input.web.exception
 
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
+import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import jakarta.servlet.http.HttpServletRequest
@@ -50,12 +51,20 @@ class GlobalExceptionHandler {
     fun handleMessageNotReadable(
         exception: HttpMessageNotReadableException,
         request: HttpServletRequest,
-    ): ResponseEntity<ApiErrorResponse> =
-        buildResponse(
+    ): ResponseEntity<ApiErrorResponse> {
+        val message =
+            if (exception.mostSpecificCause.message?.contains("name") == true) {
+                NAME_REQUIRED
+            } else {
+                INVALID_REQUEST_DATA
+            }
+
+        return buildResponse(
             status = BAD_REQUEST,
-            message = INVALID_REQUEST_DATA,
+            message = message,
             request = request,
         )
+    }
 
     @ExceptionHandler(Exception::class)
     fun handleUnexpectedException(

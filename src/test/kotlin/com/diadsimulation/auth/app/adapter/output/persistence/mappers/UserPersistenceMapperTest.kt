@@ -12,6 +12,7 @@ class UserPersistenceMapperTest {
         val entity = UserPersistenceMapper.toEntity(user)
 
         assertEquals(user.userId, entity.userId)
+        assertEquals(user.name, entity.name)
         assertEquals(user.email, entity.email)
         assertEquals(user.passwordHash, entity.passwordHash)
         assertEquals(user.role, entity.role)
@@ -31,6 +32,7 @@ class UserPersistenceMapperTest {
         val user = UserPersistenceMapper.toDomain(entity)
 
         assertEquals(entity.userId, user.userId)
+        assertEquals(entity.name, user.name)
         assertEquals(entity.email, user.email)
         assertEquals(entity.passwordHash, user.passwordHash)
         assertEquals(entity.role, user.role)

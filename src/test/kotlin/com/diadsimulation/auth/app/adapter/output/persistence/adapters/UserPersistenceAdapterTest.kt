@@ -48,6 +48,7 @@ class UserPersistenceAdapterTest {
         val result = adapter.save(user)
 
         assertEquals(user.userId, result.userId)
+        assertEquals(user.name, result.name)
         assertEquals(user.email, result.email)
         assertEquals(user.passwordHash, result.passwordHash)
 
@@ -55,6 +56,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.save(
                 match {
                     it.userId == user.userId &&
+                        it.name == user.name &&
                         it.email == user.email &&
                         it.passwordHash == user.passwordHash
                 },

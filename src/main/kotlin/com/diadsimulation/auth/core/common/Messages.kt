@@ -10,6 +10,7 @@ object Messages {
     const val EMAIL_REQUIRED = "E-mail é obrigatório"
     const val EMAIL_INVALID = "E-mail é inválido"
     const val PASSWORD_REQUIRED = "Senha é obrigatório"
+    const val NAME_REQUIRED = "Nome é obrigatório"
 
     // Regras de negócio
     const val USER_ALREADY_EXISTS = "Já existe um usuário cadastrado com o "

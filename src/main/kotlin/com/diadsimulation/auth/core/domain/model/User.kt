@@ -7,6 +7,7 @@ import java.util.UUID
 
 class User(
     val userId: UUID = UUID.randomUUID(),
+    var name: String,
     var email: String,
     var passwordHash: String,
     var role: UserRole,

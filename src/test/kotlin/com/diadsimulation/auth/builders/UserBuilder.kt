@@ -8,6 +8,7 @@ import java.util.UUID
 
 fun buildUser(
     userId: UUID = UUID.randomUUID(),
+    name: String = "Diogo Ferreira",
     email: String = "candidate@diadsimulation.com",
     passwordHash: String = "encoded-password",
     role: UserRole = UserRole.CANDIDATE,
@@ -21,6 +22,7 @@ fun buildUser(
 ): User =
     User(
         userId = userId,
+        name = name,
         email = email,
         passwordHash = passwordHash,
         role = role,

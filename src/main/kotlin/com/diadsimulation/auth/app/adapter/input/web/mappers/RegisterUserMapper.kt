@@ -9,6 +9,7 @@ object RegisterUserMapper {
     fun toDomain(request: RegisterUserRequest): User =
         User(
             email = request.email,
+            name = request.name,
             passwordHash = request.password,
             role = request.role,
             status = ACTIVE,
@@ -21,6 +22,7 @@ object RegisterUserMapper {
     fun toResponse(user: User): RegisterUserResponse =
         RegisterUserResponse(
             userId = user.userId,
+            name = user.name,
             email = user.email,
             role = user.role,
             status = user.status,

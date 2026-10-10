@@ -7,6 +7,7 @@ import java.util.UUID
 
 data class RegisterUserResponse(
     val userId: UUID,
+    val name: String,
     val email: String,
     val role: UserRole,
     val status: UserStatus,

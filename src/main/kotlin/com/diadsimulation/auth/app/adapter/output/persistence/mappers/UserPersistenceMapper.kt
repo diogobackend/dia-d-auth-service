@@ -7,6 +7,7 @@ object UserPersistenceMapper {
     fun toEntity(user: User): UserEntity =
         UserEntity(
             userId = user.userId,
+            name = user.name,
             email = user.email,
             passwordHash = user.passwordHash,
             role = user.role,
@@ -22,6 +23,7 @@ object UserPersistenceMapper {
     fun toDomain(entity: UserEntity): User =
         User(
             userId = entity.userId,
+            name = entity.name,
             email = entity.email,
             passwordHash = entity.passwordHash,
             role = entity.role,

@@ -22,6 +22,7 @@ class RegisterUserMapperTest {
         val result = RegisterUserMapper.toDomain(request)
 
         assertNotNull(result.userId)
+        assertEquals(request.name, result.name)
         assertEquals(request.email, result.email)
         assertEquals(request.password, result.passwordHash)
         assertEquals(CANDIDATE, result.role)
@@ -95,6 +96,7 @@ class RegisterUserMapperTest {
         val response = RegisterUserMapper.toResponse(user)
 
         assertEquals(user.userId, response.userId)
+        assertEquals(user.name, response.name)
         assertEquals(user.email, response.email)
         assertEquals(user.role, response.role)
         assertEquals(user.status, response.status)

@@ -17,6 +17,8 @@ class UserEntity(
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
     val userId: UUID,
+    @Column(name = "name", nullable = false, length = 150)
+    var name: String,
     @Column(nullable = false, unique = true, length = 255)
     var email: String,
     @Column(name = "password_hash", nullable = false, length = 255)

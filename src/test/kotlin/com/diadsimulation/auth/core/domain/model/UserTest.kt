@@ -16,6 +16,7 @@ class UserTest {
     fun `should create user with default values`() {
         val user =
             User(
+                name = "Diogo Ferreira",
                 email = "candidate@diadsimulation.com",
                 passwordHash = "encoded-password",
                 role = CANDIDATE,
@@ -47,6 +48,7 @@ class UserTest {
 
         assertAll(
             { assertEquals(userId, user.userId) },
+            { assertEquals("Diogo Ferreira", user.name) },
             { assertEquals("candidate@diadsimulation.com", user.email) },
             { assertEquals("encoded-password", user.passwordHash) },
             { assertEquals(CANDIDATE, user.role) },
@@ -75,6 +77,7 @@ class UserTest {
         val updatedAt = OffsetDateTime.now().plusMinutes(1)
 
         user.email = "new@diadsimulation.com"
+        user.name = "Novo Nome"
         user.passwordHash = "new-password"
         user.role = SCHOOL_ADMIN
         user.status = ACTIVE
@@ -86,6 +89,7 @@ class UserTest {
 
         assertAll(
             { assertEquals("new@diadsimulation.com", user.email) },
+            { assertEquals("Novo Nome", user.name) },
             { assertEquals("new-password", user.passwordHash) },
             { assertEquals(SCHOOL_ADMIN, user.role) },
             { assertEquals(ACTIVE, user.status) },
