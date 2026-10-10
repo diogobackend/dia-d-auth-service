@@ -17,17 +17,18 @@ fun buildUser(
     rg: String? = "123456789",
     address: String? = "São Luís - MA",
     createdAt: OffsetDateTime = OffsetDateTime.now(),
-    updatedAt: OffsetDateTime = OffsetDateTime.now()
-): User = User(
-    userId = userId,
-    email = email,
-    passwordHash = passwordHash,
-    role = role,
-    status = status,
-    phone = phone,
-    cpf = cpf,
-    rg = rg,
-    address = address,
-    createdAt = createdAt,
-    updatedAt = updatedAt
-)
+    updatedAt: OffsetDateTime = OffsetDateTime.now(),
+): User =
+    User(
+        userId = userId,
+        email = email,
+        passwordHash = passwordHash,
+        role = role,
+        status = status,
+        phone = phone,
+        cpf = cpf,
+        rg = rg,
+        address = address,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+    )

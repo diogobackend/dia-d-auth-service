@@ -14,13 +14,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/users")
 class UserController(
-    private val registerUserUseCase: RegisterUserUseCase
+    private val registerUserUseCase: RegisterUserUseCase,
 ) : UserApi {
-
     @PostMapping
-    override fun register(
-        request: RegisterUserRequest
-    ): ResponseEntity<RegisterUserResponse> {
+    override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
         val user = RegisterUserMapper.toDomain(request)
         val registeredUser = registerUserUseCase.execute(user)
 

@@ -9,14 +9,13 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class UserUseCaseConfiguration {
-
     @Bean
     fun registerUserUseCase(
         userRepositoryPort: UserRepositoryPort,
-        passwordEncoderPort: PasswordEncoderPort
+        passwordEncoderPort: PasswordEncoderPort,
     ): RegisterUserUseCase =
         RegisterUserUseCaseImpl(
             userRepositoryPort = userRepositoryPort,
-            passwordEncoderPort = passwordEncoderPort
+            passwordEncoderPort = passwordEncoderPort,
         )
 }

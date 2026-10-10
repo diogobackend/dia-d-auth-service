@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class UserPersistenceMapperTest {
-
     @Test
     fun `should map domain to entity with all fields`() {
         val user = buildUser()
@@ -46,12 +45,13 @@ class UserPersistenceMapperTest {
 
     @Test
     fun `should preserve null optional fields`() {
-        val user = buildUser(
-            phone = null,
-            cpf = null,
-            rg = null,
-            address = null
-        )
+        val user =
+            buildUser(
+                phone = null,
+                cpf = null,
+                rg = null,
+                address = null,
+            )
 
         val entity = UserPersistenceMapper.toEntity(user)
         val result = UserPersistenceMapper.toDomain(entity)

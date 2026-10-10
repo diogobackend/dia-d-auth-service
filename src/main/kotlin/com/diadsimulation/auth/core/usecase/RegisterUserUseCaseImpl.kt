@@ -9,30 +9,28 @@ import com.diadsimulation.auth.core.port.output.UserRepositoryPort
 
 class RegisterUserUseCaseImpl(
     private val userRepositoryPort: UserRepositoryPort,
-    private val passwordEncoderPort: PasswordEncoderPort
+    private val passwordEncoderPort: PasswordEncoderPort,
 ) : RegisterUserUseCase {
-
     override fun execute(user: User): User {
-
         val cpf = user.cpf
         val rg = user.rg
         val email = user.email
 
         if (userRepositoryPort.existsByEmail(email)) {
             throw UserAlreadyExistsException(
-                "${USER_ALREADY_EXISTS}E-mail: $email"
+                "${USER_ALREADY_EXISTS}E-mail: $email",
             )
         }
 
         if (cpf != null && userRepositoryPort.existsByCpf(cpf)) {
             throw UserAlreadyExistsException(
-                "${USER_ALREADY_EXISTS}CPF: $cpf"
+                "${USER_ALREADY_EXISTS}CPF: $cpf",
             )
         }
 
         if (rg != null && userRepositoryPort.existsByRg(rg)) {
             throw UserAlreadyExistsException(
-                "${USER_ALREADY_EXISTS}RG: $rg"
+                "${USER_ALREADY_EXISTS}RG: $rg",
             )
         }
 

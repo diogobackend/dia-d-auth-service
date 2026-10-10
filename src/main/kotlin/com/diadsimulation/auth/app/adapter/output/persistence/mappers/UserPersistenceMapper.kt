@@ -4,7 +4,6 @@ import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntit
 import com.diadsimulation.auth.core.domain.model.User
 
 object UserPersistenceMapper {
-
     fun toEntity(user: User): UserEntity =
         UserEntity(
             userId = user.userId,
@@ -17,7 +16,7 @@ object UserPersistenceMapper {
             rg = user.rg,
             address = user.address,
             createdAt = user.createdAt,
-            updatedAt = user.updatedAt
+            updatedAt = user.updatedAt,
         )
 
     fun toDomain(entity: UserEntity): User =
@@ -32,6 +31,6 @@ object UserPersistenceMapper {
             rg = entity.rg,
             address = entity.address,
             createdAt = entity.createdAt,
-            updatedAt = entity.updatedAt
+            updatedAt = entity.updatedAt,
         )
 }

@@ -17,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody
 
 @Tag(
     name = "Users",
-    description = "Operações relacionadas ao gerenciamento de usuários"
+    description = "Operações relacionadas ao gerenciamento de usuários",
 )
 interface UserApi {
-
     @Operation(
         summary = "Cadastrar usuário",
-        description = "Cria um novo usuário na plataforma."
+        description = "Cria um novo usuário na plataforma.",
     )
     @ApiResponses(
         value = [
@@ -33,11 +32,12 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(
-                            implementation = RegisterUserResponse::class
-                        )
-                    )
-                ]
+                        schema =
+                            Schema(
+                                implementation = RegisterUserResponse::class,
+                            ),
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -45,11 +45,12 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(
-                            implementation = ApiErrorResponse::class
-                        )
-                    )
-                ]
+                        schema =
+                            Schema(
+                                implementation = ApiErrorResponse::class,
+                            ),
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "409",
@@ -57,11 +58,12 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(
-                            implementation = ApiErrorResponse::class
-                        )
-                    )
-                ]
+                        schema =
+                            Schema(
+                                implementation = ApiErrorResponse::class,
+                            ),
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -69,15 +71,16 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(
-                            implementation = ApiErrorResponse::class
-                        )
-                    )
-                ]
-            )
-        ]
+                        schema =
+                            Schema(
+                                implementation = ApiErrorResponse::class,
+                            ),
+                    ),
+                ],
+            ),
+        ],
     )
     fun register(
-        @Valid @RequestBody request: RegisterUserRequest
+        @Valid @RequestBody request: RegisterUserRequest,
     ): ResponseEntity<RegisterUserResponse>
 }

@@ -9,9 +9,8 @@ import java.util.UUID
 
 @Component
 class UserPersistenceAdapter(
-    private val userJpaRepository: UserJpaRepository
+    private val userJpaRepository: UserJpaRepository,
 ) : UserRepositoryPort {
-
     override fun save(user: User): User {
         val userEntity = UserPersistenceMapper.toEntity(user)
         val savedEntity = userJpaRepository.save(userEntity)
@@ -20,7 +19,8 @@ class UserPersistenceAdapter(
     }
 
     override fun findById(userId: UUID): User? =
-        userJpaRepository.findById(userId)
+        userJpaRepository
+            .findById(userId)
             .map(UserPersistenceMapper::toDomain)
             .orElse(null)
 
@@ -30,12 +30,9 @@ class UserPersistenceAdapter(
         return UserPersistenceMapper.toDomain(userEntity)
     }
 
-    override fun existsByEmail(email: String): Boolean =
-        userJpaRepository.existsByEmail(email)
+    override fun existsByEmail(email: String): Boolean = userJpaRepository.existsByEmail(email)
 
-    override fun existsByCpf(cpf: String): Boolean =
-        userJpaRepository.existsByCpf(cpf)
+    override fun existsByCpf(cpf: String): Boolean = userJpaRepository.existsByCpf(cpf)
 
-    override fun existsByRg(rg: String): Boolean =
-        userJpaRepository.existsByRg(rg)
+    override fun existsByRg(rg: String): Boolean = userJpaRepository.existsByRg(rg)
 }

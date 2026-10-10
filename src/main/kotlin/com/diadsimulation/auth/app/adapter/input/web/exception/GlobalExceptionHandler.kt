@@ -17,68 +17,68 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(UserAlreadyExistsException::class)
     fun handleConflict(
         exception: RuntimeException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = CONFLICT,
             message = exception.message ?: REQUEST_CONFLICT,
-            request = request
+            request = request,
         )
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(
         exception: MethodArgumentNotValidException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
-        val message = exception.bindingResult.fieldErrors
-            .firstOrNull()
-            ?.defaultMessage
-            ?: INVALID_REQUEST_DATA
+        val message =
+            exception.bindingResult.fieldErrors
+                .firstOrNull()
+                ?.defaultMessage
+                ?: INVALID_REQUEST_DATA
 
         return buildResponse(
             status = BAD_REQUEST,
             message = message,
-            request = request
+            request = request,
         )
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleMessageNotReadable(
         exception: HttpMessageNotReadableException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = BAD_REQUEST,
             message = INVALID_REQUEST_DATA,
-            request = request
+            request = request,
         )
 
     @ExceptionHandler(Exception::class)
     fun handleUnexpectedException(
         exception: Exception,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> =
         buildResponse(
             status = INTERNAL_SERVER_ERROR,
             message = INTERNAL_SERVER_ERROR_MESSAGE,
-            request = request
+            request = request,
         )
 
     private fun buildResponse(
         status: HttpStatus,
         message: String,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> =
         ResponseEntity.status(status).body(
             ApiErrorResponse(
                 status = status.value(),
                 error = status.name,
                 message = message,
-                path = request.requestURI
-            )
+                path = request.requestURI,
+            ),
         )
 }

@@ -14,5 +14,5 @@ data class RegisterUserResponse(
     val address: String?,
     val cpf: String?,
     val rg: String?,
-    val createdAt: OffsetDateTime
+    val createdAt: OffsetDateTime,
 )

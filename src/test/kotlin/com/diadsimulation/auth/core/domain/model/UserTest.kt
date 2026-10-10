@@ -12,15 +12,15 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 class UserTest {
-
     @Test
     fun `should create user with default values`() {
-        val user = User(
-            email = "candidate@diadsimulation.com",
-            passwordHash = "encoded-password",
-            role = CANDIDATE,
-            status = ACTIVE
-        )
+        val user =
+            User(
+                email = "candidate@diadsimulation.com",
+                passwordHash = "encoded-password",
+                role = CANDIDATE,
+                status = ACTIVE,
+            )
 
         assertNotNull(user.userId)
         assertNotNull(user.createdAt)
@@ -38,11 +38,12 @@ class UserTest {
         val createdAt = OffsetDateTime.now().minusDays(1)
         val updatedAt = OffsetDateTime.now()
 
-        val user = buildUser(
-            userId = userId,
-            createdAt = createdAt,
-            updatedAt = updatedAt
-        )
+        val user =
+            buildUser(
+                userId = userId,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+            )
 
         assertAll(
             { assertEquals(userId, user.userId) },
@@ -55,20 +56,21 @@ class UserTest {
             { assertEquals("123456789", user.rg) },
             { assertEquals("São Luís - MA", user.address) },
             { assertEquals(createdAt, user.createdAt) },
-            { assertEquals(updatedAt, user.updatedAt) }
+            { assertEquals(updatedAt, user.updatedAt) },
         )
     }
 
     @Test
     fun `should update mutable fields`() {
-        val user = buildUser(
-            email = "old@diadsimulation.com",
-            passwordHash = "old-password",
-            phone = null,
-            cpf = null,
-            rg = null,
-            address = null
-        )
+        val user =
+            buildUser(
+                email = "old@diadsimulation.com",
+                passwordHash = "old-password",
+                phone = null,
+                cpf = null,
+                rg = null,
+                address = null,
+            )
 
         val updatedAt = OffsetDateTime.now().plusMinutes(1)
 
@@ -91,7 +93,7 @@ class UserTest {
             { assertEquals("987.654.321-00", user.cpf) },
             { assertEquals("987654321", user.rg) },
             { assertEquals("São Paulo - SP", user.address) },
-            { assertEquals(updatedAt, user.updatedAt) }
+            { assertEquals(updatedAt, user.updatedAt) },
         )
     }
 }

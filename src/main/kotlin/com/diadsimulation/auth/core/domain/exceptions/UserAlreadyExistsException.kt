@@ -1,5 +1,5 @@
 package com.diadsimulation.auth.core.domain.exceptions
 
 class UserAlreadyExistsException(
-    message: String
+    message: String,
 ) : RuntimeException(message)

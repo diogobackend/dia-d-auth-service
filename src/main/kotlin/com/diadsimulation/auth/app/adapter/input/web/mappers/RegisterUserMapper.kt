@@ -6,7 +6,6 @@ import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 
 object RegisterUserMapper {
-
     fun toDomain(request: RegisterUserRequest): User =
         User(
             email = request.email,
@@ -16,7 +15,7 @@ object RegisterUserMapper {
             phone = normalizeOptional(request.phone),
             address = normalizeOptional(request.address),
             cpf = normalizeOptional(request.cpf),
-            rg = normalizeOptional(request.rg)
+            rg = normalizeOptional(request.rg),
         )
 
     fun toResponse(user: User): RegisterUserResponse =
@@ -29,7 +28,7 @@ object RegisterUserMapper {
             address = user.address,
             cpf = user.cpf,
             rg = user.rg,
-            createdAt = user.createdAt
+            createdAt = user.createdAt,
         )
 
     private fun normalizeOptional(value: String?): String? {

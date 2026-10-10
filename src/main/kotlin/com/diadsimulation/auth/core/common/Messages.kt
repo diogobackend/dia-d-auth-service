@@ -1,7 +1,6 @@
 package com.diadsimulation.auth.core.common
 
 object Messages {
-
     // Requisições e erros HTTP
     const val REQUEST_CONFLICT = "Conflito ao processar a requisição"
     const val INVALID_REQUEST_DATA = "Dados da requisição inválidos"

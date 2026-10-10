@@ -16,5 +16,5 @@ class User(
     var rg: String? = null,
     var address: String? = null,
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
-    var updatedAt: OffsetDateTime = OffsetDateTime.now()
+    var updatedAt: OffsetDateTime = OffsetDateTime.now(),
 )

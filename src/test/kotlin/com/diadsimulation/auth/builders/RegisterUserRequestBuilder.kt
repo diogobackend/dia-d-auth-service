@@ -10,7 +10,7 @@ fun buildRegisterUserRequest(
     phone: String? = null,
     address: String? = null,
     cpf: String? = null,
-    rg: String? = null
+    rg: String? = null,
 ) = RegisterUserRequest(
     email = email,
     password = password,
@@ -18,5 +18,5 @@ fun buildRegisterUserRequest(
     phone = phone,
     address = address,
     cpf = cpf,
-    rg = rg
+    rg = rg,
 )

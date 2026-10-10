@@ -20,7 +20,6 @@ import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class UserPersistenceAdapterTest {
-
     @MockK
     private lateinit var userJpaRepository: UserJpaRepository
 
@@ -37,11 +36,13 @@ class UserPersistenceAdapterTest {
     @Test
     fun `should save user successfully`() {
         every {
-            userJpaRepository.save(match {
-                it.userId == user.userId &&
+            userJpaRepository.save(
+                match {
+                    it.userId == user.userId &&
                         it.email == user.email &&
                         it.passwordHash == user.passwordHash
-            })
+                },
+            )
         } answers { firstArg() }
 
         val result = adapter.save(user)
@@ -51,11 +52,13 @@ class UserPersistenceAdapterTest {
         assertEquals(user.passwordHash, result.passwordHash)
 
         verify(exactly = 1) {
-            userJpaRepository.save(match {
-                it.userId == user.userId &&
+            userJpaRepository.save(
+                match {
+                    it.userId == user.userId &&
                         it.email == user.email &&
                         it.passwordHash == user.passwordHash
-            })
+                },
+            )
         }
     }
 

@@ -3,13 +3,16 @@ package com.diadsimulation.auth.app.adapter.output.security
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_ENCODING_FAILED
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 class BCryptPasswordEncoderAdapterTest {
-
     companion object {
         private const val PASSWORD = "Diad@123456"
     }
@@ -19,7 +22,6 @@ class BCryptPasswordEncoderAdapterTest {
 
     @Test
     fun `should encode password successfully`() {
-
         val hash = adapter.encode(PASSWORD)
 
         assertNotEquals(PASSWORD, hash)
@@ -28,7 +30,6 @@ class BCryptPasswordEncoderAdapterTest {
 
     @Test
     fun `should generate different hashes for same password`() {
-
         val firstHash = adapter.encode(PASSWORD)
         val secondHash = adapter.encode(PASSWORD)
 
@@ -54,9 +55,10 @@ class BCryptPasswordEncoderAdapterTest {
 
         val adapter = BCryptPasswordEncoderAdapter(passwordEncoder)
 
-        val exception = assertThrows(IllegalStateException::class.java) {
-            adapter.encode(PASSWORD)
-        }
+        val exception =
+            assertThrows<IllegalStateException> {
+                adapter.encode(PASSWORD)
+            }
 
         assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
     }

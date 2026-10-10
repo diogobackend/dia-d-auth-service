@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class RegisterUserMapperTest {
-
     @Test
     fun `should map request to domain with all fields`() {
-        val request = buildRegisterUserRequest(
-            phone = "98999999999",
-            address = "São Luís - MA",
-            cpf = "123.456.789-00",
-            rg = "123456789"
-        )
+        val request =
+            buildRegisterUserRequest(
+                phone = "98999999999",
+                address = "São Luís - MA",
+                cpf = "123.456.789-00",
+                rg = "123456789",
+            )
 
         val result = RegisterUserMapper.toDomain(request)
 
@@ -46,12 +46,13 @@ class RegisterUserMapperTest {
 
     @Test
     fun `should normalize empty optional fields to null`() {
-        val request = buildRegisterUserRequest(
-            phone = "",
-            address = "",
-            cpf = "",
-            rg = ""
-        )
+        val request =
+            buildRegisterUserRequest(
+                phone = "",
+                address = "",
+                cpf = "",
+                rg = "",
+            )
 
         val result = RegisterUserMapper.toDomain(request)
 
@@ -63,12 +64,13 @@ class RegisterUserMapperTest {
 
     @Test
     fun `should preserve whitespace values according to current implementation`() {
-        val request = buildRegisterUserRequest(
-            phone = "   ",
-            address = "   ",
-            cpf = "   ",
-            rg = "   "
-        )
+        val request =
+            buildRegisterUserRequest(
+                phone = "   ",
+                address = "   ",
+                cpf = "   ",
+                rg = "   ",
+            )
 
         val result = RegisterUserMapper.toDomain(request)
 
@@ -80,14 +82,15 @@ class RegisterUserMapperTest {
 
     @Test
     fun `should map domain to response`() {
-        val user = RegisterUserMapper.toDomain(
-            buildRegisterUserRequest(
-                phone = "98999999999",
-                address = "São Luís - MA",
-                cpf = "123.456.789-00",
-                rg = "123456789"
+        val user =
+            RegisterUserMapper.toDomain(
+                buildRegisterUserRequest(
+                    phone = "98999999999",
+                    address = "São Luís - MA",
+                    cpf = "123.456.789-00",
+                    rg = "123456789",
+                ),
             )
-        )
 
         val response = RegisterUserMapper.toResponse(user)
 
