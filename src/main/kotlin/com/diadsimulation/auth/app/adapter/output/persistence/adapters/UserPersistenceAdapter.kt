@@ -7,10 +7,13 @@ import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import jakarta.persistence.criteria.Predicate
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 @Component
@@ -54,41 +57,60 @@ class UserPersistenceAdapter(
 
         val specification =
             Specification<UserEntity> { root, _, builder ->
+                val predicates = mutableListOf<Predicate>()
+
                 val filterBy = criteria.filterBy
                 val filterValue = criteria.filterValue
 
-                if (filterBy == null || filterValue == null) {
-                    builder.conjunction()
-                } else {
+                if (filterBy != null && filterValue != null) {
                     val pattern = "%${filterValue.lowercase()}%"
 
                     when (filterBy) {
                         "name", "email", "phone", "cpf", "rg", "address" -> {
-                            builder.like(
-                                builder.lower(root.get<String>(filterBy)),
-                                pattern,
+                            predicates.add(
+                                builder.like(
+                                    builder.lower(root.get<String>(filterBy)),
+                                    pattern,
+                                ),
                             )
                         }
 
                         "role", "status" -> {
-                            builder.equal(
-                                builder.lower(root.get<Any>(filterBy).`as`(String::class.java)),
-                                filterValue.lowercase(),
+                            predicates.add(
+                                builder.equal(
+                                    builder.lower(root.get<Any>(filterBy).`as`(String::class.java)),
+                                    filterValue.lowercase(),
+                                ),
                             )
-                        }
-
-                        "userId", "createdAt", "updatedAt" -> {
-                            builder.like(
-                                builder.lower(root.get<Any>(filterBy).`as`(String::class.java)),
-                                pattern,
-                            )
-                        }
-
-                        else -> {
-                            builder.conjunction()
                         }
                     }
                 }
+
+                val dateField = criteria.dateField
+
+                if (dateField != null) {
+                    val datePath = root.get<OffsetDateTime>(dateField)
+
+                    criteria.dateFrom?.let { dateFrom ->
+                        predicates.add(
+                            builder.greaterThanOrEqualTo(
+                                datePath,
+                                dateFrom.atStartOfDay().atOffset(ZoneOffset.UTC),
+                            ),
+                        )
+                    }
+
+                    criteria.dateTo?.let { dateTo ->
+                        predicates.add(
+                            builder.lessThan(
+                                datePath,
+                                dateTo.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                            ),
+                        )
+                    }
+                }
+
+                builder.and(*predicates.toTypedArray())
             }
 
         val result = userJpaRepository.findAll(specification, pageable)

@@ -49,6 +49,9 @@ class UserController(
                 direction = SortDirection.valueOf(request.direction.name),
                 filterBy = request.filterBy,
                 filterValue = request.filterValue,
+                dateField = request.dateField,
+                dateFrom = request.dateFrom,
+                dateTo = request.dateTo,
             )
 
         val result = listUsersUseCase.execute(criteria)

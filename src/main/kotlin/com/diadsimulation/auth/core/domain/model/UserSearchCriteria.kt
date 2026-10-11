@@ -2,6 +2,7 @@ package com.diadsimulation.auth.core.domain.model
 
 import com.diadsimulation.auth.core.domain.enums.SortDirection
 import com.diadsimulation.auth.core.domain.enums.SortDirection.ASC
+import java.time.LocalDate
 
 data class UserSearchCriteria(
     val page: Int = 0,
@@ -10,4 +11,7 @@ data class UserSearchCriteria(
     val direction: SortDirection = ASC,
     val filterBy: String? = null,
     val filterValue: String? = null,
+    val dateField: String? = null,
+    val dateFrom: LocalDate? = null,
+    val dateTo: LocalDate? = null,
 )

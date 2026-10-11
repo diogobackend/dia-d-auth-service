@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Pattern
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.format.annotation.DateTimeFormat
+import java.time.LocalDate
 
 data class ListUsersRequest(
     @field:Min(value = 0, message = PAGE_CANNOT_BE_NEGATIVE)
@@ -25,9 +27,18 @@ data class ListUsersRequest(
     val sortBy: String = "name",
     val direction: Direction = ASC,
     @field:Pattern(
-        regexp = "userId|name|email|role|status|phone|cpf|rg|address|createdAt|updatedAt",
+        regexp = "name|email|role|status|phone|cpf|rg|address",
         message = INVALID_FILTER_FIELD,
     )
     val filterBy: String? = null,
     val filterValue: String? = null,
+    @field:Pattern(
+        regexp = "createdAt|updatedAt",
+        message = INVALID_FILTER_FIELD,
+    )
+    val dateField: String? = null,
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val dateFrom: LocalDate? = null,
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val dateTo: LocalDate? = null,
 )
