@@ -1,6 +1,8 @@
 package com.diadsimulation.auth.core.port.output
 
+import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import java.util.UUID
 
 interface UserRepositoryPort {
@@ -15,4 +17,6 @@ interface UserRepositoryPort {
     fun existsByRg(rg: String): Boolean
 
     fun findById(userId: UUID): User?
+
+    fun findAll(criteria: UserSearchCriteria): PagedResult<User>
 }

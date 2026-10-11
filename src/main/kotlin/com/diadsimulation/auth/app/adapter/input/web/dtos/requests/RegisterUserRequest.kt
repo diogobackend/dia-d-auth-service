@@ -1,9 +1,10 @@
-package com.diadsimulation.auth.app.adapter.input.web.dtos
+package com.diadsimulation.auth.app.adapter.input.web.dtos.requests
 
 import com.diadsimulation.auth.core.common.Messages.EMAIL_INVALID
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.ROLE_REQUIRED
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
@@ -25,7 +26,7 @@ data class RegisterUserRequest(
         message = "Senha deve possuir entre 8 e 100 caracteres",
     )
     val password: String,
-    @field:NotNull(message = "Perfil é obrigatório")
+    @field:NotNull(message = ROLE_REQUIRED)
     val role: UserRole,
     @field:Size(max = 30, message = "Telefone deve possuir no máximo 30 caracteres")
     val phone: String? = null,

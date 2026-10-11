@@ -1,6 +1,6 @@
 package com.diadsimulation.auth.builders
 
-import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 

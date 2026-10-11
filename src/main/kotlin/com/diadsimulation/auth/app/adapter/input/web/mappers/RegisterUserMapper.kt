@@ -1,7 +1,7 @@
 package com.diadsimulation.auth.app.adapter.input.web.mappers
 
-import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserRequest
-import com.diadsimulation.auth.app.adapter.input.web.dtos.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 

@@ -77,6 +77,17 @@ class GlobalExceptionHandler {
             request = request,
         )
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgument(
+        exception: IllegalArgumentException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> =
+        buildResponse(
+            status = BAD_REQUEST,
+            message = exception.message ?: INVALID_REQUEST_DATA,
+            request = request,
+        )
+
     private fun buildResponse(
         status: HttpStatus,
         message: String,

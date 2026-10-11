@@ -6,11 +6,24 @@ object Messages {
     const val INVALID_REQUEST_DATA = "Dados da requisição inválidos"
     const val INTERNAL_SERVER_ERROR_MESSAGE = "Erro interno do servidor"
 
-    // Validação de campos
-    const val EMAIL_REQUIRED = "E-mail é obrigatório"
-    const val EMAIL_INVALID = "E-mail é inválido"
-    const val PASSWORD_REQUIRED = "Senha é obrigatório"
+    // Validação de campos obrigatórios
     const val NAME_REQUIRED = "Nome é obrigatório"
+    const val EMAIL_REQUIRED = "E-mail é obrigatório"
+    const val PASSWORD_REQUIRED = "Senha é obrigatório"
+    const val ROLE_REQUIRED = "Perfil é obrigatório"
+
+    // Validação de formato
+    const val EMAIL_INVALID = "E-mail é inválido"
+
+    // Validação de paginação
+    const val PAGE_CANNOT_BE_NEGATIVE = "A página não pode ser negativa"
+    const val PAGE_SIZE_MIN_INVALID = "O tamanho mínimo da página é 1"
+    const val PAGE_SIZE_MAX_INVALID = "O tamanho máximo da página é 100"
+
+    // Validação de ordenação e filtros
+    const val INVALID_SORT_FIELD = "Campo de ordenação inválido"
+    const val INVALID_FILTER_FIELD = "Campo de filtro inválido"
+    const val FILTER_PARAMETERS_REQUIRED = "filterBy e filterValue devem ser informados juntos"
 
     // Regras de negócio
     const val USER_ALREADY_EXISTS = "Já existe um usuário cadastrado com o "
