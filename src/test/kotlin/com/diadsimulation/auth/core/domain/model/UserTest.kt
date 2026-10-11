@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -31,6 +32,7 @@ class UserTest {
         assertNull(user.cpf)
         assertNull(user.rg)
         assertNull(user.address)
+        assertNull(user.birthDate)
     }
 
     @Test
@@ -38,12 +40,14 @@ class UserTest {
         val userId = UUID.randomUUID()
         val createdAt = OffsetDateTime.now().minusDays(1)
         val updatedAt = OffsetDateTime.now()
+        val birthDate = LocalDate.of(1997, 1, 11)
 
         val user =
             buildUser(
                 userId = userId,
                 createdAt = createdAt,
                 updatedAt = updatedAt,
+                birthDate = birthDate,
             )
 
         assertAll(
@@ -57,6 +61,7 @@ class UserTest {
             { assertEquals("123.456.789-00", user.cpf) },
             { assertEquals("123456789", user.rg) },
             { assertEquals("São Luís - MA", user.address) },
+            { assertEquals(birthDate, user.birthDate) },
             { assertEquals(createdAt, user.createdAt) },
             { assertEquals(updatedAt, user.updatedAt) },
         )
@@ -85,6 +90,7 @@ class UserTest {
         user.cpf = "987.654.321-00"
         user.rg = "987654321"
         user.address = "São Paulo - SP"
+        user.birthDate = LocalDate.of(1997, 1, 11)
         user.updatedAt = updatedAt
 
         assertAll(

@@ -1,22 +1,44 @@
-import com.diadsimulation.auth.app.adapter.output.persistence.adapters.UserPersistenceAdapter
+package com.diadsimulation.auth.app.adapter.output.persistence.adapters
+
+import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntity
 import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersistenceMapper
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
 import com.diadsimulation.auth.builders.buildUser
+import com.diadsimulation.auth.builders.buildUserSearchCriteria
 import com.diadsimulation.auth.core.domain.model.User
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.verify
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
+import jakarta.persistence.criteria.Path
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Collections.emptyList
 import java.util.Optional
+import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
 class UserPersistenceAdapterTest {
@@ -28,9 +50,18 @@ class UserPersistenceAdapterTest {
 
     private lateinit var user: User
 
+    private lateinit var root: Root<UserEntity>
+    private lateinit var query: CriteriaQuery<*>
+    private lateinit var builder: CriteriaBuilder
+    private lateinit var predicate: Predicate
+
     @BeforeEach
     fun setUp() {
         user = buildUser()
+        root = mockk()
+        query = mockk()
+        builder = mockk()
+        predicate = mockk()
     }
 
     @Test
@@ -66,11 +97,9 @@ class UserPersistenceAdapterTest {
 
     @Test
     fun `should find user by id`() {
-        val entity = UserPersistenceMapper.toEntity(user)
-
         every {
             userJpaRepository.findById(user.userId)
-        } returns Optional.of(entity)
+        } returns Optional.of(UserPersistenceMapper.toEntity(user))
 
         val result = adapter.findById(user.userId)
 
@@ -85,18 +114,14 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findById(user.userId)
         } returns Optional.empty()
 
-        val result = adapter.findById(user.userId)
-
-        assertNull(result)
+        assertNull(adapter.findById(user.userId))
     }
 
     @Test
     fun `should find user by email`() {
-        val entity = UserPersistenceMapper.toEntity(user)
-
         every {
             userJpaRepository.findByEmail(user.email)
-        } returns entity
+        } returns UserPersistenceMapper.toEntity(user)
 
         val result = adapter.findByEmail(user.email)
 
@@ -111,62 +136,317 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findByEmail(user.email)
         } returns null
 
-        val result = adapter.findByEmail(user.email)
-
-        assertNull(result)
+        assertNull(adapter.findByEmail(user.email))
     }
 
-    @Test
-    fun `should return true when email exists`() {
-        every {
+    @ParameterizedTest
+    @MethodSource("booleanProvider")
+    fun `should check if email exists`(exists: Boolean) {
+        every { userJpaRepository.existsByEmail(user.email) } returns exists
+
+        assertEquals(exists, adapter.existsByEmail(user.email))
+
+        verify(exactly = 1) {
             userJpaRepository.existsByEmail(user.email)
-        } returns true
+        }
+    }
 
-        assertTrue(adapter.existsByEmail(user.email))
+    @ParameterizedTest
+    @MethodSource("booleanProvider")
+    fun `should check if cpf exists`(exists: Boolean) {
+        val cpf = requireNotNull(user.cpf)
+
+        every { userJpaRepository.existsByCpf(cpf) } returns exists
+
+        assertEquals(exists, adapter.existsByCpf(cpf))
+
+        verify(exactly = 1) {
+            userJpaRepository.existsByCpf(cpf)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("booleanProvider")
+    fun `should check if rg exists`(exists: Boolean) {
+        val rg = requireNotNull(user.rg)
+
+        every { userJpaRepository.existsByRg(rg) } returns exists
+
+        assertEquals(exists, adapter.existsByRg(rg))
+
+        verify(exactly = 1) {
+            userJpaRepository.existsByRg(rg)
+        }
     }
 
     @Test
-    fun `should return false when email does not exist`() {
-        every {
-            userJpaRepository.existsByEmail(user.email)
-        } returns false
+    fun `should find all users without filters`() {
+        val criteria = buildUserSearchCriteria()
+        val entity = UserPersistenceMapper.toEntity(user)
+        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "name"))
+        val page = PageImpl(listOf(entity), pageable, 1)
 
-        assertFalse(adapter.existsByEmail(user.email))
+        every {
+            userJpaRepository.findAll(
+                any<Specification<UserEntity>>(),
+                any<Pageable>(),
+            )
+        } returns page
+
+        val result = adapter.findAll(criteria)
+
+        assertEquals(1, result.content.size)
+        assertEquals(user.userId, result.content.first().userId)
+        assertEquals(0, result.page)
+        assertEquals(10, result.size)
+        assertEquals(1, result.totalPages)
+        assertEquals(1L, result.totalElements)
+
+        verify(exactly = 1) {
+            userJpaRepository.findAll(
+                any<Specification<UserEntity>>(),
+                eq(pageable),
+            )
+        }
     }
 
-    @Test
-    fun `should return true when cpf exists`() {
-        every {
-            userJpaRepository.existsByCpf(user.cpf!!)
-        } returns true
+    @ParameterizedTest
+    @MethodSource("textFilterProvider")
+    fun `should filter users by text field`(
+        filterBy: String,
+        filterValue: String,
+    ) {
+        val criteria =
+            buildUserSearchCriteria(
+                filterBy = filterBy,
+                filterValue = filterValue,
+            )
 
-        assertTrue(adapter.existsByCpf(user.cpf!!))
+        val path = mockk<Path<String>>()
+        val expression = mockk<Expression<String>>()
+        val expectedPattern = "%${filterValue.lowercase()}%"
+
+        every { root.get<String>(filterBy) } returns path
+        every { builder.lower(path) } returns expression
+        every { builder.like(expression, expectedPattern) } returns predicate
+        every { builder.and(predicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.like(expression, expectedPattern)
+            builder.and(predicate)
+        }
     }
 
-    @Test
-    fun `should return false when cpf does not exist`() {
-        every {
-            userJpaRepository.existsByCpf(user.cpf!!)
-        } returns false
+    @ParameterizedTest
+    @MethodSource("enumFilterProvider")
+    fun `should filter users by enum field`(
+        filterBy: String,
+        filterValue: String,
+    ) {
+        val criteria =
+            buildUserSearchCriteria(
+                filterBy = filterBy,
+                filterValue = filterValue,
+            )
 
-        assertFalse(adapter.existsByCpf(user.cpf!!))
+        val path = mockk<Path<Any>>()
+        val stringPath = mockk<Expression<String>>()
+        val expression = mockk<Expression<String>>()
+        val expectedValue = filterValue.lowercase()
+
+        every { root.get<Any>(filterBy) } returns path
+        every { path.`as`(String::class.java) } returns stringPath
+        every { builder.lower(stringPath) } returns expression
+        every { builder.equal(expression, expectedValue) } returns predicate
+        every { builder.and(predicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.equal(expression, expectedValue)
+            builder.and(predicate)
+        }
     }
 
-    @Test
-    fun `should return true when rg exists`() {
-        every {
-            userJpaRepository.existsByRg(user.rg!!)
-        } returns true
+    @ParameterizedTest
+    @MethodSource("dateFilterProvider")
+    fun `should filter users by date`(
+        dateFrom: LocalDate?,
+        dateTo: LocalDate?,
+    ) {
+        val criteria =
+            buildUserSearchCriteria(
+                dateField = "createdAt",
+                dateFrom = dateFrom,
+                dateTo = dateTo,
+            )
 
-        assertTrue(adapter.existsByRg(user.rg!!))
+        val datePath = mockk<Path<OffsetDateTime>>()
+        val predicates = mutableListOf<Predicate>()
+
+        every { root.get<OffsetDateTime>("createdAt") } returns datePath
+
+        dateFrom?.let {
+            val expectedFrom =
+                it.atStartOfDay().atOffset(ZoneOffset.UTC)
+
+            val fromPredicate = mockk<Predicate>()
+
+            every {
+                builder.greaterThanOrEqualTo(datePath, expectedFrom)
+            } returns fromPredicate
+
+            predicates.add(fromPredicate)
+        }
+
+        dateTo?.let {
+            val expectedTo =
+                it.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+
+            val toPredicate = mockk<Predicate>()
+
+            every {
+                builder.lessThan(datePath, expectedTo)
+            } returns toPredicate
+
+            predicates.add(toPredicate)
+        }
+
+        every {
+            builder.and(*predicates.toTypedArray())
+        } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        dateFrom?.let {
+            verify(exactly = 1) {
+                builder.greaterThanOrEqualTo(
+                    datePath,
+                    it.atStartOfDay().atOffset(ZoneOffset.UTC),
+                )
+            }
+        }
+
+        dateTo?.let {
+            verify(exactly = 1) {
+                builder.lessThan(
+                    datePath,
+                    it.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                )
+            }
+        }
+
+        verify(exactly = 1) {
+            builder.and(*predicates.toTypedArray())
+        }
     }
 
-    @Test
-    fun `should return false when rg does not exist`() {
-        every {
-            userJpaRepository.existsByRg(user.rg!!)
-        } returns false
+    @ParameterizedTest
+    @MethodSource("ignoredFilterProvider")
+    fun `should ignore incomplete or unsupported filters`(
+        filterBy: String?,
+        filterValue: String?,
+    ) {
+        val criteria =
+            buildUserSearchCriteria(
+                filterBy = filterBy,
+                filterValue = filterValue,
+            )
 
-        assertFalse(adapter.existsByRg(user.rg!!))
+        every { builder.and(*anyVararg()) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.and(*anyVararg())
+        }
+
+        verify(exactly = 0) {
+            builder.like(any<Expression<String>>(), any<String>())
+        }
+    }
+
+    private fun mockFindAll() {
+        every {
+            userJpaRepository.findAll(
+                any<Specification<UserEntity>>(),
+                any<Pageable>(),
+            )
+        } answers {
+            firstArg<Specification<UserEntity>>()
+                .toPredicate(root, query, builder)
+
+            PageImpl(emptyList<UserEntity>())
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun booleanProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(true),
+                Arguments.of(false),
+            )
+
+        @JvmStatic
+        fun textFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("name", "Diogo"),
+                Arguments.of("email", "DIOGO@EMAIL.COM"),
+                Arguments.of("phone", "11999999999"),
+                Arguments.of("cpf", "12345678900"),
+                Arguments.of("rg", "123456789"),
+                Arguments.of("address", "São Paulo"),
+            )
+
+        @JvmStatic
+        fun enumFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("role", "CANDIDATE"),
+                Arguments.of("status", "ACTIVE"),
+            )
+
+        @JvmStatic
+        fun dateFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(
+                    LocalDate.of(2026, 1, 1),
+                    LocalDate.of(2026, 12, 31),
+                ),
+                Arguments.of(
+                    null,
+                    LocalDate.of(2026, 12, 31),
+                ),
+                Arguments.of(
+                    LocalDate.of(2026, 1, 1),
+                    null,
+                ),
+            )
+
+        @JvmStatic
+        fun ignoredFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("name", null),
+                Arguments.of(null, "Diogo"),
+                Arguments.of("invalidField", "test"),
+            )
     }
 }

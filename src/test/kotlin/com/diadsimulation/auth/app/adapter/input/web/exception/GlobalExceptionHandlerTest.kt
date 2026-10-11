@@ -1,8 +1,12 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
+import com.diadsimulation.auth.builders.buildFieldError
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_INVALID_FORMAT
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.FILTER_PARAMETERS_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
+import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.REGISTER_USER_REQUEST
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
 import com.diadsimulation.auth.core.common.Messages.SENSITIVE_DATABASE_INFORMATION
@@ -11,9 +15,13 @@ import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
+import org.hibernate.internal.util.collections.CollectionHelper.listOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -25,6 +33,8 @@ import org.springframework.mock.http.MockHttpInputMessage
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
+import tools.jackson.databind.exc.InvalidFormatException
+import java.util.stream.Stream
 
 class GlobalExceptionHandlerTest {
     private val handler = GlobalExceptionHandler()
@@ -34,36 +44,9 @@ class GlobalExceptionHandlerTest {
             every { requestURI } returns "/users"
         }
 
-    @Test
-    fun `should return conflict when email already exists`() {
-        val message = "${USER_ALREADY_EXISTS}e-mail: candidate@diadsimulation.com"
-
-        val response =
-            handler.handleConflict(
-                UserAlreadyExistsException(message),
-                request,
-            )
-
-        assertError(response, CONFLICT, message)
-    }
-
-    @Test
-    fun `should return conflict when cpf already exists`() {
-        val message = "${USER_ALREADY_EXISTS}CPF: 123.456.789-00"
-
-        val response =
-            handler.handleConflict(
-                UserAlreadyExistsException(message),
-                request,
-            )
-
-        assertError(response, CONFLICT, message)
-    }
-
-    @Test
-    fun `should return conflict when rg already exists`() {
-        val message = "${USER_ALREADY_EXISTS}RG: 123456789"
-
+    @ParameterizedTest
+    @MethodSource("conflictProvider")
+    fun `should return conflict for existing user data`(message: String) {
         val response =
             handler.handleConflict(
                 UserAlreadyExistsException(message),
@@ -81,80 +64,135 @@ class GlobalExceptionHandlerTest {
                 request,
             )
 
-        assertError(
-            response,
-            CONFLICT,
-            REQUEST_CONFLICT,
-        )
+        assertError(response, CONFLICT, REQUEST_CONFLICT)
     }
 
-    @Test
-    fun `should return bad request with field validation message`() {
+    @ParameterizedTest
+    @MethodSource("validationProvider")
+    fun `should handle field validation errors`(
+        field: String,
+        validationMessage: String?,
+        expectedMessage: String,
+    ) {
         val exception =
             validationException(
-                FieldError(
-                    REGISTER_USER_REQUEST,
-                    "email",
-                    "",
-                    false,
-                    null,
-                    null,
-                    EMAIL_REQUIRED,
+                buildFieldError(
+                    field = field,
+                    message = validationMessage,
                 ),
             )
 
         val response = handler.handleValidation(exception, request)
 
-        assertError(
-            response,
-            BAD_REQUEST,
-            EMAIL_REQUIRED,
-        )
-    }
-
-    @Test
-    fun `should return default message when field validation message is null`() {
-        val exception =
-            validationException(
-                FieldError(
-                    REGISTER_USER_REQUEST,
-                    "email",
-                    null,
-                    false,
-                    null,
-                    null,
-                    null,
-                ),
-            )
-
-        val response = handler.handleValidation(exception, request)
-
-        assertError(
-            response,
-            BAD_REQUEST,
-            INVALID_REQUEST_DATA,
-        )
+        assertError(response, BAD_REQUEST, expectedMessage)
     }
 
     @Test
     fun `should return default message when no field errors exist`() {
-        val exception = validationException()
+        val response =
+            handler.handleValidation(
+                validationException(),
+                request,
+            )
 
-        val response = handler.handleValidation(exception, request)
+        assertError(response, BAD_REQUEST, INVALID_REQUEST_DATA)
+    }
 
-        assertError(
-            response,
-            BAD_REQUEST,
-            INVALID_REQUEST_DATA,
-        )
+    @ParameterizedTest
+    @MethodSource("illegalArgumentProvider")
+    fun `should handle illegal argument exceptions`(
+        message: String?,
+        expectedMessage: String,
+    ) {
+        val response =
+            handler.handleIllegalArgument(
+                IllegalArgumentException(message),
+                request,
+            )
+
+        assertError(response, BAD_REQUEST, expectedMessage)
     }
 
     @Test
     fun `should return bad request when request body is invalid`() {
+        val response =
+            handler.handleMessageNotReadable(
+                unreadableException(INVALID_REQUEST_DATA),
+                request,
+            )
+
+        assertError(response, BAD_REQUEST, INVALID_REQUEST_DATA)
+    }
+
+    @Test
+    fun `should return name required when unreadable exception references name`() {
         val exception =
-            HttpMessageNotReadableException(
-                INVALID_REQUEST_DATA,
-                MockHttpInputMessage(ByteArray(0)),
+            unreadableException(
+                message = INVALID_REQUEST_DATA,
+                cause = IllegalArgumentException("Invalid property: name"),
+            )
+
+        val response = handler.handleMessageNotReadable(exception, request)
+
+        assertError(response, BAD_REQUEST, NAME_REQUIRED)
+    }
+
+    @Test
+    fun `should return default message when unreadable exception has unrelated cause`() {
+        val exception =
+            unreadableException(
+                message = INVALID_REQUEST_DATA,
+                cause = IllegalArgumentException("Invalid property: email"),
+            )
+
+        val response = handler.handleMessageNotReadable(exception, request)
+
+        assertError(response, BAD_REQUEST, INVALID_REQUEST_DATA)
+    }
+
+    @Test
+    fun `should return invalid birth date format when jackson error references birthDate`() {
+        val jacksonException = mockk<InvalidFormatException>()
+
+        every { jacksonException.path } returns
+            listOf(
+                mockk {
+                    every { propertyName } returns "birthDate"
+                },
+            )
+
+        val exception =
+            unreadableException(
+                message = INVALID_REQUEST_DATA,
+                cause = jacksonException,
+            )
+
+        val response = handler.handleMessageNotReadable(exception, request)
+
+        assertError(
+            response,
+            BAD_REQUEST,
+            BIRTH_DATE_INVALID_FORMAT,
+        )
+    }
+
+    @Test
+    fun `should return default message when jackson error references another field`() {
+        val jacksonException = mockk<InvalidFormatException>()
+
+        every { jacksonException.cause } returns null
+        every { jacksonException.path } returns
+            listOf(
+                mockk {
+                    every { propertyName } returns "email"
+                },
+            )
+        every { jacksonException.message } returns INVALID_REQUEST_DATA
+
+        val exception =
+            unreadableException(
+                message = INVALID_REQUEST_DATA,
+                cause = jacksonException,
             )
 
         val response = handler.handleMessageNotReadable(exception, request)
@@ -168,18 +206,47 @@ class GlobalExceptionHandlerTest {
 
     @Test
     fun `should return internal server error without exposing exception details`() {
-        val exception =
-            IllegalStateException(
-                SENSITIVE_DATABASE_INFORMATION,
+        val response =
+            handler.handleUnexpectedException(
+                IllegalStateException(SENSITIVE_DATABASE_INFORMATION),
+                request,
             )
-
-        val response = handler.handleUnexpectedException(exception, request)
 
         assertError(
             response,
             INTERNAL_SERVER_ERROR,
             INTERNAL_SERVER_ERROR_MESSAGE,
         )
+    }
+
+    @Test
+    fun `should return default message when exception cause message is null`() {
+        val exception =
+            unreadableException(
+                message = INVALID_REQUEST_DATA,
+                cause = IllegalArgumentException(),
+            )
+
+        val response = handler.handleMessageNotReadable(exception, request)
+
+        assertError(
+            response,
+            BAD_REQUEST,
+            INVALID_REQUEST_DATA,
+        )
+    }
+
+    private fun unreadableException(
+        message: String,
+        cause: Throwable? = null,
+    ): HttpMessageNotReadableException {
+        val input = MockHttpInputMessage(ByteArray(0))
+
+        return if (cause == null) {
+            HttpMessageNotReadableException(message, input)
+        } else {
+            HttpMessageNotReadableException(message, cause, input)
+        }
     }
 
     private fun validationException(vararg errors: FieldError): MethodArgumentNotValidException {
@@ -221,5 +288,29 @@ class GlobalExceptionHandlerTest {
 
     private class TestController {
         fun register(body: String) = body
+    }
+
+    companion object {
+        @JvmStatic
+        fun conflictProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("${USER_ALREADY_EXISTS}e-mail: candidate@diadsimulation.com"),
+                Arguments.of("${USER_ALREADY_EXISTS}CPF: 123.456.789-00"),
+                Arguments.of("${USER_ALREADY_EXISTS}RG: 123456789"),
+            )
+
+        @JvmStatic
+        fun validationProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("email", EMAIL_REQUIRED, EMAIL_REQUIRED),
+                Arguments.of("email", null, INVALID_REQUEST_DATA),
+            )
+
+        @JvmStatic
+        fun illegalArgumentProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(FILTER_PARAMETERS_REQUIRED, FILTER_PARAMETERS_REQUIRED),
+                Arguments.of(null, INVALID_REQUEST_DATA),
+            )
     }
 }
