@@ -3,6 +3,7 @@ package com.diadsimulation.auth.builders
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.model.User
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -17,6 +18,7 @@ fun buildUser(
     cpf: String? = "123.456.789-00",
     rg: String? = "123456789",
     address: String? = "São Luís - MA",
+    birthDate: LocalDate? = null,
     createdAt: OffsetDateTime = OffsetDateTime.now(),
     updatedAt: OffsetDateTime = OffsetDateTime.now(),
 ): User =
@@ -31,6 +33,7 @@ fun buildUser(
         cpf = cpf,
         rg = rg,
         address = address,
+        birthDate = birthDate,
         createdAt = createdAt,
         updatedAt = updatedAt,
     )

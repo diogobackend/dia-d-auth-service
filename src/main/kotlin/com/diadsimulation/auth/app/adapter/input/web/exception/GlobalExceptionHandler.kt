@@ -1,5 +1,6 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_INVALID_FORMAT
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
@@ -52,11 +53,13 @@ class GlobalExceptionHandler {
         exception: HttpMessageNotReadableException,
         request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
+        val cause = exception.mostSpecificCause.message.orEmpty()
+
         val message =
-            if (exception.mostSpecificCause.message?.contains("name") == true) {
-                NAME_REQUIRED
-            } else {
-                INVALID_REQUEST_DATA
+            when {
+                cause.contains("birthDate", ignoreCase = true) -> BIRTH_DATE_INVALID_FORMAT
+                cause.contains("name") -> NAME_REQUIRED
+                else -> INVALID_REQUEST_DATA
             }
 
         return buildResponse(

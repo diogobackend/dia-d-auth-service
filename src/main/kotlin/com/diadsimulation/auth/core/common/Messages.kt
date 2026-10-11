@@ -14,6 +14,8 @@ object Messages {
 
     // Validação de formato
     const val EMAIL_INVALID = "E-mail é inválido"
+    const val BIRTH_DATE_FUTURE = "Data de nascimento não pode ser futura"
+    const val BIRTH_DATE_INVALID_FORMAT = "Data de nascimento inválida. Utilize o formato yyyy-MM-dd"
 
     // Validação de paginação
     const val PAGE_CANNOT_BE_NEGATIVE = "A página não pode ser negativa"

@@ -17,6 +17,7 @@ object RegisterUserMapper {
             address = normalizeOptional(request.address),
             cpf = normalizeOptional(request.cpf),
             rg = normalizeOptional(request.rg),
+            birthDate = request.birthDate,
         )
 
     fun toResponse(user: User): RegisterUserResponse =
@@ -30,6 +31,7 @@ object RegisterUserMapper {
             address = user.address,
             cpf = user.cpf,
             rg = user.rg,
+            birthDate = user.birthDate,
             createdAt = user.createdAt,
         )
 

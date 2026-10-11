@@ -15,6 +15,7 @@ object ListUsersMapper {
             cpf = user.cpf,
             rg = user.rg,
             address = user.address,
+            birthDate = user.birthDate,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt,
         )

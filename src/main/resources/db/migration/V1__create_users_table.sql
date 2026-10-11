@@ -10,6 +10,7 @@ CREATE TABLE users (
     address VARCHAR(500),
     cpf VARCHAR(14),
     rg VARCHAR(20),
+    birth_date DATE,
 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,

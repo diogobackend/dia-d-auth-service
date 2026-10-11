@@ -2,6 +2,7 @@ package com.diadsimulation.auth.app.adapter.input.web.dtos.responses
 
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -15,6 +16,7 @@ data class ListUsersResponse(
     val cpf: String?,
     val rg: String?,
     val address: String?,
+    val birthDate: LocalDate?,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 )

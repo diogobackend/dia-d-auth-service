@@ -2,6 +2,7 @@ package com.diadsimulation.auth.core.domain.model
 
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -16,6 +17,7 @@ class User(
     var cpf: String? = null,
     var rg: String? = null,
     var address: String? = null,
+    var birthDate: LocalDate? = null,
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
     var updatedAt: OffsetDateTime = OffsetDateTime.now(),
 )

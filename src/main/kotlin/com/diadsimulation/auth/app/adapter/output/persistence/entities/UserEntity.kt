@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -37,6 +38,8 @@ class UserEntity(
     var rg: String?,
     @Column(length = 500)
     var address: String?,
+    @Column(name = "birth_date")
+    var birthDate: LocalDate?,
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: OffsetDateTime,
     @Column(name = "updated_at", nullable = false)

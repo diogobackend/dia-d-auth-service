@@ -1,5 +1,6 @@
 package com.diadsimulation.auth.app.adapter.input.web.dtos.requests
 
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_FUTURE
 import com.diadsimulation.auth.core.common.Messages.EMAIL_INVALID
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
@@ -9,7 +10,9 @@ import com.diadsimulation.auth.core.domain.enums.UserRole
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.PastOrPresent
 import jakarta.validation.constraints.Size
+import java.time.LocalDate
 
 data class RegisterUserRequest(
     @field:NotBlank(message = NAME_REQUIRED)
@@ -36,4 +39,6 @@ data class RegisterUserRequest(
     val cpf: String? = null,
     @field:Size(max = 20, message = "RG deve possuir no máximo 20 caracteres")
     val rg: String? = null,
+    @field:PastOrPresent(message = BIRTH_DATE_FUTURE)
+    val birthDate: LocalDate? = null,
 )

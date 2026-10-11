@@ -16,6 +16,7 @@ object UserPersistenceMapper {
             cpf = user.cpf,
             rg = user.rg,
             address = user.address,
+            birthDate = user.birthDate,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt,
         )
@@ -32,6 +33,7 @@ object UserPersistenceMapper {
             cpf = entity.cpf,
             rg = entity.rg,
             address = entity.address,
+            birthDate = entity.birthDate,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
         )

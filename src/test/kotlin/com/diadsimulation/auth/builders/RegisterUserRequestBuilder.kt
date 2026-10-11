@@ -3,6 +3,7 @@ package com.diadsimulation.auth.builders
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
+import java.time.LocalDate
 
 fun buildRegisterUserRequest(
     email: String = "candidate@diadsimulation.com",
@@ -13,6 +14,7 @@ fun buildRegisterUserRequest(
     address: String? = null,
     cpf: String? = null,
     rg: String? = null,
+    birthDate: LocalDate? = null,
 ) = RegisterUserRequest(
     email = email,
     name = name,
@@ -22,4 +24,5 @@ fun buildRegisterUserRequest(
     address = address,
     cpf = cpf,
     rg = rg,
+    birthDate = birthDate,
 )
