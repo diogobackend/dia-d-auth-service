@@ -71,9 +71,9 @@ class UserPersistenceAdapter(
                         }
 
                         "role", "status" -> {
-                            builder.like(
+                            builder.equal(
                                 builder.lower(root.get<Any>(filterBy).`as`(String::class.java)),
-                                pattern,
+                                filterValue.lowercase(),
                             )
                         }
 
@@ -98,6 +98,7 @@ class UserPersistenceAdapter(
             page = result.number,
             size = result.size,
             totalPages = result.totalPages,
+            totalElements = result.totalElements,
         )
     }
 }

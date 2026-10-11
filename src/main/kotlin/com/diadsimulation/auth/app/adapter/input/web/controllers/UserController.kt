@@ -58,7 +58,8 @@ class UserController(
                 content = result.content.map(ListUsersMapper::toResponse),
                 page = result.page,
                 size = result.size,
-                totalElements = result.content.size,
+                totalElementsThisPage = result.content.size,
+                totalElements = result.totalElements,
                 totalPages = result.totalPages,
             ),
         )
