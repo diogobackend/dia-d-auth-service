@@ -16,6 +16,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import tools.jackson.databind.exc.InvalidFormatException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -53,12 +54,17 @@ class GlobalExceptionHandler {
         exception: HttpMessageNotReadableException,
         request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
-        val cause = exception.mostSpecificCause.message.orEmpty()
+        val isBirthDateError =
+            generateSequence(exception as Throwable?) { it.cause }
+                .filterIsInstance<InvalidFormatException>()
+                .any { mappingException ->
+                    mappingException.path.any { it.propertyName == "birthDate" }
+                }
 
         val message =
             when {
-                cause.contains("birthDate", ignoreCase = true) -> BIRTH_DATE_INVALID_FORMAT
-                cause.contains("name") -> NAME_REQUIRED
+                isBirthDateError -> BIRTH_DATE_INVALID_FORMAT
+                exception.mostSpecificCause.message?.contains("name") == true -> NAME_REQUIRED
                 else -> INVALID_REQUEST_DATA
             }
 
