@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -86,43 +87,83 @@ class UserPersistenceAdapter(
                     }
                 }
 
+                criteria.role?.let { role ->
+                    predicates.add(
+                        builder.equal(
+                            builder.lower(root.get<Any>("role").`as`(String::class.java)),
+                            role.lowercase(),
+                        ),
+                    )
+                }
+
+                criteria.status?.let { status ->
+                    predicates.add(
+                        builder.equal(
+                            builder.lower(root.get<Any>("status").`as`(String::class.java)),
+                            status.lowercase(),
+                        ),
+                    )
+                }
+
                 val dateField = criteria.dateField
 
                 if (dateField != null) {
-                    val datePath = root.get<OffsetDateTime>(dateField)
+                    if (dateField == "birthDate") {
+                        val datePath = root.get<LocalDate>(dateField)
 
-                    criteria.dateFrom?.let { dateFrom ->
-                        predicates.add(
-                            builder.greaterThanOrEqualTo(
-                                datePath,
-                                dateFrom.atStartOfDay().atOffset(ZoneOffset.UTC),
-                            ),
-                        )
-                    }
+                        criteria.dateFrom?.let { dateFrom ->
+                            predicates.add(
+                                builder.greaterThanOrEqualTo(datePath, dateFrom),
+                            )
+                        }
 
-                    criteria.dateTo?.let { dateTo ->
-                        predicates.add(
-                            builder.lessThan(
-                                datePath,
-                                dateTo.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
-                            ),
-                        )
-                    }
+                        criteria.dateTo?.let { dateTo ->
+                            predicates.add(
+                                builder.lessThanOrEqualTo(datePath, dateTo),
+                            )
+                        }
 
-                    criteria.dateExact?.let { dateExact ->
-                        predicates.add(
-                            builder.greaterThanOrEqualTo(
-                                datePath,
-                                dateExact.atStartOfDay().atOffset(ZoneOffset.UTC),
-                            ),
-                        )
+                        criteria.dateExact?.let { dateExact ->
+                            predicates.add(
+                                builder.equal(datePath, dateExact),
+                            )
+                        }
+                    } else {
+                        val datePath = root.get<OffsetDateTime>(dateField)
 
-                        predicates.add(
-                            builder.lessThan(
-                                datePath,
-                                dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
-                            ),
-                        )
+                        criteria.dateFrom?.let { dateFrom ->
+                            predicates.add(
+                                builder.greaterThanOrEqualTo(
+                                    datePath,
+                                    dateFrom.atStartOfDay().atOffset(ZoneOffset.UTC),
+                                ),
+                            )
+                        }
+
+                        criteria.dateTo?.let { dateTo ->
+                            predicates.add(
+                                builder.lessThan(
+                                    datePath,
+                                    dateTo.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                                ),
+                            )
+                        }
+
+                        criteria.dateExact?.let { dateExact ->
+                            predicates.add(
+                                builder.greaterThanOrEqualTo(
+                                    datePath,
+                                    dateExact.atStartOfDay().atOffset(ZoneOffset.UTC),
+                                ),
+                            )
+
+                            predicates.add(
+                                builder.lessThan(
+                                    datePath,
+                                    dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                                ),
+                            )
+                        }
                     }
                 }
 

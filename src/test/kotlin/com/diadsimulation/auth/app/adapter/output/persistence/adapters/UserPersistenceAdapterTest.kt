@@ -5,6 +5,8 @@ import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersis
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
 import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
+import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
+import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
 import com.diadsimulation.auth.core.domain.model.User
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -420,6 +422,182 @@ class UserPersistenceAdapterTest {
         }
     }
 
+    @Test
+    fun `should filter users by role and status`() {
+        val criteria =
+            buildUserSearchCriteria(
+                role = SCHOOL_ADMIN.toString(),
+                status = BLOCKED.toString(),
+            )
+
+        val rolePath = mockk<Path<Any>>()
+        val statusPath = mockk<Path<Any>>()
+        val roleString = mockk<Expression<String>>()
+        val statusString = mockk<Expression<String>>()
+        val roleLower = mockk<Expression<String>>()
+        val statusLower = mockk<Expression<String>>()
+        val rolePredicate = mockk<Predicate>()
+        val statusPredicate = mockk<Predicate>()
+
+        every { root.get<Any>("role") } returns rolePath
+        every { root.get<Any>("status") } returns statusPath
+        every { rolePath.`as`(String::class.java) } returns roleString
+        every { statusPath.`as`(String::class.java) } returns statusString
+        every { builder.lower(roleString) } returns roleLower
+        every { builder.lower(statusString) } returns statusLower
+        every { builder.equal(roleLower, "school_admin") } returns rolePredicate
+        every { builder.equal(statusLower, "blocked") } returns statusPredicate
+        every { builder.and(rolePredicate, statusPredicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.equal(roleLower, "school_admin")
+            builder.equal(statusLower, "blocked")
+            builder.and(rolePredicate, statusPredicate)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("independentEnumFilterProvider")
+    fun `should filter users by independent enum field`(
+        field: String,
+        value: String,
+    ) {
+        val criteria =
+            when (field) {
+                "role" -> buildUserSearchCriteria(role = value)
+                else -> buildUserSearchCriteria(status = value)
+            }
+
+        val path = mockk<Path<Any>>()
+        val stringPath = mockk<Expression<String>>()
+        val expression = mockk<Expression<String>>()
+
+        every { root.get<Any>(field) } returns path
+        every { path.`as`(String::class.java) } returns stringPath
+        every { builder.lower(stringPath) } returns expression
+        every { builder.equal(expression, value.lowercase()) } returns predicate
+        every { builder.and(predicate) } returns predicate
+
+        mockFindAll()
+
+        adapter.findAll(criteria)
+
+        verify(exactly = 1) {
+            builder.equal(expression, value.lowercase())
+            builder.and(predicate)
+        }
+    }
+
+    @Test
+    fun `should filter users by birth date range and exact date`() {
+        val dateFrom = LocalDate.of(1990, 1, 1)
+        val dateTo = LocalDate.of(2000, 12, 31)
+        val dateExact = LocalDate.of(1995, 5, 5)
+
+        val criteria =
+            buildUserSearchCriteria(
+                dateField = "birthDate",
+                dateFrom = dateFrom,
+                dateTo = dateTo,
+                dateExact = dateExact,
+            )
+
+        val datePath = mockk<Path<LocalDate>>()
+        val fromPredicate = mockk<Predicate>()
+        val toPredicate = mockk<Predicate>()
+        val exactPredicate = mockk<Predicate>()
+
+        every { root.get<LocalDate>("birthDate") } returns datePath
+        every {
+            builder.greaterThanOrEqualTo(datePath, dateFrom)
+        } returns fromPredicate
+        every {
+            builder.lessThanOrEqualTo(datePath, dateTo)
+        } returns toPredicate
+        every {
+            builder.equal(datePath, dateExact)
+        } returns exactPredicate
+        every {
+            builder.and(fromPredicate, toPredicate, exactPredicate)
+        } returns predicate
+
+        mockFindAll()
+
+        adapter.findAll(criteria)
+
+        verify(exactly = 1) {
+            builder.greaterThanOrEqualTo(datePath, dateFrom)
+            builder.lessThanOrEqualTo(datePath, dateTo)
+            builder.equal(datePath, dateExact)
+            builder.and(fromPredicate, toPredicate, exactPredicate)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("birthDateNullFilterProvider")
+    fun `should filter birth date with optional parameters`(
+        dateFrom: LocalDate?,
+        dateTo: LocalDate?,
+        dateExact: LocalDate?,
+    ) {
+        val criteria =
+            buildUserSearchCriteria(
+                dateField = "birthDate",
+                dateFrom = dateFrom,
+                dateTo = dateTo,
+                dateExact = dateExact,
+            )
+
+        val datePath = mockk<Path<LocalDate>>()
+        val predicates = mutableListOf<Predicate>()
+
+        every { root.get<LocalDate>("birthDate") } returns datePath
+
+        dateFrom?.let {
+            val fromPredicate = mockk<Predicate>()
+            every {
+                builder.greaterThanOrEqualTo(datePath, it)
+            } returns fromPredicate
+            predicates.add(fromPredicate)
+        }
+
+        dateTo?.let {
+            val toPredicate = mockk<Predicate>()
+            every {
+                builder.lessThanOrEqualTo(datePath, it)
+            } returns toPredicate
+            predicates.add(toPredicate)
+        }
+
+        dateExact?.let {
+            val exactPredicate = mockk<Predicate>()
+            every {
+                builder.equal(datePath, it)
+            } returns exactPredicate
+            predicates.add(exactPredicate)
+        }
+
+        every {
+            builder.and(*predicates.toTypedArray())
+        } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.and(*predicates.toTypedArray())
+        }
+    }
+
     private fun mockFindAll() {
         every {
             userJpaRepository.findAll(
@@ -483,6 +661,22 @@ class UserPersistenceAdapterTest {
                 Arguments.of("name", null),
                 Arguments.of(null, "Diogo"),
                 Arguments.of("invalidField", "test"),
+            )
+
+        @JvmStatic
+        fun independentEnumFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("role", "SCHOOL_ADMIN"),
+                Arguments.of("status", "BLOCKED"),
+            )
+
+        @JvmStatic
+        fun birthDateNullFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(null, null, null),
+                Arguments.of(LocalDate.of(1990, 1, 1), null, null),
+                Arguments.of(null, LocalDate.of(2000, 12, 31), null),
+                Arguments.of(null, null, LocalDate.of(1995, 5, 5)),
             )
     }
 }

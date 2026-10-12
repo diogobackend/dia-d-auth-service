@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Pattern
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import java.time.LocalDate
 
 data class ListUsersRequest(
@@ -33,14 +34,24 @@ data class ListUsersRequest(
     val filterBy: String? = null,
     val filterValue: String? = null,
     @field:Pattern(
-        regexp = "createdAt|updatedAt",
+        regexp = "PLATFORM_ADMIN|SCHOOL_ADMIN|CANDIDATE",
+        message = INVALID_FILTER_FIELD,
+    )
+    val role: String? = null,
+    @field:Pattern(
+        regexp = "ACTIVE|INACTIVE|BLOCKED",
+        message = INVALID_FILTER_FIELD,
+    )
+    val status: String? = null,
+    @field:Pattern(
+        regexp = "createdAt|updatedAt|birthDate",
         message = INVALID_FILTER_FIELD,
     )
     val dateField: String? = null,
-    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DATE)
     val dateFrom: LocalDate? = null,
-    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DATE)
     val dateTo: LocalDate? = null,
-    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DATE)
     val dateExact: LocalDate? = null,
 )

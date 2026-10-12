@@ -49,6 +49,8 @@ class UserController(
                 direction = SortDirection.valueOf(request.direction.name),
                 filterBy = request.filterBy,
                 filterValue = request.filterValue,
+                role = request.role,
+                status = request.status,
                 dateField = request.dateField,
                 dateFrom = request.dateFrom,
                 dateTo = request.dateTo,

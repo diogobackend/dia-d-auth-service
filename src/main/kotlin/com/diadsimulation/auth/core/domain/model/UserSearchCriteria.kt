@@ -11,6 +11,8 @@ data class UserSearchCriteria(
     val direction: SortDirection = ASC,
     val filterBy: String? = null,
     val filterValue: String? = null,
+    val role: String? = null,
+    val status: String? = null,
     val dateField: String? = null,
     val dateFrom: LocalDate? = null,
     val dateTo: LocalDate? = null,
