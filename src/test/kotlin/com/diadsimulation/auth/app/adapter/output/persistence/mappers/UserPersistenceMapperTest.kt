@@ -1,5 +1,6 @@
 import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersistenceMapper
 import com.diadsimulation.auth.builders.buildUser
+import com.diadsimulation.auth.core.domain.model.User
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -8,21 +9,13 @@ class UserPersistenceMapperTest {
     @Test
     fun `should map domain to entity with all fields`() {
         val user = buildUser()
-
         val entity = UserPersistenceMapper.toEntity(user)
 
-        assertEquals(user.userId, entity.userId)
-        assertEquals(user.name, entity.name)
-        assertEquals(user.email, entity.email)
-        assertEquals(user.passwordHash, entity.passwordHash)
-        assertEquals(user.role, entity.role)
-        assertEquals(user.status, entity.status)
-        assertEquals(user.phone, entity.phone)
-        assertEquals(user.cpf, entity.cpf)
-        assertEquals(user.rg, entity.rg)
-        assertEquals(user.address, entity.address)
-        assertEquals(user.createdAt, entity.createdAt)
-        assertEquals(user.updatedAt, entity.updatedAt)
+        assertUserFields(
+            expected = user,
+            actual = UserPersistenceMapper.toDomain(entity),
+        )
+        assertEquals(user.birthDate, entity.birthDate)
     }
 
     @Test
@@ -41,6 +34,7 @@ class UserPersistenceMapperTest {
         assertEquals(entity.cpf, user.cpf)
         assertEquals(entity.rg, user.rg)
         assertEquals(entity.address, user.address)
+        assertEquals(entity.birthDate, user.birthDate)
         assertEquals(entity.createdAt, user.createdAt)
         assertEquals(entity.updatedAt, user.updatedAt)
     }
@@ -53,14 +47,31 @@ class UserPersistenceMapperTest {
                 cpf = null,
                 rg = null,
                 address = null,
+                birthDate = null,
             )
 
         val entity = UserPersistenceMapper.toEntity(user)
         val result = UserPersistenceMapper.toDomain(entity)
 
-        assertNull(result.phone)
-        assertNull(result.cpf)
-        assertNull(result.rg)
-        assertNull(result.address)
+        assertUserFields(user, result)
+    }
+
+    private fun assertUserFields(
+        expected: User,
+        actual: User,
+    ) {
+        assertEquals(expected.userId, actual.userId)
+        assertEquals(expected.name, actual.name)
+        assertEquals(expected.email, actual.email)
+        assertEquals(expected.passwordHash, actual.passwordHash)
+        assertEquals(expected.role, actual.role)
+        assertEquals(expected.status, actual.status)
+        assertEquals(expected.phone, actual.phone)
+        assertEquals(expected.cpf, actual.cpf)
+        assertEquals(expected.rg, actual.rg)
+        assertEquals(expected.address, actual.address)
+        assertEquals(expected.birthDate, actual.birthDate)
+        assertEquals(expected.createdAt, actual.createdAt)
+        assertEquals(expected.updatedAt, actual.updatedAt)
     }
 }

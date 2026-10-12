@@ -1,8 +1,9 @@
+package com.diadsimulation.auth.core.domain.model
+
 import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
-import com.diadsimulation.auth.core.domain.model.User
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -24,15 +25,16 @@ class UserTest {
                 status = ACTIVE,
             )
 
-        assertNotNull(user.userId)
-        assertNotNull(user.createdAt)
-        assertNotNull(user.updatedAt)
-
-        assertNull(user.phone)
-        assertNull(user.cpf)
-        assertNull(user.rg)
-        assertNull(user.address)
-        assertNull(user.birthDate)
+        assertAll(
+            { assertNotNull(user.userId) },
+            { assertNotNull(user.createdAt) },
+            { assertNotNull(user.updatedAt) },
+            { assertNull(user.phone) },
+            { assertNull(user.cpf) },
+            { assertNull(user.rg) },
+            { assertNull(user.address) },
+            { assertNull(user.birthDate) },
+        )
     }
 
     @Test
@@ -52,18 +54,9 @@ class UserTest {
 
         assertAll(
             { assertEquals(userId, user.userId) },
-            { assertEquals("Diogo Ferreira", user.name) },
-            { assertEquals("candidate@diadsimulation.com", user.email) },
-            { assertEquals("encoded-password", user.passwordHash) },
-            { assertEquals(CANDIDATE, user.role) },
-            { assertEquals(ACTIVE, user.status) },
-            { assertEquals("98999999999", user.phone) },
-            { assertEquals("123.456.789-00", user.cpf) },
-            { assertEquals("123456789", user.rg) },
-            { assertEquals("São Luís - MA", user.address) },
-            { assertEquals(birthDate, user.birthDate) },
             { assertEquals(createdAt, user.createdAt) },
             { assertEquals(updatedAt, user.updatedAt) },
+            { assertEquals(birthDate, user.birthDate) },
         )
     }
 
@@ -80,30 +73,60 @@ class UserTest {
             )
 
         val updatedAt = OffsetDateTime.now().plusMinutes(1)
+        val birthDate = LocalDate.of(1997, 1, 11)
 
-        user.email = "new@diadsimulation.com"
-        user.name = "Novo Nome"
-        user.passwordHash = "new-password"
-        user.role = SCHOOL_ADMIN
-        user.status = ACTIVE
-        user.phone = "98988888888"
-        user.cpf = "987.654.321-00"
-        user.rg = "987654321"
-        user.address = "São Paulo - SP"
-        user.birthDate = LocalDate.of(1997, 1, 11)
-        user.updatedAt = updatedAt
+        val expected =
+            buildUser(
+                userId = user.userId,
+                name = "Novo Nome",
+                email = "new@diadsimulation.com",
+                passwordHash = "new-password",
+                role = SCHOOL_ADMIN,
+                status = ACTIVE,
+                phone = "98988888888",
+                cpf = "987.654.321-00",
+                rg = "987654321",
+                address = "São Paulo - SP",
+                birthDate = birthDate,
+                createdAt = user.createdAt,
+                updatedAt = updatedAt,
+            )
 
+        user.apply {
+            email = "new@diadsimulation.com"
+            name = "Novo Nome"
+            passwordHash = "new-password"
+            role = SCHOOL_ADMIN
+            status = ACTIVE
+            phone = "98988888888"
+            cpf = "987.654.321-00"
+            rg = "987654321"
+            address = "São Paulo - SP"
+            this.birthDate = birthDate
+            this.updatedAt = updatedAt
+        }
+
+        assertUserFields(expected, user)
+    }
+
+    private fun assertUserFields(
+        expected: User,
+        actual: User,
+    ) {
         assertAll(
-            { assertEquals("new@diadsimulation.com", user.email) },
-            { assertEquals("Novo Nome", user.name) },
-            { assertEquals("new-password", user.passwordHash) },
-            { assertEquals(SCHOOL_ADMIN, user.role) },
-            { assertEquals(ACTIVE, user.status) },
-            { assertEquals("98988888888", user.phone) },
-            { assertEquals("987.654.321-00", user.cpf) },
-            { assertEquals("987654321", user.rg) },
-            { assertEquals("São Paulo - SP", user.address) },
-            { assertEquals(updatedAt, user.updatedAt) },
+            { assertEquals(expected.userId, actual.userId) },
+            { assertEquals(expected.name, actual.name) },
+            { assertEquals(expected.email, actual.email) },
+            { assertEquals(expected.passwordHash, actual.passwordHash) },
+            { assertEquals(expected.role, actual.role) },
+            { assertEquals(expected.status, actual.status) },
+            { assertEquals(expected.phone, actual.phone) },
+            { assertEquals(expected.cpf, actual.cpf) },
+            { assertEquals(expected.rg, actual.rg) },
+            { assertEquals(expected.address, actual.address) },
+            { assertEquals(expected.birthDate, actual.birthDate) },
+            { assertEquals(expected.createdAt, actual.createdAt) },
+            { assertEquals(expected.updatedAt, actual.updatedAt) },
         )
     }
 }

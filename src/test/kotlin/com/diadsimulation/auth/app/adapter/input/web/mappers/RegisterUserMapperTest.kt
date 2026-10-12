@@ -5,8 +5,11 @@ import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 class RegisterUserMapperTest {
     @Test
@@ -27,58 +30,44 @@ class RegisterUserMapperTest {
         assertEquals(request.password, result.passwordHash)
         assertEquals(CANDIDATE, result.role)
         assertEquals(ACTIVE, result.status)
-        assertEquals(request.phone, result.phone)
-        assertEquals(request.address, result.address)
-        assertEquals(request.cpf, result.cpf)
-        assertEquals(request.rg, result.rg)
+        assertOptionalFields(
+            expectedPhone = request.phone,
+            expectedAddress = request.address,
+            expectedCpf = request.cpf,
+            expectedRg = request.rg,
+            actualPhone = result.phone,
+            actualAddress = result.address,
+            actualCpf = result.cpf,
+            actualRg = result.rg,
+        )
     }
 
-    @Test
-    fun `should map request to domain with null optional fields`() {
-        val request = buildRegisterUserRequest()
-
-        val result = RegisterUserMapper.toDomain(request)
-
-        assertNull(result.phone)
-        assertNull(result.address)
-        assertNull(result.cpf)
-        assertNull(result.rg)
-    }
-
-    @Test
-    fun `should normalize empty optional fields to null`() {
+    @ParameterizedTest
+    @MethodSource("optionalFieldsProvider")
+    fun `should normalize optional fields according to current implementation`(
+        input: String?,
+        expected: String?,
+    ) {
         val request =
             buildRegisterUserRequest(
-                phone = "",
-                address = "",
-                cpf = "",
-                rg = "",
+                phone = input,
+                address = input,
+                cpf = input,
+                rg = input,
             )
 
         val result = RegisterUserMapper.toDomain(request)
 
-        assertNull(result.phone)
-        assertNull(result.address)
-        assertNull(result.cpf)
-        assertNull(result.rg)
-    }
-
-    @Test
-    fun `should preserve whitespace values according to current implementation`() {
-        val request =
-            buildRegisterUserRequest(
-                phone = "   ",
-                address = "   ",
-                cpf = "   ",
-                rg = "   ",
-            )
-
-        val result = RegisterUserMapper.toDomain(request)
-
-        assertEquals("   ", result.phone)
-        assertEquals("   ", result.address)
-        assertEquals("   ", result.cpf)
-        assertEquals("   ", result.rg)
+        assertOptionalFields(
+            expectedPhone = expected,
+            expectedAddress = expected,
+            expectedCpf = expected,
+            expectedRg = expected,
+            actualPhone = result.phone,
+            actualAddress = result.address,
+            actualCpf = result.cpf,
+            actualRg = result.rg,
+        )
     }
 
     @Test
@@ -100,10 +89,43 @@ class RegisterUserMapperTest {
         assertEquals(user.email, response.email)
         assertEquals(user.role, response.role)
         assertEquals(user.status, response.status)
-        assertEquals(user.phone, response.phone)
-        assertEquals(user.address, response.address)
-        assertEquals(user.cpf, response.cpf)
-        assertEquals(user.rg, response.rg)
         assertEquals(user.createdAt, response.createdAt)
+
+        assertOptionalFields(
+            expectedPhone = user.phone,
+            expectedAddress = user.address,
+            expectedCpf = user.cpf,
+            expectedRg = user.rg,
+            actualPhone = response.phone,
+            actualAddress = response.address,
+            actualCpf = response.cpf,
+            actualRg = response.rg,
+        )
+    }
+
+    private fun assertOptionalFields(
+        expectedPhone: String?,
+        expectedAddress: String?,
+        expectedCpf: String?,
+        expectedRg: String?,
+        actualPhone: String?,
+        actualAddress: String?,
+        actualCpf: String?,
+        actualRg: String?,
+    ) {
+        assertEquals(expectedPhone, actualPhone)
+        assertEquals(expectedAddress, actualAddress)
+        assertEquals(expectedCpf, actualCpf)
+        assertEquals(expectedRg, actualRg)
+    }
+
+    companion object {
+        @JvmStatic
+        fun optionalFieldsProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(null, null),
+                Arguments.of("", null),
+                Arguments.of("   ", "   "),
+            )
     }
 }

@@ -19,6 +19,10 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
 class RegisterUserUseCaseImplTest {
@@ -51,13 +55,10 @@ class RegisterUserUseCaseImplTest {
         val result = useCase.execute(user)
 
         assertSame(user, result)
-        assertEquals("encoded-password", result.passwordHash)
+        assertEquals(ENCODED_PASSWORD, result.passwordHash)
 
         verify(exactly = 1) {
-            passwordEncoderPort.encode("Diad@123456")
-        }
-
-        verify(exactly = 1) {
+            passwordEncoderPort.encode(RAW_PASSWORD)
             userRepositoryPort.save(user)
         }
     }
@@ -66,7 +67,7 @@ class RegisterUserUseCaseImplTest {
     fun `should register user without cpf and rg`() {
         user =
             buildUser(
-                passwordHash = "Diad@123456",
+                passwordHash = RAW_PASSWORD,
                 cpf = null,
                 rg = null,
             )
@@ -76,7 +77,7 @@ class RegisterUserUseCaseImplTest {
 
         val result = useCase.execute(user)
 
-        assertEquals("encoded-password", result.passwordHash)
+        assertEquals(ENCODED_PASSWORD, result.passwordHash)
 
         verify(exactly = 0) {
             userRepositoryPort.existsByCpf(any())
@@ -88,49 +89,20 @@ class RegisterUserUseCaseImplTest {
         }
     }
 
-    @Test
-    fun `should throw exception when email already exists`() {
-        every {
-            userRepositoryPort.existsByEmail(email)
-        } returns true
+    @ParameterizedTest
+    @MethodSource("duplicateFieldsProvider")
+    fun `should throw exception when user field already exists`(field: String) {
+        mockDuplicateField(field)
 
-        assertUserAlreadyExists(
-            "${USER_ALREADY_EXISTS}E-mail: $email",
-        )
-    }
+        val expectedMessage =
+            when (field) {
+                "email" -> "${USER_ALREADY_EXISTS}E-mail: $email"
+                "cpf" -> "${USER_ALREADY_EXISTS}CPF: $cpf"
+                "rg" -> "${USER_ALREADY_EXISTS}RG: $rg"
+                else -> error("Unsupported field: $field")
+            }
 
-    @Test
-    fun `should throw exception when cpf already exists`() {
-        every {
-            userRepositoryPort.existsByEmail(email)
-        } returns false
-
-        every {
-            userRepositoryPort.existsByCpf(cpf!!)
-        } returns true
-
-        assertUserAlreadyExists(
-            "${USER_ALREADY_EXISTS}CPF: $cpf",
-        )
-    }
-
-    @Test
-    fun `should throw exception when rg already exists`() {
-        every {
-            userRepositoryPort.existsByEmail(email)
-        } returns false
-
-        every {
-            userRepositoryPort.existsByCpf(cpf!!)
-        } returns false
-
-        every {
-            userRepositoryPort.existsByRg(rg!!)
-        } returns true
-
-        assertUserAlreadyExists(
-            "${USER_ALREADY_EXISTS}RG: $rg",
-        )
+        assertUserAlreadyExists(expectedMessage)
     }
 
     @Test
@@ -141,12 +113,7 @@ class RegisterUserUseCaseImplTest {
             passwordEncoderPort.encode(passwordHash)
         } throws IllegalStateException(PASSWORD_ENCODING_FAILED)
 
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                useCase.execute(user)
-            }
-
-        assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
+        assertIllegalStateException(PASSWORD_ENCODING_FAILED)
 
         verify(exactly = 0) {
             userRepositoryPort.save(any())
@@ -156,21 +123,13 @@ class RegisterUserUseCaseImplTest {
     @Test
     fun `should propagate exception when persistence fails`() {
         mockAvailableUser()
-
-        every {
-            passwordEncoderPort.encode(passwordHash)
-        } returns "encoded-password"
+        mockPasswordEncoding()
 
         every {
             userRepositoryPort.save(user)
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                useCase.execute(user)
-            }
-
-        assertEquals(PERSISTENCE_FAILED, exception.message)
+        assertIllegalStateException(PERSISTENCE_FAILED)
 
         verify(exactly = 1) {
             userRepositoryPort.save(user)
@@ -178,21 +137,65 @@ class RegisterUserUseCaseImplTest {
     }
 
     private fun mockAvailableUser() {
-        every { userRepositoryPort.existsByEmail(email) } returns false
+        every {
+            userRepositoryPort.existsByEmail(email)
+        } returns false
 
         cpf?.let {
-            every { userRepositoryPort.existsByCpf(it) } returns false
+            every {
+                userRepositoryPort.existsByCpf(it)
+            } returns false
         }
 
         rg?.let {
-            every { userRepositoryPort.existsByRg(it) } returns false
+            every {
+                userRepositoryPort.existsByRg(it)
+            } returns false
         }
     }
 
-    private fun mockSuccessfulRegistration() {
+    private fun mockDuplicateField(field: String) {
+        when (field) {
+            "email" -> {
+                every {
+                    userRepositoryPort.existsByEmail(email)
+                } returns true
+            }
+
+            "cpf" -> {
+                every {
+                    userRepositoryPort.existsByEmail(email)
+                } returns false
+
+                every {
+                    userRepositoryPort.existsByCpf(requireNotNull(cpf))
+                } returns true
+            }
+
+            "rg" -> {
+                every {
+                    userRepositoryPort.existsByEmail(email)
+                } returns false
+
+                every {
+                    userRepositoryPort.existsByCpf(requireNotNull(cpf))
+                } returns false
+
+                every {
+                    userRepositoryPort.existsByRg(requireNotNull(rg))
+                } returns true
+            }
+        }
+    }
+
+    private fun mockPasswordEncoding() {
         every {
             passwordEncoderPort.encode(passwordHash)
-        } returns "encoded-password"
+        } returns ENCODED_PASSWORD
+    }
+
+    private fun mockSuccessfulRegistration() {
+        mockPasswordEncoding()
 
         every {
             userRepositoryPort.save(user)
@@ -208,11 +211,30 @@ class RegisterUserUseCaseImplTest {
         assertEquals(expectedMessage, exception.message)
 
         verify(exactly = 0) {
-            passwordEncoderPort.encode(passwordHash)
-        }
-
-        verify(exactly = 0) {
+            passwordEncoderPort.encode(any())
             userRepositoryPort.save(any())
         }
+    }
+
+    private fun assertIllegalStateException(expectedMessage: String) {
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                useCase.execute(user)
+            }
+
+        assertEquals(expectedMessage, exception.message)
+    }
+
+    companion object {
+        private const val RAW_PASSWORD = "Diad@123456"
+        private const val ENCODED_PASSWORD = "encoded-password"
+
+        @JvmStatic
+        fun duplicateFieldsProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("email"),
+                Arguments.of("cpf"),
+                Arguments.of("rg"),
+            )
     }
 }
