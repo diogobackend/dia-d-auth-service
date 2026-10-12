@@ -22,7 +22,7 @@ data class ListUsersRequest(
     @field:Max(value = 100, message = PAGE_SIZE_MAX_INVALID)
     val size: Int = 10,
     @field:Pattern(
-        regexp = "userId|name|email|role|status|phone|cpf|rg|address|createdAt|updatedAt",
+        regexp = "userId|name|email|role|status|phone|cpf|rg|address|birthDate|createdAt|updatedAt",
         message = INVALID_SORT_FIELD,
     )
     val sortBy: String = "name",
@@ -33,6 +33,12 @@ data class ListUsersRequest(
     )
     val filterBy: String? = null,
     val filterValue: String? = null,
+    val name: String? = null,
+    val email: String? = null,
+    val phone: String? = null,
+    val cpf: String? = null,
+    val rg: String? = null,
+    val address: String? = null,
     @field:Pattern(
         regexp = "PLATFORM_ADMIN|SCHOOL_ADMIN|CANDIDATE",
         message = INVALID_FILTER_FIELD,
@@ -54,4 +60,10 @@ data class ListUsersRequest(
     val dateTo: LocalDate? = null,
     @field:DateTimeFormat(iso = DATE)
     val dateExact: LocalDate? = null,
+    @field:DateTimeFormat(iso = DATE)
+    val birthDate: LocalDate? = null,
+    @field:DateTimeFormat(iso = DATE)
+    val createdAt: LocalDate? = null,
+    @field:DateTimeFormat(iso = DATE)
+    val updatedAt: LocalDate? = null,
 )

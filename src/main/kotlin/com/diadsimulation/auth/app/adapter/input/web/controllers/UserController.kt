@@ -49,12 +49,21 @@ class UserController(
                 direction = SortDirection.valueOf(request.direction.name),
                 filterBy = request.filterBy,
                 filterValue = request.filterValue,
+                name = request.name,
+                email = request.email,
+                phone = request.phone,
+                cpf = request.cpf,
+                rg = request.rg,
+                address = request.address,
                 role = request.role,
                 status = request.status,
                 dateField = request.dateField,
                 dateFrom = request.dateFrom,
                 dateTo = request.dateTo,
                 dateExact = request.dateExact,
+                birthDate = request.birthDate,
+                createdAt = request.createdAt,
+                updatedAt = request.updatedAt,
             )
 
         val result = listUsersUseCase.execute(criteria)

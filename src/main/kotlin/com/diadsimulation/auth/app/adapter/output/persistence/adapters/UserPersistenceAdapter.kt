@@ -64,7 +64,7 @@ class UserPersistenceAdapter(
                 val filterValue = criteria.filterValue
 
                 if (filterBy != null && filterValue != null) {
-                    val pattern = "%${filterValue.lowercase()}%"
+                    val pattern = "%${filterValue.trim().lowercase()}%"
 
                     when (filterBy) {
                         "name", "email", "phone", "cpf", "rg", "address" -> {
@@ -79,7 +79,9 @@ class UserPersistenceAdapter(
                         "role", "status" -> {
                             predicates.add(
                                 builder.equal(
-                                    builder.lower(root.get<Any>(filterBy).`as`(String::class.java)),
+                                    builder.lower(
+                                        root.get<Any>(filterBy).`as`(String::class.java),
+                                    ),
                                     filterValue.lowercase(),
                                 ),
                             )
@@ -87,22 +89,38 @@ class UserPersistenceAdapter(
                     }
                 }
 
-                criteria.role?.let { role ->
-                    predicates.add(
-                        builder.equal(
-                            builder.lower(root.get<Any>("role").`as`(String::class.java)),
-                            role.lowercase(),
-                        ),
-                    )
+                mapOf(
+                    "name" to criteria.name,
+                    "email" to criteria.email,
+                    "phone" to criteria.phone,
+                    "cpf" to criteria.cpf,
+                    "rg" to criteria.rg,
+                    "address" to criteria.address,
+                ).forEach { (field, value) ->
+                    value?.let {
+                        predicates.add(
+                            builder.like(
+                                builder.lower(root.get<String>(field)),
+                                "%${it.trim().lowercase()}%",
+                            ),
+                        )
+                    }
                 }
 
-                criteria.status?.let { status ->
-                    predicates.add(
-                        builder.equal(
-                            builder.lower(root.get<Any>("status").`as`(String::class.java)),
-                            status.lowercase(),
-                        ),
-                    )
+                mapOf(
+                    "role" to criteria.role,
+                    "status" to criteria.status,
+                ).forEach { (field, value) ->
+                    value?.let {
+                        predicates.add(
+                            builder.equal(
+                                builder.lower(
+                                    root.get<Any>(field).`as`(String::class.java),
+                                ),
+                                it.lowercase(),
+                            ),
+                        )
+                    }
                 }
 
                 val dateField = criteria.dateField
@@ -144,7 +162,10 @@ class UserPersistenceAdapter(
                             predicates.add(
                                 builder.lessThan(
                                     datePath,
-                                    dateTo.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                                    dateTo
+                                        .plusDays(1)
+                                        .atStartOfDay()
+                                        .atOffset(ZoneOffset.UTC),
                                 ),
                             )
                         }
@@ -160,10 +181,48 @@ class UserPersistenceAdapter(
                             predicates.add(
                                 builder.lessThan(
                                     datePath,
-                                    dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                                    dateExact
+                                        .plusDays(1)
+                                        .atStartOfDay()
+                                        .atOffset(ZoneOffset.UTC),
                                 ),
                             )
                         }
+                    }
+                }
+
+                criteria.birthDate?.let { birthDate ->
+                    predicates.add(
+                        builder.equal(
+                            root.get<LocalDate>("birthDate"),
+                            birthDate,
+                        ),
+                    )
+                }
+
+                mapOf(
+                    "createdAt" to criteria.createdAt,
+                    "updatedAt" to criteria.updatedAt,
+                ).forEach { (field, date) ->
+                    date?.let {
+                        val datePath = root.get<OffsetDateTime>(field)
+
+                        predicates.add(
+                            builder.greaterThanOrEqualTo(
+                                datePath,
+                                it.atStartOfDay().atOffset(ZoneOffset.UTC),
+                            ),
+                        )
+
+                        predicates.add(
+                            builder.lessThan(
+                                datePath,
+                                it
+                                    .plusDays(1)
+                                    .atStartOfDay()
+                                    .atOffset(ZoneOffset.UTC),
+                            ),
+                        )
                     }
                 }
 

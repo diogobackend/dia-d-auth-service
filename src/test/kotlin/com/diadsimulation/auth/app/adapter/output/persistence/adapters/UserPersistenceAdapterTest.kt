@@ -598,6 +598,108 @@ class UserPersistenceAdapterTest {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("independentTextFilterProvider")
+    fun `should filter users by independent text field`(
+        field: String,
+        value: String,
+    ) {
+        val criteria =
+            when (field) {
+                "name" -> buildUserSearchCriteria(name = value)
+                "email" -> buildUserSearchCriteria(email = value)
+                "phone" -> buildUserSearchCriteria(phone = value)
+                "cpf" -> buildUserSearchCriteria(cpf = value)
+                "rg" -> buildUserSearchCriteria(rg = value)
+                else -> buildUserSearchCriteria(address = value)
+            }
+
+        val path = mockk<Path<String>>()
+        val expression = mockk<Expression<String>>()
+        val expectedPattern = "%${value.trim().lowercase()}%"
+
+        every { root.get<String>(field) } returns path
+        every { builder.lower(path) } returns expression
+        every { builder.like(expression, expectedPattern) } returns predicate
+        every { builder.and(predicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.like(expression, expectedPattern)
+            builder.and(predicate)
+        }
+    }
+
+    @Test
+    fun `should filter users by independent birth date`() {
+        val birthDate = LocalDate.of(2000, 3, 3)
+        val criteria = buildUserSearchCriteria(birthDate = birthDate)
+
+        val datePath = mockk<Path<LocalDate>>()
+
+        every { root.get<LocalDate>("birthDate") } returns datePath
+        every { builder.equal(datePath, birthDate) } returns predicate
+        every { builder.and(predicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.equal(datePath, birthDate)
+            builder.and(predicate)
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["createdAt", "updatedAt"])
+    fun `should filter users by independent timestamp date`(field: String) {
+        val date = LocalDate.of(2026, 10, 11)
+
+        val criteria =
+            when (field) {
+                "createdAt" -> buildUserSearchCriteria(createdAt = date)
+                else -> buildUserSearchCriteria(updatedAt = date)
+            }
+
+        val datePath = mockk<Path<OffsetDateTime>>()
+        val fromPredicate = mockk<Predicate>()
+        val toPredicate = mockk<Predicate>()
+
+        val expectedFrom = date.atStartOfDay().atOffset(ZoneOffset.UTC)
+        val expectedTo = date.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+
+        every { root.get<OffsetDateTime>(field) } returns datePath
+        every {
+            builder.greaterThanOrEqualTo(datePath, expectedFrom)
+        } returns fromPredicate
+        every {
+            builder.lessThan(datePath, expectedTo)
+        } returns toPredicate
+        every {
+            builder.and(fromPredicate, toPredicate)
+        } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.greaterThanOrEqualTo(datePath, expectedFrom)
+            builder.lessThan(datePath, expectedTo)
+            builder.and(fromPredicate, toPredicate)
+        }
+    }
+
     private fun mockFindAll() {
         every {
             userJpaRepository.findAll(
@@ -677,6 +779,17 @@ class UserPersistenceAdapterTest {
                 Arguments.of(LocalDate.of(1990, 1, 1), null, null),
                 Arguments.of(null, LocalDate.of(2000, 12, 31), null),
                 Arguments.of(null, null, LocalDate.of(1995, 5, 5)),
+            )
+
+        @JvmStatic
+        fun independentTextFilterProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of("name", " Diogo "),
+                Arguments.of("email", " DIOGO@EMAIL.COM "),
+                Arguments.of("phone", "11999999999"),
+                Arguments.of("cpf", "12345678900"),
+                Arguments.of("rg", "123456789"),
+                Arguments.of("address", " São Paulo "),
             )
     }
 }
