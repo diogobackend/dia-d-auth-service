@@ -1,7 +1,9 @@
 package com.diadsimulation.auth.app.adapter.input.web.swagger
 
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
@@ -132,4 +134,56 @@ interface UserApi {
     fun listUsers(
         @ParameterObject @ModelAttribute request: ListUsersRequest,
     ): ResponseEntity<PagedResponse<ListUsersResponse>>
+
+    @Operation(
+        summary = "Buscar usuário",
+        description = "Busca um único usuário por userId, email, CPF ou RG. Apenas um parâmetro deve ser informado.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Usuário encontrado com sucesso",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = FindUserResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Usuário não encontrado",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = INTERNAL_SERVER_ERROR_MESSAGE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun findUser(
+        @ParameterObject @ModelAttribute request: FindUserRequest,
+    ): ResponseEntity<FindUserResponse>
 }

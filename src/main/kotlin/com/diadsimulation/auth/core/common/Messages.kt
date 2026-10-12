@@ -11,6 +11,8 @@ object Messages {
     const val EMAIL_REQUIRED = "E-mail é obrigatório"
     const val PASSWORD_REQUIRED = "Senha é obrigatório"
     const val ROLE_REQUIRED = "Perfil é obrigatório"
+    const val INVALID_USER_SEARCH_PARAMS =
+        "Informe apenas um parâmetro: userId, email, cpf ou rg"
 
     // Validação de formato
     const val EMAIL_INVALID = "E-mail é inválido"
@@ -30,6 +32,7 @@ object Messages {
 
     // Regras de negócio
     const val USER_ALREADY_EXISTS = "Já existe um usuário cadastrado com o "
+    const val USER_NOT_FOUND = "Usuário não encontrado"
 
     // Erros de infraestrutura
     const val PASSWORD_ENCODING_FAILED = "Falha ao codificar a senha"

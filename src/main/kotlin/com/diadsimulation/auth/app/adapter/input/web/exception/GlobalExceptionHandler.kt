@@ -5,18 +5,21 @@ import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAG
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import tools.jackson.databind.exc.InvalidFormatException
+import java.util.NoSuchElementException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -94,6 +97,17 @@ class GlobalExceptionHandler {
         buildResponse(
             status = BAD_REQUEST,
             message = exception.message ?: INVALID_REQUEST_DATA,
+            request = request,
+        )
+
+    @ExceptionHandler(NoSuchElementException::class)
+    fun handleNotFound(
+        exception: NoSuchElementException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> =
+        buildResponse(
+            status = NOT_FOUND,
+            message = exception.message ?: USER_NOT_FOUND,
             request = request,
         )
 

@@ -15,4 +15,8 @@ interface UserJpaRepository :
     fun existsByCpf(cpf: String): Boolean
 
     fun existsByRg(rg: String): Boolean
+
+    fun findByCpf(cpf: String): UserEntity?
+
+    fun findByRg(rg: String): UserEntity?
 }

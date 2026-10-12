@@ -239,4 +239,8 @@ class UserPersistenceAdapter(
             totalElements = result.totalElements,
         )
     }
+
+    override fun findByCpf(cpf: String): User? = userJpaRepository.findByCpf(cpf)?.let(UserPersistenceMapper::toDomain)
+
+    override fun findByRg(rg: String): User? = userJpaRepository.findByRg(rg)?.let(UserPersistenceMapper::toDomain)
 }

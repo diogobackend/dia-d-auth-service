@@ -19,4 +19,8 @@ interface UserRepositoryPort {
     fun findById(userId: UUID): User?
 
     fun findAll(criteria: UserSearchCriteria): PagedResult<User>
+
+    fun findByCpf(cpf: String): User?
+
+    fun findByRg(rg: String): User?
 }

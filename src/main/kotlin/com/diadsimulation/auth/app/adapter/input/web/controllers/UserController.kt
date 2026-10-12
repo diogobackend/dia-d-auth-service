@@ -1,15 +1,19 @@
 package com.diadsimulation.auth.app.adapter.input.web.controllers
 
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.mappers.FindUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.ListUsersMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.RegisterUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.domain.enums.SortDirection
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
+import com.diadsimulation.auth.core.port.input.FindUserUseCase
 import com.diadsimulation.auth.core.port.input.ListUsersUseCase
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
 import jakarta.validation.Valid
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val registerUserUseCase: RegisterUserUseCase,
     private val listUsersUseCase: ListUsersUseCase,
+    private val findUserUseCase: FindUserUseCase,
 ) : UserApi {
     @PostMapping
     override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
@@ -77,6 +82,23 @@ class UserController(
                 totalElements = result.totalElements,
                 totalPages = result.totalPages,
             ),
+        )
+    }
+
+    @GetMapping("/id")
+    override fun findUser(
+        @Valid @ModelAttribute request: FindUserRequest,
+    ): ResponseEntity<FindUserResponse> {
+        val user =
+            findUserUseCase.execute(
+                userId = request.userId,
+                email = request.email,
+                cpf = request.cpf,
+                rg = request.rg,
+            )
+
+        return ResponseEntity.ok(
+            FindUserMapper.toResponse(user),
         )
     }
 }
