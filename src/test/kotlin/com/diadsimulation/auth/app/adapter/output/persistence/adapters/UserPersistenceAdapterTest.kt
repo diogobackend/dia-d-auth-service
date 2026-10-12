@@ -700,6 +700,47 @@ class UserPersistenceAdapterTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["cpf", "rg"])
+    fun `should find user by document`(document: String) {
+        val entity = UserPersistenceMapper.toEntity(user)
+
+        val result =
+            when (document) {
+                "cpf" -> {
+                    every { userJpaRepository.findByCpf(user.cpf.toString()) } returns entity
+                    adapter.findByCpf(user.cpf.toString())
+                }
+
+                else -> {
+                    every { userJpaRepository.findByRg(user.rg!!) } returns entity
+                    adapter.findByRg(user.rg!!)
+                }
+            }
+
+        assertNotNull(result)
+        assertEquals(user.userId, result?.userId)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["cpf", "rg"])
+    fun `should return null when document does not exist`(document: String) {
+        val result =
+            when (document) {
+                "cpf" -> {
+                    every { userJpaRepository.findByCpf(user.cpf.toString()) } returns null
+                    adapter.findByCpf(user.cpf.toString())
+                }
+
+                else -> {
+                    every { userJpaRepository.findByRg(user.rg!!) } returns null
+                    adapter.findByRg(user.rg!!)
+                }
+            }
+
+        assertNull(result)
+    }
+
     private fun mockFindAll() {
         every {
             userJpaRepository.findAll(

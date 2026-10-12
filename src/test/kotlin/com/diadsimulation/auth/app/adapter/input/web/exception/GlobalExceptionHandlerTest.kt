@@ -11,6 +11,7 @@ import com.diadsimulation.auth.core.common.Messages.REGISTER_USER_REQUEST
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
 import com.diadsimulation.auth.core.common.Messages.SENSITIVE_DATABASE_INFORMATION
 import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import io.mockk.every
 import io.mockk.mockk
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.mock.http.MockHttpInputMessage
@@ -34,6 +36,7 @@ import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import tools.jackson.databind.exc.InvalidFormatException
+import java.util.NoSuchElementException
 import java.util.stream.Stream
 
 class GlobalExceptionHandlerTest {
@@ -236,6 +239,21 @@ class GlobalExceptionHandlerTest {
         )
     }
 
+    @ParameterizedTest
+    @MethodSource("notFoundProvider")
+    fun `should return not found when user does not exist`(
+        message: String?,
+        expectedMessage: String,
+    ) {
+        val response =
+            handler.handleNotFound(
+                NoSuchElementException(message),
+                request,
+            )
+
+        assertError(response, NOT_FOUND, expectedMessage)
+    }
+
     private fun unreadableException(
         message: String,
         cause: Throwable? = null,
@@ -311,6 +329,13 @@ class GlobalExceptionHandlerTest {
             Stream.of(
                 Arguments.of(FILTER_PARAMETERS_REQUIRED, FILTER_PARAMETERS_REQUIRED),
                 Arguments.of(null, INVALID_REQUEST_DATA),
+            )
+
+        @JvmStatic
+        fun notFoundProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(USER_NOT_FOUND, USER_NOT_FOUND),
+                Arguments.of(null, USER_NOT_FOUND),
             )
     }
 }
