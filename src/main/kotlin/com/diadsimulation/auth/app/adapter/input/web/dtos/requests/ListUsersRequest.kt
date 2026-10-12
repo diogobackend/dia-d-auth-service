@@ -41,4 +41,6 @@ data class ListUsersRequest(
     val dateFrom: LocalDate? = null,
     @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val dateTo: LocalDate? = null,
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val dateExact: LocalDate? = null,
 )

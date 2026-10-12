@@ -14,4 +14,5 @@ data class UserSearchCriteria(
     val dateField: String? = null,
     val dateFrom: LocalDate? = null,
     val dateTo: LocalDate? = null,
+    val dateExact: LocalDate? = null,
 )

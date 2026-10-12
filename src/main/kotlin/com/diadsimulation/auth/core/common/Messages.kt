@@ -26,6 +26,7 @@ object Messages {
     const val INVALID_SORT_FIELD = "Campo de ordenação inválido"
     const val INVALID_FILTER_FIELD = "Campo de filtro inválido"
     const val FILTER_PARAMETERS_REQUIRED = "filterBy e filterValue devem ser informados juntos"
+    const val DATE_FIELD_REQUIRED = "O campo dateField é obrigatório ao informar filtros de data."
 
     // Regras de negócio
     const val USER_ALREADY_EXISTS = "Já existe um usuário cadastrado com o "

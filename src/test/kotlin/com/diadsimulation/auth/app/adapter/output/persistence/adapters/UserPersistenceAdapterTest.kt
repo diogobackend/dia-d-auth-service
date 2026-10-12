@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -381,6 +382,41 @@ class UserPersistenceAdapterTest {
 
         verify(exactly = 0) {
             builder.like(any<Expression<String>>(), any<String>())
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["createdAt", "updatedAt"])
+    fun `should filter users by exact date`(dateField: String) {
+        val dateExact = LocalDate.of(2026, 10, 11)
+        val criteria =
+            buildUserSearchCriteria(
+                dateField = dateField,
+                dateExact = dateExact,
+            )
+
+        val datePath = mockk<Path<OffsetDateTime>>()
+        val fromPredicate = mockk<Predicate>()
+        val toPredicate = mockk<Predicate>()
+
+        val expectedFrom = dateExact.atStartOfDay().atOffset(ZoneOffset.UTC)
+        val expectedTo = dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+
+        every { root.get<OffsetDateTime>(dateField) } returns datePath
+        every { builder.greaterThanOrEqualTo(datePath, expectedFrom) } returns fromPredicate
+        every { builder.lessThan(datePath, expectedTo) } returns toPredicate
+        every { builder.and(fromPredicate, toPredicate) } returns predicate
+
+        mockFindAll()
+
+        val result = adapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.greaterThanOrEqualTo(datePath, expectedFrom)
+            builder.lessThan(datePath, expectedTo)
+            builder.and(fromPredicate, toPredicate)
         }
     }
 

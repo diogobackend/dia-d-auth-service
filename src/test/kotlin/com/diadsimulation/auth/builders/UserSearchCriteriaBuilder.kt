@@ -15,6 +15,7 @@ fun buildUserSearchCriteria(
     dateField: String? = null,
     dateFrom: LocalDate? = null,
     dateTo: LocalDate? = null,
+    dateExact: LocalDate? = null,
 ) = UserSearchCriteria(
     page = page,
     size = size,
@@ -25,4 +26,5 @@ fun buildUserSearchCriteria(
     dateField = dateField,
     dateFrom = dateFrom,
     dateTo = dateTo,
+    dateExact = dateExact,
 )

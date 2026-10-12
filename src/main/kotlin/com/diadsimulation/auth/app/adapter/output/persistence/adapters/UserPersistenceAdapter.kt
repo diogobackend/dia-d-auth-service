@@ -108,6 +108,22 @@ class UserPersistenceAdapter(
                             ),
                         )
                     }
+
+                    criteria.dateExact?.let { dateExact ->
+                        predicates.add(
+                            builder.greaterThanOrEqualTo(
+                                datePath,
+                                dateExact.atStartOfDay().atOffset(ZoneOffset.UTC),
+                            ),
+                        )
+
+                        predicates.add(
+                            builder.lessThan(
+                                datePath,
+                                dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                            ),
+                        )
+                    }
                 }
 
                 builder.and(*predicates.toTypedArray())

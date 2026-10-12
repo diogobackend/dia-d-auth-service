@@ -2,8 +2,10 @@ package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.builders.buildPagedResult
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
+import com.diadsimulation.auth.core.common.Messages.DATE_FIELD_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.FILTER_PARAMETERS_REQUIRED
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.time.LocalDate
 import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
@@ -75,6 +78,37 @@ class ListUsersUseCaseImplTest {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("invalidDateFilterProvider")
+    fun `should reject date filters without date field`(criteria: UserSearchCriteria) {
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                listUsersUseCaseImpl.execute(criteria)
+            }
+
+        assertEquals(DATE_FIELD_REQUIRED, exception.message)
+
+        verify(exactly = 0) {
+            userRepositoryPort.findAll(any())
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("validDateFilterProvider")
+    fun `should list users with valid date filters`(criteria: UserSearchCriteria) {
+        val expected = buildPagedResult<User>()
+
+        every { userRepositoryPort.findAll(criteria) } returns expected
+
+        val result = listUsersUseCaseImpl.execute(criteria)
+
+        assertEquals(expected, result)
+
+        verify(exactly = 1) {
+            userRepositoryPort.findAll(criteria)
+        }
+    }
+
     companion object {
         @JvmStatic
         fun validFilterProvider() =
@@ -89,6 +123,38 @@ class ListUsersUseCaseImplTest {
             Stream.of(
                 Arguments.of("name", null),
                 Arguments.of(null, "Diogo"),
+            )
+
+        @JvmStatic
+        fun invalidDateFilterProvider() =
+            Stream.of(
+                Arguments.of(buildUserSearchCriteria(dateFrom = LocalDate.of(2026, 10, 11))),
+                Arguments.of(buildUserSearchCriteria(dateTo = LocalDate.of(2026, 10, 11))),
+                Arguments.of(buildUserSearchCriteria(dateExact = LocalDate.of(2026, 10, 11))),
+            )
+
+        @JvmStatic
+        fun validDateFilterProvider() =
+            Stream.of(
+                Arguments.of(buildUserSearchCriteria(dateField = "createdAt")),
+                Arguments.of(
+                    buildUserSearchCriteria(
+                        dateField = "createdAt",
+                        dateFrom = LocalDate.of(2026, 10, 11),
+                    ),
+                ),
+                Arguments.of(
+                    buildUserSearchCriteria(
+                        dateField = "updatedAt",
+                        dateTo = LocalDate.of(2026, 10, 11),
+                    ),
+                ),
+                Arguments.of(
+                    buildUserSearchCriteria(
+                        dateField = "createdAt",
+                        dateExact = LocalDate.of(2026, 10, 11),
+                    ),
+                ),
             )
     }
 }

@@ -52,6 +52,7 @@ class UserController(
                 dateField = request.dateField,
                 dateFrom = request.dateFrom,
                 dateTo = request.dateTo,
+                dateExact = request.dateExact,
             )
 
         val result = listUsersUseCase.execute(criteria)
