@@ -5,6 +5,7 @@ import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -35,7 +36,7 @@ class RegisterUserMapperTest {
             expectedAddress = request.address,
             expectedCpf = request.cpf,
             expectedRg = request.rg,
-            actualPhone = result.phone,
+            actualPhone = result.phone?.value,
             actualAddress = result.address,
             actualCpf = result.cpf,
             actualRg = result.rg,
@@ -63,7 +64,7 @@ class RegisterUserMapperTest {
             expectedAddress = expected,
             expectedCpf = expected,
             expectedRg = expected,
-            actualPhone = result.phone,
+            actualPhone = result.phone?.value,
             actualAddress = result.address,
             actualCpf = result.cpf,
             actualRg = result.rg,
@@ -92,7 +93,7 @@ class RegisterUserMapperTest {
         assertEquals(user.createdAt, response.createdAt)
 
         assertOptionalFields(
-            expectedPhone = user.phone,
+            expectedPhone = user.phone?.value,
             expectedAddress = user.address,
             expectedCpf = user.cpf,
             expectedRg = user.rg,
@@ -101,6 +102,18 @@ class RegisterUserMapperTest {
             actualCpf = response.cpf,
             actualRg = response.rg,
         )
+    }
+
+    @Test
+    fun `should map domain to response with null phone`() {
+        val user =
+            RegisterUserMapper.toDomain(
+                buildRegisterUserRequest(phone = null),
+            )
+
+        val response = RegisterUserMapper.toResponse(user)
+
+        assertNull(response.phone)
     }
 
     private fun assertOptionalFields(
@@ -125,7 +138,7 @@ class RegisterUserMapperTest {
             Stream.of(
                 Arguments.of(null, null),
                 Arguments.of("", null),
-                Arguments.of("   ", "   "),
+                Arguments.of("   ", null),
             )
     }
 }

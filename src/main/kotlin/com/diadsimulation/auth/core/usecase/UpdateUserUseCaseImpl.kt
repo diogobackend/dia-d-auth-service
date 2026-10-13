@@ -5,6 +5,7 @@ import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
 import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
@@ -50,7 +51,7 @@ class UpdateUserUseCaseImpl(
                         ?: user.passwordHash,
                 role = user.role,
                 status = user.status,
-                phone = phone?.takeIf { it.isNotBlank() } ?: user.phone,
+                phone = phone?.takeIf { it.isNotBlank() }?.let(::Phone) ?: user.phone,
                 cpf = user.cpf,
                 rg = user.rg,
                 address = address?.takeIf { it.isNotBlank() } ?: user.address,

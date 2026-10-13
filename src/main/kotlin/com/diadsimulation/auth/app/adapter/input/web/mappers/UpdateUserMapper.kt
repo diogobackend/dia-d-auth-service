@@ -9,7 +9,7 @@ object UpdateUserMapper {
             userId = user.userId,
             name = user.name,
             email = user.email.value,
-            phone = user.phone,
+            phone = user.phone?.value,
             address = user.address,
             updatedAt = user.updatedAt,
         )

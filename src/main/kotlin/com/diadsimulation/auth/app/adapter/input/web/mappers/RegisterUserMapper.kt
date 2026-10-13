@@ -5,6 +5,7 @@ import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUser
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Phone
 
 object RegisterUserMapper {
     fun toDomain(request: RegisterUserRequest): User =
@@ -14,7 +15,7 @@ object RegisterUserMapper {
             passwordHash = request.password,
             role = request.role,
             status = ACTIVE,
-            phone = normalizeOptional(request.phone),
+            phone = normalizeOptional(request.phone)?.let(::Phone),
             address = normalizeOptional(request.address),
             cpf = normalizeOptional(request.cpf),
             rg = normalizeOptional(request.rg),
@@ -28,7 +29,7 @@ object RegisterUserMapper {
             email = user.email.value,
             role = user.role,
             status = user.status,
-            phone = user.phone,
+            phone = user.phone?.value,
             address = user.address,
             cpf = user.cpf,
             rg = user.rg,
@@ -36,15 +37,5 @@ object RegisterUserMapper {
             createdAt = user.createdAt,
         )
 
-    private fun normalizeOptional(value: String?): String? {
-        if (value == null) {
-            return null
-        }
-
-        if (value.length == 0) {
-            return null
-        }
-
-        return value
-    }
+    private fun normalizeOptional(value: String?): String? = value?.takeIf { it.isNotBlank() }
 }

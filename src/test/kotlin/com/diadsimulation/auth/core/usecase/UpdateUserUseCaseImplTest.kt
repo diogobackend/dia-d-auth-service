@@ -104,9 +104,9 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
         mockSuccessfulUpdate()
 
-        val result = execute(phone = "98999999999")
+        val result = execute(phone = VALID_PHONE)
 
-        assertEquals("98999999999", result.phone)
+        assertEquals(VALID_PHONE, result.phone?.value)
         verify(exactly = 1) { userRepositoryPort.update(any()) }
     }
 
@@ -137,14 +137,14 @@ class UpdateUserUseCaseImplTest {
                 name = "Updated Name",
                 email = newEmail,
                 password = RAW_PASSWORD,
-                phone = "98999999999",
+                phone = VALID_PHONE,
                 address = "Updated Address",
             )
 
         assertEquals("Updated Name", result.name)
         assertEquals(newEmail, result.email.value)
         assertEquals(ENCODED_PASSWORD, result.passwordHash)
-        assertEquals("98999999999", result.phone)
+        assertEquals(VALID_PHONE, result.phone?.value)
         assertEquals("Updated Address", result.address)
 
         verify(exactly = 1) {
@@ -357,5 +357,6 @@ class UpdateUserUseCaseImplTest {
     companion object {
         private const val RAW_PASSWORD = "Diad@123456"
         private const val ENCODED_PASSWORD = "encoded-password"
+        private const val VALID_PHONE = "98999999999"
     }
 }

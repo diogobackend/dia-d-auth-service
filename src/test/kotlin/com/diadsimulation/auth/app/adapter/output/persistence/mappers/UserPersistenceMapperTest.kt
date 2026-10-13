@@ -30,7 +30,7 @@ class UserPersistenceMapperTest {
         assertEquals(entity.passwordHash, user.passwordHash)
         assertEquals(entity.role, user.role)
         assertEquals(entity.status, user.status)
-        assertEquals(entity.phone, user.phone)
+        assertEquals(entity.phone, user.phone?.value)
         assertEquals(entity.cpf, user.cpf)
         assertEquals(entity.rg, user.rg)
         assertEquals(entity.address, user.address)

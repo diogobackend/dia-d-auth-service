@@ -11,9 +11,11 @@ object Messages {
     const val EMAIL_REQUIRED = "E-mail é obrigatório"
     const val PASSWORD_REQUIRED = "Senha é obrigatório"
     const val ROLE_REQUIRED = "Perfil é obrigatório"
+    const val PHONE_REQUIRED = "Telefone não pode ser vazio"
 
     // Validação de formato e conteúdo
     const val EMAIL_INVALID = "E-mail é inválido"
+    const val PHONE_INVALID = "Telefone inválido"
     const val BIRTH_DATE_FUTURE = "Data de nascimento não pode ser futura"
     const val BIRTH_DATE_INVALID_FORMAT = "Data de nascimento inválida. Utilize o formato yyyy-MM-dd"
 

@@ -11,7 +11,7 @@ object FindUserMapper {
             email = user.email.value,
             role = user.role.name,
             status = user.status.name,
-            phone = user.phone,
+            phone = user.phone?.value,
             cpf = user.cpf.toString(),
             rg = user.rg,
             address = user.address,

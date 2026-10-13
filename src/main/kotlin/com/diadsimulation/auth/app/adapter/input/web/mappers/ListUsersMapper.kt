@@ -11,7 +11,7 @@ object ListUsersMapper {
             email = user.email.value,
             role = user.role,
             status = user.status,
-            phone = user.phone,
+            phone = user.phone?.value,
             cpf = user.cpf,
             rg = user.rg,
             address = user.address,

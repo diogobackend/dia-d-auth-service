@@ -5,6 +5,7 @@ import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Phone
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -99,7 +100,7 @@ class UserTest {
             passwordHash = "new-password"
             role = SCHOOL_ADMIN
             status = ACTIVE
-            phone = "98988888888"
+            phone = Phone("98988888888")
             cpf = "987.654.321-00"
             rg = "987654321"
             address = "São Paulo - SP"

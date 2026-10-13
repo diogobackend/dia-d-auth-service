@@ -17,7 +17,7 @@ class UpdateUserMapperTest {
             { assertEquals(user.userId, result.userId) },
             { assertEquals(user.name, result.name) },
             { assertEquals(user.email.value, result.email) },
-            { assertEquals(user.phone, result.phone) },
+            { assertEquals(user.phone?.value, result.phone) },
             { assertEquals(user.address, result.address) },
             { assertEquals(user.updatedAt, result.updatedAt) },
         )

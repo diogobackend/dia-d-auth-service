@@ -3,6 +3,7 @@ package com.diadsimulation.auth.app.adapter.output.persistence.mappers
 import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntity
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Phone
 
 object UserPersistenceMapper {
     fun toEntity(user: User): UserEntity =
@@ -13,7 +14,7 @@ object UserPersistenceMapper {
             passwordHash = user.passwordHash,
             role = user.role,
             status = user.status,
-            phone = user.phone,
+            phone = user.phone?.value,
             cpf = user.cpf,
             rg = user.rg,
             address = user.address,
@@ -30,7 +31,7 @@ object UserPersistenceMapper {
             passwordHash = entity.passwordHash,
             role = entity.role,
             status = entity.status,
-            phone = entity.phone,
+            phone = entity.phone?.let(::Phone),
             cpf = entity.cpf,
             rg = entity.rg,
             address = entity.address,

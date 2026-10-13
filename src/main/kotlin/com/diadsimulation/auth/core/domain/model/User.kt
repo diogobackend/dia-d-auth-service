@@ -3,6 +3,7 @@ package com.diadsimulation.auth.core.domain.model
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Phone
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -14,7 +15,7 @@ class User(
     var passwordHash: String,
     var role: UserRole,
     var status: UserStatus,
-    var phone: String? = null,
+    var phone: Phone? = null,
     var cpf: String? = null,
     var rg: String? = null,
     var address: String? = null,

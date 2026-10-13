@@ -257,7 +257,7 @@ class UserPersistenceAdapter(
         entity.name = user.name
         entity.email = user.email.value
         entity.passwordHash = user.passwordHash
-        entity.phone = user.phone
+        entity.phone = user.phone?.value
         entity.address = user.address
         entity.updatedAt = user.updatedAt
 
