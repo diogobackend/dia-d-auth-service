@@ -26,7 +26,7 @@ class RegisterUserMapperTest {
 
         assertNotNull(result.userId)
         assertEquals(request.name, result.name)
-        assertEquals(request.email, result.email)
+        assertEquals(request.email, result.email.value)
         assertEquals(request.password, result.passwordHash)
         assertEquals(CANDIDATE, result.role)
         assertEquals(ACTIVE, result.status)
@@ -86,7 +86,7 @@ class RegisterUserMapperTest {
 
         assertEquals(user.userId, response.userId)
         assertEquals(user.name, response.name)
-        assertEquals(user.email, response.email)
+        assertEquals(user.email.value, response.email)
         assertEquals(user.role, response.role)
         assertEquals(user.status, response.status)
         assertEquals(user.createdAt, response.createdAt)

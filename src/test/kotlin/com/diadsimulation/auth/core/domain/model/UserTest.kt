@@ -4,6 +4,7 @@ import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
+import com.diadsimulation.auth.core.domain.valueobject.Email
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -19,7 +20,7 @@ class UserTest {
         val user =
             User(
                 name = "Diogo Ferreira",
-                email = "candidate@diadsimulation.com",
+                email = Email("candidate@diadsimulation.com"),
                 passwordHash = "encoded-password",
                 role = CANDIDATE,
                 status = ACTIVE,
@@ -93,7 +94,7 @@ class UserTest {
             )
 
         user.apply {
-            email = "new@diadsimulation.com"
+            email = Email("new@diadsimulation.com")
             name = "Novo Nome"
             passwordHash = "new-password"
             role = SCHOOL_ADMIN

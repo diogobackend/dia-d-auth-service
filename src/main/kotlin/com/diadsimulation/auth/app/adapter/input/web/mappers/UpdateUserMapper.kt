@@ -8,7 +8,7 @@ object UpdateUserMapper {
         UpdateUserResponse(
             userId = user.userId,
             name = user.name,
-            email = user.email,
+            email = user.email.value,
             phone = user.phone,
             address = user.address,
             updatedAt = user.updatedAt,

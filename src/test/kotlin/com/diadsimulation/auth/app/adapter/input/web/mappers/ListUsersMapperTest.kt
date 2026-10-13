@@ -13,7 +13,7 @@ class ListUsersMapperTest {
 
         assertEquals(user.userId, response.userId)
         assertEquals(user.name, response.name)
-        assertEquals(user.email, response.email)
+        assertEquals(user.email.value, response.email)
         assertEquals(user.role, response.role)
         assertEquals(user.status, response.status)
         assertEquals(user.phone, response.phone)

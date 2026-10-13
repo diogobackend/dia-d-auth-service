@@ -2,13 +2,14 @@ package com.diadsimulation.auth.app.adapter.output.persistence.mappers
 
 import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntity
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.valueobject.Email
 
 object UserPersistenceMapper {
     fun toEntity(user: User): UserEntity =
         UserEntity(
             userId = user.userId,
             name = user.name,
-            email = user.email,
+            email = user.email.value,
             passwordHash = user.passwordHash,
             role = user.role,
             status = user.status,
@@ -25,7 +26,7 @@ object UserPersistenceMapper {
         User(
             userId = entity.userId,
             name = entity.name,
-            email = entity.email,
+            email = Email(entity.email),
             passwordHash = entity.passwordHash,
             role = entity.role,
             status = entity.status,

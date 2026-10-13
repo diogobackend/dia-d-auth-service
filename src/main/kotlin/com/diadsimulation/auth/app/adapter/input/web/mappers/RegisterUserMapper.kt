@@ -4,11 +4,12 @@ import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserR
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.valueobject.Email
 
 object RegisterUserMapper {
     fun toDomain(request: RegisterUserRequest): User =
         User(
-            email = request.email,
+            email = Email(request.email),
             name = request.name,
             passwordHash = request.password,
             role = request.role,
@@ -24,7 +25,7 @@ object RegisterUserMapper {
         RegisterUserResponse(
             userId = user.userId,
             name = user.name,
-            email = user.email,
+            email = user.email.value,
             role = user.role,
             status = user.status,
             phone = user.phone,

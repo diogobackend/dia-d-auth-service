@@ -14,7 +14,7 @@ class RegisterUserUseCaseImpl(
     override fun execute(user: User): User {
         val cpf = user.cpf
         val rg = user.rg
-        val email = user.email
+        val email = user.email.value
 
         if (userRepositoryPort.existsByEmail(email)) {
             throw UserAlreadyExistsException(

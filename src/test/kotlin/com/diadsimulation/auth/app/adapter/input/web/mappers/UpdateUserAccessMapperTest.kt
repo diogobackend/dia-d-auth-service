@@ -13,7 +13,7 @@ class UpdateUserAccessMapperTest {
 
         assertEquals(user.userId, result.userId)
         assertEquals(user.name, result.name)
-        assertEquals(user.email, result.email)
+        assertEquals(user.email.value, result.email)
         assertEquals(user.role, result.role)
         assertEquals(user.status, result.status)
         assertEquals(user.updatedAt, result.updatedAt)

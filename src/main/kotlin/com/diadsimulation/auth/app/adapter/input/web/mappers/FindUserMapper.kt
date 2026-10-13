@@ -8,7 +8,7 @@ object FindUserMapper {
         FindUserResponse(
             userId = user.userId,
             name = user.name,
-            email = user.email,
+            email = user.email.value,
             role = user.role.name,
             status = user.status.name,
             phone = user.phone,

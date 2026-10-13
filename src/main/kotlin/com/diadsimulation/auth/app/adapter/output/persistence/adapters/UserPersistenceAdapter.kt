@@ -255,7 +255,7 @@ class UserPersistenceAdapter(
                 .orElseThrow { NoSuchElementException(USER_NOT_FOUND) }
 
         entity.name = user.name
-        entity.email = user.email
+        entity.email = user.email.value
         entity.passwordHash = user.passwordHash
         entity.phone = user.phone
         entity.address = user.address

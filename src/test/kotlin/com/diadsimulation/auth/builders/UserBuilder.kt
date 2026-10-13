@@ -3,6 +3,7 @@ package com.diadsimulation.auth.builders
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.valueobject.Email
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -25,7 +26,7 @@ fun buildUser(
     User(
         userId = userId,
         name = name,
-        email = email,
+        email = Email(email),
         passwordHash = passwordHash,
         role = role,
         status = status,

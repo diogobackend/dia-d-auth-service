@@ -15,7 +15,7 @@ class FindUserMapperTest {
         assertAll(
             { assertEquals(user.userId, result.userId) },
             { assertEquals(user.name, result.name) },
-            { assertEquals(user.email, result.email) },
+            { assertEquals(user.email.value, result.email) },
             { assertEquals(user.role.name, result.role) },
             { assertEquals(user.status.name, result.status) },
             { assertEquals(user.phone, result.phone) },

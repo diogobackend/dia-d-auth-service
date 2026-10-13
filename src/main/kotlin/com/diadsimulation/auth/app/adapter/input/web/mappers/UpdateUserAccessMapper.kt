@@ -8,7 +8,7 @@ object UpdateUserAccessMapper {
         UpdateUserAccessUserResponse(
             userId = user.userId,
             name = user.name,
-            email = user.email,
+            email = user.email.value,
             role = user.role,
             status = user.status,
             updatedAt = user.updatedAt,

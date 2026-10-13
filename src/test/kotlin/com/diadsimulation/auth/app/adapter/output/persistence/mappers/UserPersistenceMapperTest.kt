@@ -1,8 +1,8 @@
-import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersistenceMapper
+package com.diadsimulation.auth.app.adapter.output.persistence.mappers
+
 import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.core.domain.model.User
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class UserPersistenceMapperTest {
@@ -26,7 +26,7 @@ class UserPersistenceMapperTest {
 
         assertEquals(entity.userId, user.userId)
         assertEquals(entity.name, user.name)
-        assertEquals(entity.email, user.email)
+        assertEquals(entity.email, user.email.value)
         assertEquals(entity.passwordHash, user.passwordHash)
         assertEquals(entity.role, user.role)
         assertEquals(entity.status, user.status)

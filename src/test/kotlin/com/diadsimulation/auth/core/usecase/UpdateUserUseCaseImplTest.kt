@@ -73,7 +73,7 @@ class UpdateUserUseCaseImplTest {
 
         val result = execute(email = newEmail)
 
-        assertEquals(newEmail, result.email)
+        assertEquals(newEmail, result.email.value)
 
         verify(exactly = 1) {
             userRepositoryPort.findByEmail(newEmail)
@@ -142,7 +142,7 @@ class UpdateUserUseCaseImplTest {
             )
 
         assertEquals("Updated Name", result.name)
-        assertEquals(newEmail, result.email)
+        assertEquals(newEmail, result.email.value)
         assertEquals(ENCODED_PASSWORD, result.passwordHash)
         assertEquals("98999999999", result.phone)
         assertEquals("Updated Address", result.address)
@@ -203,7 +203,7 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
         mockSuccessfulUpdate()
 
-        val result = execute(email = user.email)
+        val result = execute(email = user.email.value)
 
         assertEquals(user.email, result.email)
 
@@ -217,11 +217,11 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
         mockSuccessfulUpdate()
 
-        val newEmail = user.email.uppercase()
+        val newEmail = user.email.value.uppercase()
 
         val result = execute(email = newEmail)
 
-        assertEquals(newEmail, result.email)
+        assertEquals(newEmail, result.email.value)
 
         verify(exactly = 0) {
             userRepositoryPort.findByEmail(any())

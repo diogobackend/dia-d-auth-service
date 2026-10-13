@@ -4,6 +4,7 @@ import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.valueobject.Email
 import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
 import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
@@ -31,7 +32,7 @@ class UpdateUserUseCaseImpl(
 
         val newEmail = email?.takeIf { it.isNotBlank() }
 
-        if (newEmail != null && !newEmail.equals(user.email, ignoreCase = true)) {
+        if (newEmail != null && !newEmail.equals(user.email.value, ignoreCase = true)) {
             if (userRepositoryPort.findByEmail(newEmail.toString()) != null) {
                 throw UserAlreadyExistsException(EMAIL_ALREADY_EXISTS)
             }
@@ -41,7 +42,7 @@ class UpdateUserUseCaseImpl(
             User(
                 userId = user.userId,
                 name = name?.takeIf { it.isNotBlank() } ?: user.name,
-                email = newEmail ?: user.email,
+                email = newEmail?.let(::Email) ?: user.email,
                 passwordHash =
                     password
                         ?.takeIf { it.isNotBlank() }

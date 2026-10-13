@@ -2,6 +2,7 @@ package com.diadsimulation.auth.core.domain.model
 
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
+import com.diadsimulation.auth.core.domain.valueobject.Email
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -9,7 +10,7 @@ import java.util.UUID
 class User(
     val userId: UUID = UUID.randomUUID(),
     var name: String,
-    var email: String,
+    var email: Email,
     var passwordHash: String,
     var role: UserRole,
     var status: UserStatus,

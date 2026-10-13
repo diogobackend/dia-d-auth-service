@@ -9,7 +9,6 @@ import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.UserRole.PLATFORM_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
-import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
 import com.diadsimulation.auth.core.domain.enums.UserStatus.INACTIVE
 import com.diadsimulation.auth.core.domain.model.User
@@ -66,6 +65,19 @@ class UserPersistenceAdapterTest {
     private lateinit var builder: CriteriaBuilder
     private lateinit var predicate: Predicate
 
+    private val email get() = user.email.value
+    private val userId get() = user.userId
+    private val name get() = user.name
+    private val cpf get() = user.cpf
+    private val rg get() = user.rg
+    private val role get() = user.role
+    private val status get() = user.status
+    private val passwordHash get() = user.passwordHash
+    private val phone get() = user.phone
+    private val address get() = user.address
+    private val birthDate get() = user.birthDate
+    private val createdAt get() = user.createdAt
+
     @BeforeEach
     fun setUp() {
         user = buildUser()
@@ -80,27 +92,27 @@ class UserPersistenceAdapterTest {
         every {
             userJpaRepository.save(
                 match {
-                    it.userId == user.userId &&
-                        it.email == user.email &&
-                        it.passwordHash == user.passwordHash
+                    it.userId == userId &&
+                        it.email == email &&
+                        it.passwordHash == passwordHash
                 },
             )
         } answers { firstArg() }
 
         val result = adapter.save(user)
 
-        assertEquals(user.userId, result.userId)
-        assertEquals(user.name, result.name)
-        assertEquals(user.email, result.email)
-        assertEquals(user.passwordHash, result.passwordHash)
+        assertEquals(userId, result.userId)
+        assertEquals(name, result.name)
+        assertEquals(email, result.email.value)
+        assertEquals(passwordHash, result.passwordHash)
 
         verify(exactly = 1) {
             userJpaRepository.save(
                 match {
-                    it.userId == user.userId &&
-                        it.name == user.name &&
-                        it.email == user.email &&
-                        it.passwordHash == user.passwordHash
+                    it.userId == userId &&
+                        it.name == name &&
+                        it.email == email &&
+                        it.passwordHash == passwordHash
                 },
             )
         }
@@ -109,63 +121,63 @@ class UserPersistenceAdapterTest {
     @Test
     fun `should find user by id`() {
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.of(UserPersistenceMapper.toEntity(user))
 
-        val result = adapter.findById(user.userId)
+        val result = adapter.findById(userId)
 
         assertNotNull(result)
-        assertEquals(user.userId, result?.userId)
-        assertEquals(user.email, result?.email)
+        assertEquals(userId, result?.userId)
+        assertEquals(email, result?.email?.value)
     }
 
     @Test
     fun `should return null when user id does not exist`() {
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.empty()
 
-        assertNull(adapter.findById(user.userId))
+        assertNull(adapter.findById(userId))
     }
 
     @Test
     fun `should find user by email`() {
         every {
-            userJpaRepository.findByEmail(user.email)
+            userJpaRepository.findByEmail(email)
         } returns UserPersistenceMapper.toEntity(user)
 
-        val result = adapter.findByEmail(user.email)
+        val result = adapter.findByEmail(email)
 
         assertNotNull(result)
-        assertEquals(user.userId, result?.userId)
-        assertEquals(user.email, result?.email)
+        assertEquals(userId, result?.userId)
+        assertEquals(email, result?.email?.value)
     }
 
     @Test
     fun `should return null when email does not exist`() {
         every {
-            userJpaRepository.findByEmail(user.email)
+            userJpaRepository.findByEmail(email)
         } returns null
 
-        assertNull(adapter.findByEmail(user.email))
+        assertNull(adapter.findByEmail(email))
     }
 
     @ParameterizedTest
     @MethodSource("booleanProvider")
     fun `should check if email exists`(exists: Boolean) {
-        every { userJpaRepository.existsByEmail(user.email) } returns exists
+        every { userJpaRepository.existsByEmail(email) } returns exists
 
-        assertEquals(exists, adapter.existsByEmail(user.email))
+        assertEquals(exists, adapter.existsByEmail(email))
 
         verify(exactly = 1) {
-            userJpaRepository.existsByEmail(user.email)
+            userJpaRepository.existsByEmail(email)
         }
     }
 
     @ParameterizedTest
     @MethodSource("booleanProvider")
     fun `should check if cpf exists`(exists: Boolean) {
-        val cpf = requireNotNull(user.cpf)
+        val cpf = requireNotNull(cpf)
 
         every { userJpaRepository.existsByCpf(cpf) } returns exists
 
@@ -179,7 +191,7 @@ class UserPersistenceAdapterTest {
     @ParameterizedTest
     @MethodSource("booleanProvider")
     fun `should check if rg exists`(exists: Boolean) {
-        val rg = requireNotNull(user.rg)
+        val rg = requireNotNull(rg)
 
         every { userJpaRepository.existsByRg(rg) } returns exists
 
@@ -207,7 +219,7 @@ class UserPersistenceAdapterTest {
         val result = adapter.findAll(criteria)
 
         assertEquals(1, result.content.size)
-        assertEquals(user.userId, result.content.first().userId)
+        assertEquals(userId, result.content.first().userId)
         assertEquals(0, result.page)
         assertEquals(10, result.size)
         assertEquals(1, result.totalPages)
@@ -716,18 +728,18 @@ class UserPersistenceAdapterTest {
         val result =
             when (document) {
                 "cpf" -> {
-                    every { userJpaRepository.findByCpf(user.cpf.toString()) } returns entity
-                    adapter.findByCpf(user.cpf.toString())
+                    every { userJpaRepository.findByCpf(cpf.toString()) } returns entity
+                    adapter.findByCpf(cpf.toString())
                 }
 
                 else -> {
-                    every { userJpaRepository.findByRg(user.rg!!) } returns entity
-                    adapter.findByRg(user.rg!!)
+                    every { userJpaRepository.findByRg(rg!!) } returns entity
+                    adapter.findByRg(rg!!)
                 }
             }
 
         assertNotNull(result)
-        assertEquals(user.userId, result?.userId)
+        assertEquals(userId, result?.userId)
     }
 
     @ParameterizedTest
@@ -736,13 +748,13 @@ class UserPersistenceAdapterTest {
         val result =
             when (document) {
                 "cpf" -> {
-                    every { userJpaRepository.findByCpf(user.cpf.toString()) } returns null
-                    adapter.findByCpf(user.cpf.toString())
+                    every { userJpaRepository.findByCpf(cpf.toString()) } returns null
+                    adapter.findByCpf(cpf.toString())
                 }
 
                 else -> {
-                    every { userJpaRepository.findByRg(user.rg!!) } returns null
-                    adapter.findByRg(user.rg!!)
+                    every { userJpaRepository.findByRg(rg!!) } returns null
+                    adapter.findByRg(rg!!)
                 }
             }
 
@@ -755,12 +767,12 @@ class UserPersistenceAdapterTest {
         val updatedAt = OffsetDateTime.now()
 
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.of(entity)
 
         val updatedUser =
             buildUser(
-                userId = user.userId,
+                userId = userId,
                 name = "Updated Name",
                 email = "updated@diad.com",
                 passwordHash = "updated-password-hash",
@@ -780,7 +792,7 @@ class UserPersistenceAdapterTest {
         assertEquals(updatedAt, result.updatedAt)
 
         verify(exactly = 1) {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         }
 
         verify(exactly = 0) {
@@ -793,24 +805,24 @@ class UserPersistenceAdapterTest {
         val entity = UserPersistenceMapper.toEntity(user)
 
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.of(entity)
 
         val updatedUser =
             buildUser(
-                userId = user.userId,
+                userId = userId,
                 name = "Updated Name",
             )
 
         val result = adapter.update(updatedUser)
 
-        assertEquals(user.userId, result.userId)
-        assertEquals(user.role, result.role)
-        assertEquals(user.status, result.status)
-        assertEquals(user.cpf, result.cpf)
-        assertEquals(user.rg, result.rg)
-        assertEquals(user.birthDate, result.birthDate)
-        assertEquals(user.createdAt, result.createdAt)
+        assertEquals(userId, result.userId)
+        assertEquals(role, result.role)
+        assertEquals(status, result.status)
+        assertEquals(cpf, result.cpf)
+        assertEquals(rg, result.rg)
+        assertEquals(birthDate, result.birthDate)
+        assertEquals(createdAt, result.createdAt)
 
         verify(exactly = 0) {
             userJpaRepository.save(any())
@@ -820,7 +832,7 @@ class UserPersistenceAdapterTest {
     @Test
     fun `should throw exception when updating nonexistent user`() {
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.empty()
 
         val exception =
@@ -831,7 +843,7 @@ class UserPersistenceAdapterTest {
         assertEquals(USER_NOT_FOUND, exception.message)
 
         verify(exactly = 1) {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         }
 
         verify(exactly = 0) {
@@ -842,31 +854,31 @@ class UserPersistenceAdapterTest {
     @Test
     fun `should delete user successfully`() {
         justRun {
-            userJpaRepository.deleteById(user.userId)
+            userJpaRepository.deleteById(userId)
         }
 
-        adapter.deleteById(user.userId)
+        adapter.deleteById(userId)
 
         verify(exactly = 1) {
-            userJpaRepository.deleteById(user.userId)
+            userJpaRepository.deleteById(userId)
         }
     }
 
     @Test
     fun `should propagate exception when deletion fails`() {
         every {
-            userJpaRepository.deleteById(user.userId)
+            userJpaRepository.deleteById(userId)
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                adapter.deleteById(user.userId)
+                adapter.deleteById(userId)
             }
 
         assertEquals(PERSISTENCE_FAILED, exception.message)
 
         verify(exactly = 1) {
-            userJpaRepository.deleteById(user.userId)
+            userJpaRepository.deleteById(userId)
         }
     }
 
@@ -877,7 +889,7 @@ class UserPersistenceAdapterTest {
 
         val updatedUser =
             buildUser(
-                userId = user.userId,
+                userId = userId,
                 updatedAt = updatedAt,
             ).apply {
                 role = SCHOOL_ADMIN
@@ -885,7 +897,7 @@ class UserPersistenceAdapterTest {
             }
 
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.of(userEntity)
 
         every {
@@ -897,10 +909,10 @@ class UserPersistenceAdapterTest {
         assertEquals(SCHOOL_ADMIN, result.role)
         assertEquals(BLOCKED, result.status)
         assertEquals(updatedAt, result.updatedAt)
-        assertEquals(user.userId, result.userId)
+        assertEquals(userId, result.userId)
 
         verify(exactly = 1) {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
             userJpaRepository.save(userEntity)
         }
     }
@@ -911,14 +923,14 @@ class UserPersistenceAdapterTest {
 
         val updatedUser =
             buildUser(
-                userId = user.userId,
+                userId = userId,
             ).apply {
                 role = PLATFORM_ADMIN
                 status = INACTIVE
             }
 
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.of(userEntity)
 
         every {
@@ -927,21 +939,21 @@ class UserPersistenceAdapterTest {
 
         val result = adapter.updateAccess(updatedUser)
 
-        assertEquals(user.name, result.name)
-        assertEquals(user.email, result.email)
-        assertEquals(user.passwordHash, result.passwordHash)
-        assertEquals(user.phone, result.phone)
-        assertEquals(user.cpf, result.cpf)
-        assertEquals(user.rg, result.rg)
-        assertEquals(user.address, result.address)
-        assertEquals(user.birthDate, result.birthDate)
-        assertEquals(user.createdAt, result.createdAt)
+        assertEquals(name, result.name)
+        assertEquals(email, result.email.value)
+        assertEquals(passwordHash, result.passwordHash)
+        assertEquals(phone, result.phone)
+        assertEquals(cpf, result.cpf)
+        assertEquals(rg, result.rg)
+        assertEquals(address, result.address)
+        assertEquals(birthDate, result.birthDate)
+        assertEquals(createdAt, result.createdAt)
     }
 
     @Test
     fun `should throw exception when updating access of nonexistent user`() {
         every {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         } returns Optional.empty()
 
         val exception =
@@ -952,7 +964,7 @@ class UserPersistenceAdapterTest {
         assertEquals(USER_NOT_FOUND, exception.message)
 
         verify(exactly = 1) {
-            userJpaRepository.findById(user.userId)
+            userJpaRepository.findById(userId)
         }
 
         verify(exactly = 0) {
