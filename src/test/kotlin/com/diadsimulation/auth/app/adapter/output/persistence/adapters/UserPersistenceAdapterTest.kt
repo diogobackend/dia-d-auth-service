@@ -5,6 +5,7 @@ import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersis
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
 import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
+import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
@@ -13,6 +14,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -830,6 +832,37 @@ class UserPersistenceAdapterTest {
 
         verify(exactly = 0) {
             userJpaRepository.save(any())
+        }
+    }
+
+    @Test
+    fun `should delete user successfully`() {
+        justRun {
+            userJpaRepository.deleteById(user.userId)
+        }
+
+        adapter.deleteById(user.userId)
+
+        verify(exactly = 1) {
+            userJpaRepository.deleteById(user.userId)
+        }
+    }
+
+    @Test
+    fun `should propagate exception when deletion fails`() {
+        every {
+            userJpaRepository.deleteById(user.userId)
+        } throws IllegalStateException(PERSISTENCE_FAILED)
+
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                adapter.deleteById(user.userId)
+            }
+
+        assertEquals(PERSISTENCE_FAILED, exception.message)
+
+        verify(exactly = 1) {
+            userJpaRepository.deleteById(user.userId)
         }
     }
 
