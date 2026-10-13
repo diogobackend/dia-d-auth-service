@@ -7,8 +7,11 @@ import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
 import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
+import com.diadsimulation.auth.core.domain.enums.UserRole.PLATFORM_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
+import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
+import com.diadsimulation.auth.core.domain.enums.UserStatus.INACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -44,6 +47,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Collections.emptyList
+import java.util.NoSuchElementException
 import java.util.Optional
 import java.util.stream.Stream
 
@@ -863,6 +867,96 @@ class UserPersistenceAdapterTest {
 
         verify(exactly = 1) {
             userJpaRepository.deleteById(user.userId)
+        }
+    }
+
+    @Test
+    fun `should update user access successfully`() {
+        val userEntity = UserPersistenceMapper.toEntity(user)
+        val updatedAt = OffsetDateTime.now()
+
+        val updatedUser =
+            buildUser(
+                userId = user.userId,
+                updatedAt = updatedAt,
+            ).apply {
+                role = SCHOOL_ADMIN
+                status = BLOCKED
+            }
+
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.of(userEntity)
+
+        every {
+            userJpaRepository.save(userEntity)
+        } answers { firstArg() }
+
+        val result = adapter.updateAccess(updatedUser)
+
+        assertEquals(SCHOOL_ADMIN, result.role)
+        assertEquals(BLOCKED, result.status)
+        assertEquals(updatedAt, result.updatedAt)
+        assertEquals(user.userId, result.userId)
+
+        verify(exactly = 1) {
+            userJpaRepository.findById(user.userId)
+            userJpaRepository.save(userEntity)
+        }
+    }
+
+    @Test
+    fun `should preserve user data when updating access`() {
+        val userEntity = UserPersistenceMapper.toEntity(user)
+
+        val updatedUser =
+            buildUser(
+                userId = user.userId,
+            ).apply {
+                role = PLATFORM_ADMIN
+                status = INACTIVE
+            }
+
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.of(userEntity)
+
+        every {
+            userJpaRepository.save(userEntity)
+        } answers { firstArg() }
+
+        val result = adapter.updateAccess(updatedUser)
+
+        assertEquals(user.name, result.name)
+        assertEquals(user.email, result.email)
+        assertEquals(user.passwordHash, result.passwordHash)
+        assertEquals(user.phone, result.phone)
+        assertEquals(user.cpf, result.cpf)
+        assertEquals(user.rg, result.rg)
+        assertEquals(user.address, result.address)
+        assertEquals(user.birthDate, result.birthDate)
+        assertEquals(user.createdAt, result.createdAt)
+    }
+
+    @Test
+    fun `should throw exception when updating access of nonexistent user`() {
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.empty()
+
+        val exception =
+            assertThrows(NoSuchElementException::class.java) {
+                adapter.updateAccess(user)
+            }
+
+        assertEquals(USER_NOT_FOUND, exception.message)
+
+        verify(exactly = 1) {
+            userJpaRepository.findById(user.userId)
+        }
+
+        verify(exactly = 0) {
+            userJpaRepository.save(any())
         }
     }
 
