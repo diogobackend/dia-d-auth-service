@@ -268,4 +268,20 @@ class UserPersistenceAdapter(
     override fun deleteById(userId: UUID) {
         userJpaRepository.deleteById(userId)
     }
+
+    @Transactional
+    override fun updateAccess(user: User): User {
+        val userEntity =
+            userJpaRepository
+                .findById(user.userId)
+                .orElseThrow { NoSuchElementException(USER_NOT_FOUND) }
+
+        userEntity.role = user.role
+        userEntity.status = user.status
+        userEntity.updatedAt = user.updatedAt
+
+        return UserPersistenceMapper.toDomain(
+            userJpaRepository.save(userEntity),
+        )
+    }
 }

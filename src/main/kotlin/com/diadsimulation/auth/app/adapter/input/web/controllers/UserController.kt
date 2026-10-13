@@ -3,15 +3,18 @@ package com.diadsimulation.auth.app.adapter.input.web.controllers
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserAccessRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserAccessUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.mappers.FindUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.ListUsersMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.RegisterUserMapper
+import com.diadsimulation.auth.app.adapter.input.web.mappers.UpdateUserAccessMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.UpdateUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.domain.enums.SortDirection
@@ -20,6 +23,7 @@ import com.diadsimulation.auth.core.port.input.DeleteUserUseCase
 import com.diadsimulation.auth.core.port.input.FindUserUseCase
 import com.diadsimulation.auth.core.port.input.ListUsersUseCase
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
+import com.diadsimulation.auth.core.port.input.UpdateUserAccessUseCase
 import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
@@ -42,6 +46,7 @@ class UserController(
     private val findUserUseCase: FindUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
+    private val updateUserAccessUseCase: UpdateUserAccessUseCase,
 ) : UserApi {
     @PostMapping
     override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
@@ -133,5 +138,19 @@ class UserController(
         @PathVariable userId: UUID,
     ) {
         deleteUserUseCase.execute(userId)
+    }
+
+    @PatchMapping("/{userId}/access")
+    override fun updateUserAccess(
+        userId: UUID,
+        request: UpdateUserAccessRequest,
+    ): ResponseEntity<UpdateUserAccessUserResponse> {
+        val user =
+            updateUserAccessUseCase.execute(
+                userId = userId,
+                role = request.role,
+                status = request.status,
+            )
+        return ResponseEntity.ok(UpdateUserAccessMapper.toResponse(user))
     }
 }

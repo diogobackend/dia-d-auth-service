@@ -27,4 +27,6 @@ interface UserRepositoryPort {
     fun update(user: User): User
 
     fun deleteById(userId: UUID)
+
+    fun updateAccess(user: User): User
 }

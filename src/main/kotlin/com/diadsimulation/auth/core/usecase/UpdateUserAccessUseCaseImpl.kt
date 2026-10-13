@@ -1,0 +1,46 @@
+package com.diadsimulation.auth.core.usecase
+
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
+import com.diadsimulation.auth.core.domain.enums.UserRole
+import com.diadsimulation.auth.core.domain.enums.UserStatus
+import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.port.input.UpdateUserAccessUseCase
+import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import org.springframework.stereotype.Service
+import java.time.OffsetDateTime
+import java.util.NoSuchElementException
+import java.util.UUID
+
+@Service
+class UpdateUserAccessUseCaseImpl(
+    private val userRepositoryPort: UserRepositoryPort,
+) : UpdateUserAccessUseCase {
+    override fun execute(
+        userId: UUID,
+        role: UserRole?,
+        status: UserStatus?,
+    ): User {
+        val user =
+            userRepositoryPort.findById(userId)
+                ?: throw NoSuchElementException(USER_NOT_FOUND)
+
+        val updatedUser =
+            User(
+                userId = user.userId,
+                name = user.name,
+                email = user.email,
+                passwordHash = user.passwordHash,
+                role = role ?: user.role,
+                status = status ?: user.status,
+                phone = user.phone,
+                cpf = user.cpf,
+                rg = user.rg,
+                address = user.address,
+                birthDate = user.birthDate,
+                createdAt = user.createdAt,
+                updatedAt = OffsetDateTime.now(),
+            )
+
+        return userRepositoryPort.updateAccess(updatedUser)
+    }
+}

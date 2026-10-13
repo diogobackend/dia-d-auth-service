@@ -3,11 +3,13 @@ package com.diadsimulation.auth.app.adapter.input.web.swagger
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserAccessRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserAccessUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.exception.ApiErrorResponse
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
@@ -267,4 +269,57 @@ interface UserApi {
         ],
     )
     fun deleteUser(userId: UUID)
+
+    @Operation(
+        summary = "Atualizar acesso do usuário",
+        description = "Atualiza parcialmente o perfil de acesso (role) e/ou o status de um usuário.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Acesso do usuário atualizado com sucesso",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = UpdateUserResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = USER_NOT_FOUND,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = INTERNAL_SERVER_ERROR_MESSAGE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun updateUserAccess(
+        @PathVariable userId: UUID,
+        @Valid @RequestBody request: UpdateUserAccessRequest,
+    ): ResponseEntity<UpdateUserAccessUserResponse>
 }
