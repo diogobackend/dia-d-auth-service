@@ -5,6 +5,7 @@ import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersis
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
 import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
 import com.diadsimulation.auth.core.domain.model.User
@@ -23,6 +24,7 @@ import jakarta.persistence.criteria.Root
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -739,6 +741,96 @@ class UserPersistenceAdapterTest {
             }
 
         assertNull(result)
+    }
+
+    @Test
+    fun `should update user successfully`() {
+        val entity = UserPersistenceMapper.toEntity(user)
+        val updatedAt = OffsetDateTime.now()
+
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.of(entity)
+
+        val updatedUser =
+            buildUser(
+                userId = user.userId,
+                name = "Updated Name",
+                email = "updated@diad.com",
+                passwordHash = "updated-password-hash",
+                phone = "98999999999",
+                address = "Updated Address",
+                updatedAt = updatedAt,
+            )
+
+        val result = adapter.update(updatedUser)
+
+        assertEquals(updatedUser.userId, result.userId)
+        assertEquals(updatedUser.name, result.name)
+        assertEquals(updatedUser.email, result.email)
+        assertEquals(updatedUser.passwordHash, result.passwordHash)
+        assertEquals(updatedUser.phone, result.phone)
+        assertEquals(updatedUser.address, result.address)
+        assertEquals(updatedAt, result.updatedAt)
+
+        verify(exactly = 1) {
+            userJpaRepository.findById(user.userId)
+        }
+
+        verify(exactly = 0) {
+            userJpaRepository.save(any())
+        }
+    }
+
+    @Test
+    fun `should preserve non editable fields when updating user`() {
+        val entity = UserPersistenceMapper.toEntity(user)
+
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.of(entity)
+
+        val updatedUser =
+            buildUser(
+                userId = user.userId,
+                name = "Updated Name",
+            )
+
+        val result = adapter.update(updatedUser)
+
+        assertEquals(user.userId, result.userId)
+        assertEquals(user.role, result.role)
+        assertEquals(user.status, result.status)
+        assertEquals(user.cpf, result.cpf)
+        assertEquals(user.rg, result.rg)
+        assertEquals(user.birthDate, result.birthDate)
+        assertEquals(user.createdAt, result.createdAt)
+
+        verify(exactly = 0) {
+            userJpaRepository.save(any())
+        }
+    }
+
+    @Test
+    fun `should throw exception when updating nonexistent user`() {
+        every {
+            userJpaRepository.findById(user.userId)
+        } returns Optional.empty()
+
+        val exception =
+            assertThrows(NoSuchElementException::class.java) {
+                adapter.update(user)
+            }
+
+        assertEquals(USER_NOT_FOUND, exception.message)
+
+        verify(exactly = 1) {
+            userJpaRepository.findById(user.userId)
+        }
+
+        verify(exactly = 0) {
+            userJpaRepository.save(any())
+        }
     }
 
     private fun mockFindAll() {
