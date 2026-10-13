@@ -263,4 +263,9 @@ class UserPersistenceAdapter(
 
         return UserPersistenceMapper.toDomain(entity)
     }
+
+    @Transactional
+    override fun deleteById(userId: UUID) {
+        userJpaRepository.deleteById(userId)
+    }
 }

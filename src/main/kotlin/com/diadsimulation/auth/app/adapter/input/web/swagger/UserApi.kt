@@ -255,4 +255,16 @@ interface UserApi {
         @PathVariable userId: UUID,
         @Valid @RequestBody request: UpdateUserRequest,
     ): ResponseEntity<UpdateUserResponse>
+
+    @Operation(
+        summary = "Excluir usuário",
+        description = "Exclui permanentemente um usuário pelo ID",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Usuário excluído com sucesso"),
+            ApiResponse(responseCode = "404", description = USER_NOT_FOUND),
+        ],
+    )
+    fun deleteUser(userId: UUID)
 }

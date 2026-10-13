@@ -25,4 +25,6 @@ interface UserRepositoryPort {
     fun findByRg(rg: String): User?
 
     fun update(user: User): User
+
+    fun deleteById(userId: UUID)
 }
