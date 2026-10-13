@@ -23,4 +23,6 @@ interface UserRepositoryPort {
     fun findByCpf(cpf: String): User?
 
     fun findByRg(rg: String): User?
+
+    fun update(user: User): User
 }

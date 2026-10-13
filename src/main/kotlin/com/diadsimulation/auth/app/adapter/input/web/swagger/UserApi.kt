@@ -3,13 +3,17 @@ package com.diadsimulation.auth.app.adapter.input.web.swagger
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.exception.ApiErrorResponse
+import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -20,7 +24,9 @@ import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
+import java.util.UUID
 
 @Tag(
     name = "Users",
@@ -132,7 +138,7 @@ interface UserApi {
         ],
     )
     fun listUsers(
-        @ParameterObject @ModelAttribute request: ListUsersRequest,
+        @Valid @ParameterObject @ModelAttribute request: ListUsersRequest,
     ): ResponseEntity<PagedResponse<ListUsersResponse>>
 
     @Operation(
@@ -184,6 +190,69 @@ interface UserApi {
         ],
     )
     fun findUser(
-        @ParameterObject @ModelAttribute request: FindUserRequest,
+        @Valid @ParameterObject @ModelAttribute request: FindUserRequest,
     ): ResponseEntity<FindUserResponse>
+
+    @Operation(
+        summary = "Atualizar usuário",
+        description = "Atualiza parcialmente os dados de perfil de um usuário.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Usuário atualizado com sucesso",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = UpdateUserResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = USER_NOT_FOUND,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = EMAIL_ALREADY_EXISTS,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = INTERNAL_SERVER_ERROR_MESSAGE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun updateUser(
+        @PathVariable userId: UUID,
+        @Valid @RequestBody request: UpdateUserRequest,
+    ): ResponseEntity<UpdateUserResponse>
 }

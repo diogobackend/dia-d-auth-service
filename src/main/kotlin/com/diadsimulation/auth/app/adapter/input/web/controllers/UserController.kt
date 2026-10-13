@@ -3,27 +3,31 @@ package com.diadsimulation.auth.app.adapter.input.web.controllers
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.FindUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.ListUsersRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
+import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.UpdateUserRequest
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.FindUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.ListUsersResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.PagedResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUserResponse
+import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.mappers.FindUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.ListUsersMapper
 import com.diadsimulation.auth.app.adapter.input.web.mappers.RegisterUserMapper
+import com.diadsimulation.auth.app.adapter.input.web.mappers.UpdateUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.domain.enums.SortDirection
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import com.diadsimulation.auth.core.port.input.FindUserUseCase
 import com.diadsimulation.auth.core.port.input.ListUsersUseCase
 import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
-import jakarta.validation.Valid
+import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/users")
@@ -31,6 +35,7 @@ class UserController(
     private val registerUserUseCase: RegisterUserUseCase,
     private val listUsersUseCase: ListUsersUseCase,
     private val findUserUseCase: FindUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase,
 ) : UserApi {
     @PostMapping
     override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
@@ -43,9 +48,7 @@ class UserController(
     }
 
     @GetMapping
-    override fun listUsers(
-        @Valid @ModelAttribute request: ListUsersRequest,
-    ): ResponseEntity<PagedResponse<ListUsersResponse>> {
+    override fun listUsers(request: ListUsersRequest): ResponseEntity<PagedResponse<ListUsersResponse>> {
         val criteria =
             UserSearchCriteria(
                 page = request.page,
@@ -86,9 +89,7 @@ class UserController(
     }
 
     @GetMapping("/id")
-    override fun findUser(
-        @Valid @ModelAttribute request: FindUserRequest,
-    ): ResponseEntity<FindUserResponse> {
+    override fun findUser(request: FindUserRequest): ResponseEntity<FindUserResponse> {
         val user =
             findUserUseCase.execute(
                 userId = request.userId,
@@ -100,5 +101,23 @@ class UserController(
         return ResponseEntity.ok(
             FindUserMapper.toResponse(user),
         )
+    }
+
+    @PatchMapping("/{userId}")
+    override fun updateUser(
+        userId: UUID,
+        request: UpdateUserRequest,
+    ): ResponseEntity<UpdateUserResponse> {
+        val user =
+            updateUserUseCase.execute(
+                userId = userId,
+                name = request.name,
+                email = request.email,
+                password = request.password,
+                phone = request.phone,
+                address = request.address,
+            )
+
+        return ResponseEntity.ok(UpdateUserMapper.toResponse(user))
     }
 }

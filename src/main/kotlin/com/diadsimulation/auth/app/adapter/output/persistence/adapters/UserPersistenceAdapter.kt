@@ -3,11 +3,13 @@ package com.diadsimulation.auth.app.adapter.output.persistence.adapters
 import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntity
 import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersistenceMapper
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
 import jakarta.persistence.criteria.Predicate
+import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.NoSuchElementException
 import java.util.UUID
 
 @Component
@@ -243,4 +246,21 @@ class UserPersistenceAdapter(
     override fun findByCpf(cpf: String): User? = userJpaRepository.findByCpf(cpf)?.let(UserPersistenceMapper::toDomain)
 
     override fun findByRg(rg: String): User? = userJpaRepository.findByRg(rg)?.let(UserPersistenceMapper::toDomain)
+
+    @Transactional
+    override fun update(user: User): User {
+        val entity =
+            userJpaRepository
+                .findById(user.userId)
+                .orElseThrow { NoSuchElementException(USER_NOT_FOUND) }
+
+        entity.name = user.name
+        entity.email = user.email
+        entity.passwordHash = user.passwordHash
+        entity.phone = user.phone
+        entity.address = user.address
+        entity.updatedAt = user.updatedAt
+
+        return UserPersistenceMapper.toDomain(entity)
+    }
 }
