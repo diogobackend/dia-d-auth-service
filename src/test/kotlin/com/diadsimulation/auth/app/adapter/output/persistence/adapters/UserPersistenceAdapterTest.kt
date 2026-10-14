@@ -68,8 +68,8 @@ class UserPersistenceAdapterTest {
     private val email get() = user.email.value
     private val userId get() = user.userId
     private val name get() = user.name
-    private val cpf get() = user.cpf
-    private val rg get() = user.rg
+    private val cpf get() = user.cpf?.value
+    private val rg get() = user.rg?.value
     private val role get() = user.role
     private val status get() = user.status
     private val passwordHash get() = user.passwordHash
@@ -819,8 +819,8 @@ class UserPersistenceAdapterTest {
         assertEquals(userId, result.userId)
         assertEquals(role, result.role)
         assertEquals(status, result.status)
-        assertEquals(cpf, result.cpf)
-        assertEquals(rg, result.rg)
+        assertEquals(cpf, result.cpf?.value)
+        assertEquals(rg, result.rg?.value)
         assertEquals(birthDate, result.birthDate)
         assertEquals(createdAt, result.createdAt)
 
@@ -943,8 +943,8 @@ class UserPersistenceAdapterTest {
         assertEquals(email, result.email.value)
         assertEquals(passwordHash, result.passwordHash)
         assertEquals(phone, result.phone)
-        assertEquals(cpf, result.cpf)
-        assertEquals(rg, result.rg)
+        assertEquals(cpf, result.cpf?.value)
+        assertEquals(rg, result.rg?.value)
         assertEquals(address, result.address)
         assertEquals(birthDate, result.birthDate)
         assertEquals(createdAt, result.createdAt)

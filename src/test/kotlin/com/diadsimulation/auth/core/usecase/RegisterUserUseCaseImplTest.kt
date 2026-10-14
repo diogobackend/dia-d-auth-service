@@ -38,8 +38,8 @@ class RegisterUserUseCaseImplTest {
     private lateinit var user: User
 
     private val email get() = user.email.value
-    private val cpf get() = user.cpf
-    private val rg get() = user.rg
+    private val cpf get() = user.cpf?.value
+    private val rg get() = user.rg?.value
     private val passwordHash get() = user.passwordHash
 
     @BeforeEach

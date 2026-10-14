@@ -4,8 +4,10 @@ import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
+import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
 import com.diadsimulation.auth.core.domain.valueobject.Phone
+import com.diadsimulation.auth.core.domain.valueobject.Rg
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -87,7 +89,7 @@ class UserTest {
                 status = ACTIVE,
                 phone = "98988888888",
                 cpf = "987.654.321-00",
-                rg = "987654321",
+                rg = "04.717.957/2013-4",
                 address = "São Paulo - SP",
                 birthDate = birthDate,
                 createdAt = user.createdAt,
@@ -101,8 +103,8 @@ class UserTest {
             role = SCHOOL_ADMIN
             status = ACTIVE
             phone = Phone("98988888888")
-            cpf = "987.654.321-00"
-            rg = "987654321"
+            cpf = Cpf("987.654.321-00")
+            rg = Rg("04.717.957/2013-4")
             address = "São Paulo - SP"
             this.birthDate = birthDate
             this.updatedAt = updatedAt

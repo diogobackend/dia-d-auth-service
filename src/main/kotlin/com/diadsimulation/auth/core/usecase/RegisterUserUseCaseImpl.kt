@@ -12,8 +12,8 @@ class RegisterUserUseCaseImpl(
     private val passwordEncoderPort: PasswordEncoderPort,
 ) : RegisterUserUseCase {
     override fun execute(user: User): User {
-        val cpf = user.cpf
-        val rg = user.rg
+        val cpf = user.cpf?.value
+        val rg = user.rg?.value
         val email = user.email.value
 
         if (userRepositoryPort.existsByEmail(email)) {

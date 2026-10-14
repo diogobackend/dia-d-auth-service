@@ -12,12 +12,16 @@ object Messages {
     const val PASSWORD_REQUIRED = "Senha é obrigatório"
     const val ROLE_REQUIRED = "Perfil é obrigatório"
     const val PHONE_REQUIRED = "Telefone não pode ser vazio"
+    const val CPF_REQUIRED = "CPF não pode ser vazio"
+    const val RG_REQUIRED = "RG não pode ser vazio"
 
     // Validação de formato e conteúdo
     const val EMAIL_INVALID = "E-mail é inválido"
     const val PHONE_INVALID = "Telefone inválido"
+    const val CPF_INVALID = "CPF inválido"
     const val BIRTH_DATE_FUTURE = "Data de nascimento não pode ser futura"
     const val BIRTH_DATE_INVALID_FORMAT = "Data de nascimento inválida. Utilize o formato yyyy-MM-dd"
+    const val RG_INVALID = "RG inválido"
 
     // Validação de parâmetros
     const val INVALID_USER_UPDATE_PARAMS = "Informe pelo menos um campo para atualização"

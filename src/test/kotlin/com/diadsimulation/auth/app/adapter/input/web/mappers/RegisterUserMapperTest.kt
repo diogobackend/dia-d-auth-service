@@ -19,8 +19,8 @@ class RegisterUserMapperTest {
             buildRegisterUserRequest(
                 phone = "98999999999",
                 address = "São Luís - MA",
-                cpf = "123.456.789-00",
-                rg = "123456789",
+                cpf = "529.982.247-25",
+                rg = "04.717.957/2013-4",
             )
 
         val result = RegisterUserMapper.toDomain(request)
@@ -38,8 +38,8 @@ class RegisterUserMapperTest {
             expectedRg = request.rg,
             actualPhone = result.phone?.value,
             actualAddress = result.address,
-            actualCpf = result.cpf,
-            actualRg = result.rg,
+            actualCpf = result.cpf?.value,
+            actualRg = result.rg?.value,
         )
     }
 
@@ -66,8 +66,8 @@ class RegisterUserMapperTest {
             expectedRg = expected,
             actualPhone = result.phone?.value,
             actualAddress = result.address,
-            actualCpf = result.cpf,
-            actualRg = result.rg,
+            actualCpf = result.cpf?.value,
+            actualRg = result.rg?.value,
         )
     }
 
@@ -78,8 +78,8 @@ class RegisterUserMapperTest {
                 buildRegisterUserRequest(
                     phone = "98999999999",
                     address = "São Luís - MA",
-                    cpf = "123.456.789-00",
-                    rg = "123456789",
+                    cpf = "529.982.247-25",
+                    rg = "04.717.957/2013-4",
                 ),
             )
 
@@ -95,8 +95,8 @@ class RegisterUserMapperTest {
         assertOptionalFields(
             expectedPhone = user.phone?.value,
             expectedAddress = user.address,
-            expectedCpf = user.cpf,
-            expectedRg = user.rg,
+            expectedCpf = user.cpf?.value,
+            expectedRg = user.rg?.value,
             actualPhone = response.phone,
             actualAddress = response.address,
             actualCpf = response.cpf,
