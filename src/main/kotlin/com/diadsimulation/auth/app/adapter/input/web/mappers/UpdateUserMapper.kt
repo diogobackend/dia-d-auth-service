@@ -11,6 +11,7 @@ object UpdateUserMapper {
             email = user.email.value,
             phone = user.phone?.value,
             address = user.address,
+            cpf = user.cpf?.value,
             updatedAt = user.updatedAt,
         )
 }

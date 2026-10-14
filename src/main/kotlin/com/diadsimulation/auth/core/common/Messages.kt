@@ -42,6 +42,8 @@ object Messages {
     // Regras de negócio
     const val USER_ALREADY_EXISTS = "Já existe um usuário cadastrado com o "
     const val EMAIL_ALREADY_EXISTS = "E-mail já cadastrado"
+    const val CPF_ALREADY_EXISTS = "CPF Já existe"
+    const val CPF_ALREADY_REGISTERED = "Você não pode alterar o CPF"
     const val USER_NOT_FOUND = "Usuário não encontrado"
 
     // Erros de infraestrutura

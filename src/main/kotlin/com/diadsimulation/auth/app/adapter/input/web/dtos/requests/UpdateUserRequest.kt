@@ -8,11 +8,12 @@ data class UpdateUserRequest(
     val email: String? = null,
     val password: String? = null,
     val phone: String? = null,
+    val cpf: String? = null,
     val address: String? = null,
 ) {
     @get:AssertTrue(message = INVALID_USER_UPDATE_PARAMS)
     val isValid: Boolean
         get() =
-            listOf(name, email, password, phone, address)
+            listOf(name, email, password, phone, cpf, address)
                 .any { !it.isNullOrBlank() }
 }

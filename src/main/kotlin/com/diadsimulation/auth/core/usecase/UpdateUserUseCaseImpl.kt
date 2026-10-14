@@ -1,9 +1,12 @@
 package com.diadsimulation.auth.core.usecase
 
+import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
+import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
@@ -26,6 +29,7 @@ class UpdateUserUseCaseImpl(
         password: String?,
         phone: String?,
         address: String?,
+        cpf: String?,
     ): User {
         val user =
             userRepositoryPort.findById(userId)
@@ -52,7 +56,7 @@ class UpdateUserUseCaseImpl(
                 role = user.role,
                 status = user.status,
                 phone = phone?.takeIf { it.isNotBlank() }?.let(::Phone) ?: user.phone,
-                cpf = user.cpf,
+                cpf = updateCpf(user.cpf, cpf),
                 rg = user.rg,
                 address = address?.takeIf { it.isNotBlank() } ?: user.address,
                 birthDate = user.birthDate,
@@ -61,5 +65,24 @@ class UpdateUserUseCaseImpl(
             )
 
         return userRepositoryPort.update(updatedUser)
+    }
+
+    private fun updateCpf(
+        currentCpf: Cpf?,
+        newCpf: String?,
+    ): Cpf? {
+        val value = newCpf?.takeIf { it.isNotBlank() } ?: return currentCpf
+
+        val cpf = Cpf(value)
+
+        if (currentCpf != null) {
+            throw UserAlreadyExistsException(CPF_ALREADY_REGISTERED)
+        }
+
+        if (userRepositoryPort.existsByCpf(cpf.value)) {
+            throw UserAlreadyExistsException(CPF_ALREADY_EXISTS)
+        }
+
+        return cpf
     }
 }

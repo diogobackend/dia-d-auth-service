@@ -8,6 +8,7 @@ data class UpdateUserResponse(
     val name: String,
     val email: String,
     val phone: String?,
+    val cpf: String?,
     val address: String?,
     val updatedAt: OffsetDateTime,
 )

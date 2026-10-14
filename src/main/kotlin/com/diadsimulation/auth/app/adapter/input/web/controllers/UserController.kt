@@ -127,6 +127,7 @@ class UserController(
                 password = request.password,
                 phone = request.phone,
                 address = request.address,
+                cpf = request.cpf,
             )
 
         return ResponseEntity.ok(UpdateUserMapper.toResponse(user))

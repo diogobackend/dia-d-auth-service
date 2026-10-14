@@ -332,6 +332,7 @@ class UpdateUserUseCaseImplTest {
         password: String? = null,
         phone: String? = null,
         address: String? = null,
+        cpf: String? = null,
     ): User =
         updateUserUseCaseImpl.execute(
             userId = user.userId,
@@ -340,6 +341,7 @@ class UpdateUserUseCaseImplTest {
             password = password,
             phone = phone,
             address = address,
+            cpf = cpf,
         )
 
     private fun mockExistingUser() {
