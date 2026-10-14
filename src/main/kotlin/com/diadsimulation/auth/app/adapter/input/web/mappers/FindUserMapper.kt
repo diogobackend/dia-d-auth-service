@@ -12,7 +12,7 @@ object FindUserMapper {
             role = user.role.name,
             status = user.status.name,
             phone = user.phone?.value,
-            cpf = user.cpf?.value.toString(),
+            cpf = user.cpf?.value,
             rg = user.rg?.value,
             address = user.address,
             birthDate = user.birthDate,

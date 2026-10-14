@@ -4,6 +4,7 @@ import com.diadsimulation.auth.builders.buildUser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 
 class ListUsersMapperTest {
     @Test
@@ -33,5 +34,17 @@ class ListUsersMapperTest {
         val response = ListUsersMapper.toResponse(user)
 
         assertNull(response.phone)
+    }
+
+    @Test
+    fun `should map user to list users response with null cpf and rg`() {
+        val user = buildUser(cpf = null, rg = null)
+
+        val response = ListUsersMapper.toResponse(user)
+
+        assertAll(
+            { assertNull(response.cpf) },
+            { assertNull(response.rg) },
+        )
     }
 }

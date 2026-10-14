@@ -37,4 +37,16 @@ class FindUserMapperTest {
 
         assertNull(result.phone)
     }
+
+    @Test
+    fun `should map user domain to response with null cpf and rg`() {
+        val user = buildUser(cpf = null, rg = null)
+
+        val result = FindUserMapper.toResponse(user)
+
+        assertAll(
+            { assertNull(result.cpf) },
+            { assertNull(result.rg) },
+        )
+    }
 }

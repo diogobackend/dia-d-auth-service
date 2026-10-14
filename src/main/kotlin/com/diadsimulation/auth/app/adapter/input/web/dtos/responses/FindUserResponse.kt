@@ -11,7 +11,7 @@ data class FindUserResponse(
     val role: String,
     val status: String,
     val phone: String?,
-    val cpf: String,
+    val cpf: String?,
     val rg: String?,
     val address: String?,
     val birthDate: LocalDate?,
