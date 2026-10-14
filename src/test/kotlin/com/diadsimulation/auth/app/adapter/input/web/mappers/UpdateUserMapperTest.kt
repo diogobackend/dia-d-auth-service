@@ -19,6 +19,7 @@ class UpdateUserMapperTest {
             { assertEquals(user.email.value, result.email) },
             { assertEquals(user.phone?.value, result.phone) },
             { assertEquals(user.address, result.address) },
+            { assertEquals(user.cpf?.value, result.cpf) },
             { assertEquals(user.updatedAt, result.updatedAt) },
         )
     }
@@ -28,12 +29,16 @@ class UpdateUserMapperTest {
         val user =
             buildUser(
                 phone = null,
+                cpf = null,
                 address = null,
             )
 
         val result = UpdateUserMapper.toResponse(user)
 
-        assertNull(result.phone)
-        assertNull(result.address)
+        assertAll(
+            { assertNull(result.phone) },
+            { assertNull(result.cpf) },
+            { assertNull(result.address) },
+        )
     }
 }

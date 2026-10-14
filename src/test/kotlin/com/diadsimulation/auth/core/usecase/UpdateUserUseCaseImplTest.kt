@@ -1,6 +1,8 @@
 package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.builders.buildUser
+import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_ENCODING_FAILED
 import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
@@ -20,6 +22,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullAndEmptySource
+import org.junit.jupiter.params.provider.ValueSource
 import java.util.NoSuchElementException
 
 @ExtendWith(MockKExtension::class)
@@ -324,6 +329,82 @@ class UpdateUserUseCaseImplTest {
         assertEquals(user.birthDate, result.birthDate)
         assertEquals(user.createdAt, result.createdAt)
         assertTrue(result.updatedAt >= user.updatedAt)
+    }
+
+    @Test
+    fun `should update cpf when current cpf is null`() {
+        user = buildUser(cpf = null)
+        val newCpf = "613.098.083-33"
+
+        mockExistingUser()
+        every { userRepositoryPort.existsByCpf(newCpf) } returns false
+        mockSuccessfulUpdate()
+
+        val result = execute(cpf = newCpf)
+
+        assertEquals(newCpf, result.cpf?.value)
+
+        verify(exactly = 1) {
+            userRepositoryPort.existsByCpf(newCpf)
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @Test
+    fun `should throw exception when cpf is already registered`() {
+        mockExistingUser()
+
+        val exception =
+            assertThrows(UserAlreadyExistsException::class.java) {
+                execute(cpf = "613.098.083-33")
+            }
+
+        assertEquals(CPF_ALREADY_REGISTERED, exception.message)
+
+        verify(exactly = 0) {
+            userRepositoryPort.existsByCpf(any())
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @Test
+    fun `should throw exception when cpf already exists`() {
+        user = buildUser(cpf = null)
+        val newCpf = "613.098.083-33"
+
+        mockExistingUser()
+        every { userRepositoryPort.existsByCpf(newCpf) } returns true
+
+        val exception =
+            assertThrows(UserAlreadyExistsException::class.java) {
+                execute(cpf = newCpf)
+            }
+
+        assertEquals(CPF_ALREADY_EXISTS, exception.message)
+
+        verify(exactly = 1) {
+            userRepositoryPort.existsByCpf(newCpf)
+        }
+
+        verify(exactly = 0) {
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = [" ", "   "])
+    fun `should preserve current cpf when new cpf is null or blank`(newCpf: String?) {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(cpf = newCpf)
+
+        assertEquals(user.cpf, result.cpf)
+
+        verify(exactly = 0) {
+            userRepositoryPort.existsByCpf(any())
+        }
     }
 
     private fun execute(
