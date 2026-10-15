@@ -41,10 +41,11 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.jpa.domain.Specification
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.util.Collections.emptyList
 import java.util.NoSuchElementException
 import java.util.Optional
@@ -206,7 +207,7 @@ class UserPersistenceAdapterTest {
     fun `should find all users without filters`() {
         val criteria = buildUserSearchCriteria()
         val entity = UserPersistenceMapper.toEntity(user)
-        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "name"))
+        val pageable = PageRequest.of(0, 10, Sort.by(ASC, "name"))
         val page = PageImpl(listOf(entity), pageable, 1)
 
         every {
@@ -321,7 +322,7 @@ class UserPersistenceAdapterTest {
 
         dateFrom?.let {
             val expectedFrom =
-                it.atStartOfDay().atOffset(ZoneOffset.UTC)
+                it.atStartOfDay().atOffset(UTC)
 
             val fromPredicate = mockk<Predicate>()
 
@@ -334,7 +335,7 @@ class UserPersistenceAdapterTest {
 
         dateTo?.let {
             val expectedTo =
-                it.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+                it.plusDays(1).atStartOfDay().atOffset(UTC)
 
             val toPredicate = mockk<Predicate>()
 
@@ -359,7 +360,7 @@ class UserPersistenceAdapterTest {
             verify(exactly = 1) {
                 builder.greaterThanOrEqualTo(
                     datePath,
-                    it.atStartOfDay().atOffset(ZoneOffset.UTC),
+                    it.atStartOfDay().atOffset(UTC),
                 )
             }
         }
@@ -368,7 +369,7 @@ class UserPersistenceAdapterTest {
             verify(exactly = 1) {
                 builder.lessThan(
                     datePath,
-                    it.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                    it.plusDays(1).atStartOfDay().atOffset(UTC),
                 )
             }
         }
@@ -421,8 +422,8 @@ class UserPersistenceAdapterTest {
         val fromPredicate = mockk<Predicate>()
         val toPredicate = mockk<Predicate>()
 
-        val expectedFrom = dateExact.atStartOfDay().atOffset(ZoneOffset.UTC)
-        val expectedTo = dateExact.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+        val expectedFrom = dateExact.atStartOfDay().atOffset(UTC)
+        val expectedTo = dateExact.plusDays(1).atStartOfDay().atOffset(UTC)
 
         every { root.get<OffsetDateTime>(dateField) } returns datePath
         every { builder.greaterThanOrEqualTo(datePath, expectedFrom) } returns fromPredicate
@@ -693,8 +694,8 @@ class UserPersistenceAdapterTest {
         val fromPredicate = mockk<Predicate>()
         val toPredicate = mockk<Predicate>()
 
-        val expectedFrom = date.atStartOfDay().atOffset(ZoneOffset.UTC)
-        val expectedTo = date.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+        val expectedFrom = date.atStartOfDay().atOffset(UTC)
+        val expectedTo = date.plusDays(1).atStartOfDay().atOffset(UTC)
 
         every { root.get<OffsetDateTime>(field) } returns datePath
         every {

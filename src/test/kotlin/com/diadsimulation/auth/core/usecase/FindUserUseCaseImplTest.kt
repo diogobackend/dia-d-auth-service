@@ -1,4 +1,9 @@
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
+import com.diadsimulation.auth.core.domain.enums.SearchType
+import com.diadsimulation.auth.core.domain.enums.SearchType.CPF
+import com.diadsimulation.auth.core.domain.enums.SearchType.EMAIL
+import com.diadsimulation.auth.core.domain.enums.SearchType.RG
+import com.diadsimulation.auth.core.domain.enums.SearchType.USER_ID
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
 import com.diadsimulation.auth.core.usecase.FindUserUseCaseImpl
@@ -89,25 +94,25 @@ class FindUserUseCaseImplTest {
         user: User?,
     ) {
         when (request.searchType) {
-            SearchType.USER_ID -> {
+            USER_ID -> {
                 every {
                     userRepositoryPort.findById(requireNotNull(request.userId))
                 } returns user
             }
 
-            SearchType.EMAIL -> {
+            EMAIL -> {
                 every {
                     userRepositoryPort.findByEmail(requireNotNull(request.email))
                 } returns user
             }
 
-            SearchType.CPF -> {
+            CPF -> {
                 every {
                     userRepositoryPort.findByCpf(requireNotNull(request.cpf))
                 } returns user
             }
 
-            SearchType.RG -> {
+            RG -> {
                 every {
                     userRepositoryPort.findByRg(requireNotNull(request.rg))
                 } returns user
@@ -117,25 +122,25 @@ class FindUserUseCaseImplTest {
 
     private fun verifyRepository(request: FindUserTestData) {
         when (request.searchType) {
-            SearchType.USER_ID -> {
+            USER_ID -> {
                 verify(exactly = 1) {
                     userRepositoryPort.findById(requireNotNull(request.userId))
                 }
             }
 
-            SearchType.EMAIL -> {
+            EMAIL -> {
                 verify(exactly = 1) {
                     userRepositoryPort.findByEmail(requireNotNull(request.email))
                 }
             }
 
-            SearchType.CPF -> {
+            CPF -> {
                 verify(exactly = 1) {
                     userRepositoryPort.findByCpf(requireNotNull(request.cpf))
                 }
             }
 
-            SearchType.RG -> {
+            RG -> {
                 verify(exactly = 1) {
                     userRepositoryPort.findByRg(requireNotNull(request.rg))
                 }
@@ -145,28 +150,28 @@ class FindUserUseCaseImplTest {
 
     private fun createSearchRequest(searchType: SearchType): FindUserTestData =
         when (searchType) {
-            SearchType.USER_ID -> {
+            USER_ID -> {
                 FindUserTestData(
                     searchType = searchType,
                     userId = UUID.randomUUID(),
                 )
             }
 
-            SearchType.EMAIL -> {
+            EMAIL -> {
                 FindUserTestData(
                     searchType = searchType,
                     email = "usuario-${UUID.randomUUID()}@email.com",
                 )
             }
 
-            SearchType.CPF -> {
+            CPF -> {
                 FindUserTestData(
                     searchType = searchType,
                     cpf = "12345678901",
                 )
             }
 
-            SearchType.RG -> {
+            RG -> {
                 FindUserTestData(
                     searchType = searchType,
                     rg = "123456789",
@@ -181,11 +186,4 @@ class FindUserUseCaseImplTest {
         val cpf: String? = null,
         val rg: String? = null,
     )
-
-    enum class SearchType {
-        USER_ID,
-        EMAIL,
-        CPF,
-        RG,
-    }
 }
