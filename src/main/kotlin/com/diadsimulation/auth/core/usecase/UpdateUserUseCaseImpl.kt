@@ -3,12 +3,15 @@ package com.diadsimulation.auth.core.usecase
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
 import com.diadsimulation.auth.core.domain.valueobject.Phone
+import com.diadsimulation.auth.core.domain.valueobject.Rg
 import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
 import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryPort
@@ -30,6 +33,7 @@ class UpdateUserUseCaseImpl(
         phone: String?,
         address: String?,
         cpf: String?,
+        rg: String?,
     ): User {
         val user =
             userRepositoryPort.findById(userId)
@@ -57,7 +61,7 @@ class UpdateUserUseCaseImpl(
                 status = user.status,
                 phone = phone?.takeIf { it.isNotBlank() }?.let(::Phone) ?: user.phone,
                 cpf = updateCpf(user.cpf, cpf),
-                rg = user.rg,
+                rg = updateRg(user.rg, rg),
                 address = address?.takeIf { it.isNotBlank() } ?: user.address,
                 birthDate = user.birthDate,
                 createdAt = user.createdAt,
@@ -84,5 +88,24 @@ class UpdateUserUseCaseImpl(
         }
 
         return cpf
+    }
+
+    private fun updateRg(
+        currentRg: Rg?,
+        newRg: String?,
+    ): Rg? {
+        val value = newRg?.takeIf { it.isNotBlank() } ?: return currentRg
+
+        val rg = Rg(value)
+
+        if (currentRg != null) {
+            throw UserAlreadyExistsException(RG_ALREADY_REGISTERED)
+        }
+
+        if (userRepositoryPort.existsByRg(rg.value)) {
+            throw UserAlreadyExistsException(RG_ALREADY_EXISTS)
+        }
+
+        return rg
     }
 }

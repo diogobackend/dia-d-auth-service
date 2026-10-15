@@ -12,5 +12,6 @@ interface UpdateUserUseCase {
         phone: String?,
         address: String?,
         cpf: String?,
+        rg: String?,
     ): User
 }

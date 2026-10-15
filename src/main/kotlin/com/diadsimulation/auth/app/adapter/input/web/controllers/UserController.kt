@@ -128,6 +128,7 @@ class UserController(
                 phone = request.phone,
                 address = request.address,
                 cpf = request.cpf,
+                rg = request.rg,
             )
 
         return ResponseEntity.ok(UpdateUserMapper.toResponse(user))
