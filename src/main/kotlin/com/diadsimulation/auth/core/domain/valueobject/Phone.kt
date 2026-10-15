@@ -1,6 +1,7 @@
 package com.diadsimulation.auth.core.domain.valueobject
 
 import com.diadsimulation.auth.core.common.Messages.PHONE_INVALID
+import com.diadsimulation.auth.core.common.Messages.PHONE_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.PHONE_REQUIRED
 
 @JvmInline
@@ -13,7 +14,7 @@ value class Phone(
         }
 
         require(value.length <= 30) {
-            "Telefone deve possuir no máximo 30 caracteres"
+            PHONE_MAX_LENGTH
         }
 
         require(PHONE_REGEX.matches(value)) {

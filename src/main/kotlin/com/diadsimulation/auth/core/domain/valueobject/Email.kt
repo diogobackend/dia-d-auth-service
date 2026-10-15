@@ -1,6 +1,7 @@
 package com.diadsimulation.auth.core.domain.valueobject
 
 import com.diadsimulation.auth.core.common.Messages.EMAIL_INVALID
+import com.diadsimulation.auth.core.common.Messages.EMAIL_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
 
 @JvmInline
@@ -13,7 +14,7 @@ value class Email(
         }
 
         require(value.length <= 255) {
-            "E-mail deve possuir no máximo 255 caracteres"
+            EMAIL_MAX_LENGTH
         }
 
         require(EMAIL_REGEX.matches(value)) {

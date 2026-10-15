@@ -54,4 +54,13 @@ object Messages {
 
     // Identificadores de requisição
     const val REGISTER_USER_REQUEST = "registerUserRequest"
+
+    // Validação de tamanho dos campos
+    const val NAME_MAX_LENGTH = "Nome deve possuir no máximo 150 caracteres"
+    const val EMAIL_MAX_LENGTH = "E-mail deve possuir no máximo 255 caracteres"
+    const val PASSWORD_LENGTH = "Senha deve possuir entre 8 e 100 caracteres"
+    const val PHONE_MAX_LENGTH = "Telefone deve possuir no máximo 30 caracteres"
+    const val ADDRESS_MAX_LENGTH = "Endereço deve possuir no máximo 500 caracteres"
+    const val CPF_MAX_LENGTH = "CPF deve possuir no máximo 14 caracteres"
+    const val RG_MAX_LENGTH = "RG deve possuir no máximo 20 caracteres"
 }

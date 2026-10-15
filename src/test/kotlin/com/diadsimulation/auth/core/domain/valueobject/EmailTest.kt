@@ -1,6 +1,7 @@
 package com.diadsimulation.auth.core.domain.valueobject
 
 import com.diadsimulation.auth.core.common.Messages.EMAIL_INVALID
+import com.diadsimulation.auth.core.common.Messages.EMAIL_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -48,7 +49,7 @@ class EmailTest {
             }
 
         assertEquals(
-            "E-mail deve possuir no máximo 255 caracteres",
+            EMAIL_MAX_LENGTH,
             exception.message,
         )
     }

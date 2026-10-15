@@ -171,7 +171,7 @@ interface UserApi {
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "Usuário não encontrado",
+                description = USER_NOT_FOUND,
                 content = [
                     Content(
                         mediaType = "application/json",
