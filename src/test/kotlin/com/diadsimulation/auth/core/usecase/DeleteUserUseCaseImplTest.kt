@@ -4,7 +4,7 @@ import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -22,10 +22,10 @@ import java.util.NoSuchElementException
 @ExtendWith(MockKExtension::class)
 class DeleteUserUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var deleteUserUseCaseImpl: DeleteUserUseCaseImpl
+    private lateinit var deleteUserUseCaseImpl: DeleteUserUseCaseImplementation
 
     private lateinit var user: User
 

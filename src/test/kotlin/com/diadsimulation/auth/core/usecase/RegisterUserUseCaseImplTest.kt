@@ -6,8 +6,8 @@ import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -27,13 +27,13 @@ import java.util.stream.Stream
 @ExtendWith(MockKExtension::class)
 class RegisterUserUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @MockK
-    private lateinit var passwordEncoderPort: PasswordEncoderPort
+    private lateinit var passwordEncoderPort: PasswordEncoderOutputPort
 
     @InjectMockKs
-    private lateinit var useCase: RegisterUserUseCaseImpl
+    private lateinit var useCase: RegisterUserUseCaseImplementation
 
     private lateinit var user: User
 

@@ -7,7 +7,7 @@ import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import jakarta.persistence.criteria.Predicate
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
@@ -23,7 +23,7 @@ import java.util.UUID
 @Component
 class UserPersistenceAdapter(
     private val userJpaRepository: UserJpaRepository,
-) : UserRepositoryPort {
+) : UserRepositoryOutputPort {
     override fun save(user: User): User {
         val userEntity = UserPersistenceMapper.toEntity(user)
         val savedEntity = userJpaRepository.save(userEntity)

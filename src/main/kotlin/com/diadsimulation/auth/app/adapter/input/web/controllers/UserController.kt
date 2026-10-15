@@ -19,12 +19,12 @@ import com.diadsimulation.auth.app.adapter.input.web.mappers.UpdateUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.domain.enums.SortDirection
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
-import com.diadsimulation.auth.core.port.input.DeleteUserUseCase
-import com.diadsimulation.auth.core.port.input.FindUserUseCase
-import com.diadsimulation.auth.core.port.input.ListUsersUseCase
-import com.diadsimulation.auth.core.port.input.RegisterUserUseCase
-import com.diadsimulation.auth.core.port.input.UpdateUserAccessUseCase
-import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
+import com.diadsimulation.auth.core.port.input.DeleteUserInputPort
+import com.diadsimulation.auth.core.port.input.FindUserInputPort
+import com.diadsimulation.auth.core.port.input.ListUsersInputPort
+import com.diadsimulation.auth.core.port.input.RegisterUserInputPort
+import com.diadsimulation.auth.core.port.input.UpdateUserAccessInputPort
+import com.diadsimulation.auth.core.port.input.UpdateUserInputPort
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.ResponseEntity
@@ -41,17 +41,17 @@ import java.util.UUID
 @RestController
 @RequestMapping("/users")
 class UserController(
-    private val registerUserUseCase: RegisterUserUseCase,
-    private val listUsersUseCase: ListUsersUseCase,
-    private val findUserUseCase: FindUserUseCase,
-    private val updateUserUseCase: UpdateUserUseCase,
-    private val deleteUserUseCase: DeleteUserUseCase,
-    private val updateUserAccessUseCase: UpdateUserAccessUseCase,
+    private val registerUserInputPort: RegisterUserInputPort,
+    private val listUsersInputPort: ListUsersInputPort,
+    private val findUserInputPort: FindUserInputPort,
+    private val updateUserInputPort: UpdateUserInputPort,
+    private val deleteUserInputPort: DeleteUserInputPort,
+    private val updateUserAccessInputPort: UpdateUserAccessInputPort,
 ) : UserApi {
     @PostMapping
     override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
         val user = RegisterUserMapper.toDomain(request)
-        val registeredUser = registerUserUseCase.execute(user)
+        val registeredUser = registerUserInputPort.execute(user)
 
         return ResponseEntity
             .status(CREATED)
@@ -85,7 +85,7 @@ class UserController(
                 updatedAt = request.updatedAt,
             )
 
-        val result = listUsersUseCase.execute(criteria)
+        val result = listUsersInputPort.execute(criteria)
 
         return ResponseEntity.ok(
             PagedResponse(
@@ -102,7 +102,7 @@ class UserController(
     @GetMapping("/id")
     override fun findUser(request: FindUserRequest): ResponseEntity<FindUserResponse> {
         val user =
-            findUserUseCase.execute(
+            findUserInputPort.execute(
                 userId = request.userId,
                 email = request.email,
                 cpf = request.cpf,
@@ -120,7 +120,7 @@ class UserController(
         request: UpdateUserRequest,
     ): ResponseEntity<UpdateUserResponse> {
         val user =
-            updateUserUseCase.execute(
+            updateUserInputPort.execute(
                 userId = userId,
                 name = request.name,
                 email = request.email,
@@ -139,7 +139,7 @@ class UserController(
     override fun deleteUser(
         @PathVariable userId: UUID,
     ) {
-        deleteUserUseCase.execute(userId)
+        deleteUserInputPort.execute(userId)
     }
 
     @PatchMapping("/{userId}/access")
@@ -148,7 +148,7 @@ class UserController(
         request: UpdateUserAccessRequest,
     ): ResponseEntity<UpdateUserAccessUserResponse> {
         val user =
-            updateUserAccessUseCase.execute(
+            updateUserAccessInputPort.execute(
                 userId = userId,
                 role = request.role,
                 status = request.status,

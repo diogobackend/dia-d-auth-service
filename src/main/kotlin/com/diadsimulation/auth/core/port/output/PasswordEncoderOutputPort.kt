@@ -1,5 +1,5 @@
 package com.diadsimulation.auth.core.port.output
 
-interface PasswordEncoderPort {
+interface PasswordEncoderOutputPort {
     fun encode(rawPassword: String): String
 }

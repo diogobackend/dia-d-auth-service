@@ -5,7 +5,7 @@ import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import java.util.UUID
 
-interface UserRepositoryPort {
+interface UserRepositoryOutputPort {
     fun save(user: User): User
 
     fun findByEmail(email: String): User?

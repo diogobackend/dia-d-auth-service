@@ -4,6 +4,6 @@ import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 
-interface ListUsersUseCase {
+interface ListUsersInputPort {
     fun execute(criteria: UserSearchCriteria): PagedResult<User>
 }

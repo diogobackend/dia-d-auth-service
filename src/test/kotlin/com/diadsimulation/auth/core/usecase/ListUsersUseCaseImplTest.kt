@@ -6,7 +6,7 @@ import com.diadsimulation.auth.core.common.Messages.DATE_FIELD_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.FILTER_PARAMETERS_REQUIRED
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -24,10 +24,10 @@ import java.util.stream.Stream
 @ExtendWith(MockKExtension::class)
 class ListUsersUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var listUsersUseCaseImpl: ListUsersUseCaseImpl
+    private lateinit var listUsersUseCaseImpl: ListUsersUseCaseImplementation
 
     @ParameterizedTest
     @MethodSource("validFilterProvider")

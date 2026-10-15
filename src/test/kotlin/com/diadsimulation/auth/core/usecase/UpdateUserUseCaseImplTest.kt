@@ -12,15 +12,14 @@ import com.diadsimulation.auth.core.common.Messages.RG_INVALID
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,13 +33,13 @@ import java.util.NoSuchElementException
 @ExtendWith(MockKExtension::class)
 class UpdateUserUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @MockK
-    private lateinit var passwordEncoderPort: PasswordEncoderPort
+    private lateinit var passwordEncoderPort: PasswordEncoderOutputPort
 
     @InjectMockKs
-    private lateinit var updateUserUseCaseImpl: UpdateUserUseCaseImpl
+    private lateinit var updateUserUseCaseImpl: UpdateUserUseCaseImplementation
 
     private lateinit var user: User
 
@@ -244,7 +243,7 @@ class UpdateUserUseCaseImplTest {
         } returns null
 
         val exception =
-            assertThrows(NoSuchElementException::class.java) {
+            assertThrows<NoSuchElementException> {
                 execute(name = "Updated Name")
             }
 
@@ -266,7 +265,7 @@ class UpdateUserUseCaseImplTest {
         } returns buildUser(email = newEmail)
 
         val exception =
-            assertThrows(UserAlreadyExistsException::class.java) {
+            assertThrows<UserAlreadyExistsException> {
                 execute(email = newEmail)
             }
 
@@ -287,7 +286,7 @@ class UpdateUserUseCaseImplTest {
         } throws IllegalStateException(PASSWORD_ENCODING_FAILED)
 
         val exception =
-            assertThrows(IllegalStateException::class.java) {
+            assertThrows<IllegalStateException> {
                 execute(password = RAW_PASSWORD)
             }
 
@@ -307,7 +306,7 @@ class UpdateUserUseCaseImplTest {
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception =
-            assertThrows(IllegalStateException::class.java) {
+            assertThrows<IllegalStateException> {
                 execute(name = "Updated Name")
             }
 
@@ -359,7 +358,7 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
 
         val exception =
-            assertThrows(UserAlreadyExistsException::class.java) {
+            assertThrows<UserAlreadyExistsException> {
                 execute(cpf = "613.098.083-33")
             }
 
@@ -376,7 +375,7 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
 
         val exception =
-            assertThrows(UserAlreadyExistsException::class.java) {
+            assertThrows<UserAlreadyExistsException> {
                 execute(rg = "05.123.456/2018-7")
             }
 
@@ -397,7 +396,7 @@ class UpdateUserUseCaseImplTest {
         every { userRepositoryPort.existsByRg(newRg) } returns true
 
         val exception =
-            assertThrows(UserAlreadyExistsException::class.java) {
+            assertThrows<UserAlreadyExistsException> {
                 execute(rg = newRg)
             }
 
@@ -456,7 +455,7 @@ class UpdateUserUseCaseImplTest {
         every { userRepositoryPort.existsByCpf(newCpf) } returns true
 
         val exception =
-            assertThrows(UserAlreadyExistsException::class.java) {
+            assertThrows<UserAlreadyExistsException> {
                 execute(cpf = newCpf)
             }
 

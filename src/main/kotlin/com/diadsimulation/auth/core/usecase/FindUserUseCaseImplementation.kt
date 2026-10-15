@@ -2,16 +2,14 @@ package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.input.FindUserUseCase
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
-import org.springframework.stereotype.Service
+import com.diadsimulation.auth.core.port.input.FindUserInputPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import java.util.NoSuchElementException
 import java.util.UUID
 
-@Service
-class FindUserUseCaseImpl(
-    private val userRepositoryPort: UserRepositoryPort,
-) : FindUserUseCase {
+class FindUserUseCaseImplementation(
+    private val userRepositoryPort: UserRepositoryOutputPort,
+) : FindUserInputPort {
     override fun execute(
         userId: UUID?,
         email: String?,

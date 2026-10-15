@@ -1,3 +1,5 @@
+package com.diadsimulation.auth.core.usecase
+
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.SearchType
 import com.diadsimulation.auth.core.domain.enums.SearchType.CPF
@@ -5,8 +7,7 @@ import com.diadsimulation.auth.core.domain.enums.SearchType.EMAIL
 import com.diadsimulation.auth.core.domain.enums.SearchType.RG
 import com.diadsimulation.auth.core.domain.enums.SearchType.USER_ID
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
-import com.diadsimulation.auth.core.usecase.FindUserUseCaseImpl
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.Called
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -27,10 +28,10 @@ import java.util.UUID
 @ExtendWith(MockKExtension::class)
 class FindUserUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var useCase: FindUserUseCaseImpl
+    private lateinit var useCase: FindUserUseCaseImplementation
 
     @ParameterizedTest
     @EnumSource(SearchType::class)

@@ -12,7 +12,7 @@ import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
 import com.diadsimulation.auth.core.domain.enums.UserStatus.INACTIVE
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -35,10 +35,10 @@ import java.util.stream.Stream
 @ExtendWith(MockKExtension::class)
 class UpdateUserAccessUseCaseImplTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryPort
+    private lateinit var userRepositoryPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var updateUserAccessUseCaseImpl: UpdateUserAccessUseCaseImpl
+    private lateinit var updateUserAccessUseCaseImpl: UpdateUserAccessUseCaseImplementation
 
     private lateinit var user: User
 

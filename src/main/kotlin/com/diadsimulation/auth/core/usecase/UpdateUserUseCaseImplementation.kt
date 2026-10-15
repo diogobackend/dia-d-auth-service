@@ -12,19 +12,17 @@ import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
-import com.diadsimulation.auth.core.port.input.UpdateUserUseCase
-import com.diadsimulation.auth.core.port.output.PasswordEncoderPort
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
-import org.springframework.stereotype.Service
+import com.diadsimulation.auth.core.port.input.UpdateUserInputPort
+import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import java.time.OffsetDateTime
 import java.util.NoSuchElementException
 import java.util.UUID
 
-@Service
-class UpdateUserUseCaseImpl(
-    private val userRepositoryPort: UserRepositoryPort,
-    private val passwordEncoderPort: PasswordEncoderPort,
-) : UpdateUserUseCase {
+class UpdateUserUseCaseImplementation(
+    private val userRepositoryPort: UserRepositoryOutputPort,
+    private val passwordEncoderPort: PasswordEncoderOutputPort,
+) : UpdateUserInputPort {
     override fun execute(
         userId: UUID,
         name: String?,

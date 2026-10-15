@@ -4,17 +4,15 @@ import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.model.User
-import com.diadsimulation.auth.core.port.input.UpdateUserAccessUseCase
-import com.diadsimulation.auth.core.port.output.UserRepositoryPort
-import org.springframework.stereotype.Service
+import com.diadsimulation.auth.core.port.input.UpdateUserAccessInputPort
+import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 import java.time.OffsetDateTime
 import java.util.NoSuchElementException
 import java.util.UUID
 
-@Service
-class UpdateUserAccessUseCaseImpl(
-    private val userRepositoryPort: UserRepositoryPort,
-) : UpdateUserAccessUseCase {
+class UpdateUserAccessUseCaseImplementation(
+    private val userRepositoryPort: UserRepositoryOutputPort,
+) : UpdateUserAccessInputPort {
     override fun execute(
         userId: UUID,
         role: UserRole?,

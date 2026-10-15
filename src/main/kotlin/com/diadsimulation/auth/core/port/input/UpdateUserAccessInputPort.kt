@@ -5,7 +5,7 @@ import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.model.User
 import java.util.UUID
 
-interface UpdateUserAccessUseCase {
+interface UpdateUserAccessInputPort {
     fun execute(
         userId: UUID,
         role: UserRole?,
