@@ -999,6 +999,19 @@ class UserPersistenceAdapterTest {
         assertNull(entity.cpf)
     }
 
+    @Test
+    fun `should update user with null rg`() {
+        val user = buildUser(rg = null)
+        val entity = UserPersistenceMapper.toEntity(user)
+
+        every { userJpaRepository.findById(user.userId) } returns Optional.of(entity)
+
+        val result = adapter.update(user)
+
+        assertNull(result.rg)
+        assertNull(entity.rg)
+    }
+
     private fun mockFindAll() {
         every {
             userJpaRepository.findAll(

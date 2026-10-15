@@ -6,6 +6,9 @@ import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_ENCODING_FAILED
 import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
+import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_REGISTERED
+import com.diadsimulation.auth.core.common.Messages.RG_INVALID
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullAndEmptySource
@@ -368,6 +372,82 @@ class UpdateUserUseCaseImplTest {
     }
 
     @Test
+    fun `should throw exception when rg is already registered`() {
+        mockExistingUser()
+
+        val exception =
+            assertThrows(UserAlreadyExistsException::class.java) {
+                execute(rg = "05.123.456/2018-7")
+            }
+
+        assertEquals(RG_ALREADY_REGISTERED, exception.message)
+
+        verify(exactly = 0) {
+            userRepositoryPort.existsByRg(any())
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @Test
+    fun `should throw exception when rg already exists`() {
+        user = buildUser(rg = null)
+        val newRg = "05.123.456/2018-7"
+
+        mockExistingUser()
+        every { userRepositoryPort.existsByRg(newRg) } returns true
+
+        val exception =
+            assertThrows(UserAlreadyExistsException::class.java) {
+                execute(rg = newRg)
+            }
+
+        assertEquals(RG_ALREADY_EXISTS, exception.message)
+
+        verify(exactly = 1) {
+            userRepositoryPort.existsByRg(newRg)
+        }
+
+        verify(exactly = 0) {
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = [" ", "   "])
+    fun `should preserve current rg when new rg is null or blank`(newRg: String?) {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(rg = newRg)
+
+        assertEquals(user.rg, result.rg)
+
+        verify(exactly = 0) {
+            userRepositoryPort.existsByRg(any())
+        }
+    }
+
+    @Test
+    fun `should throw exception when rg format is invalid`() {
+        user = buildUser(rg = null)
+
+        mockExistingUser()
+
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                execute(rg = "12345ABC")
+            }
+
+        assertEquals(RG_INVALID, exception.message)
+
+        verify(exactly = 0) {
+            userRepositoryPort.existsByRg(any())
+            userRepositoryPort.update(any())
+        }
+    }
+
+    @Test
     fun `should throw exception when cpf already exists`() {
         user = buildUser(cpf = null)
         val newCpf = "613.098.083-33"
@@ -404,6 +484,25 @@ class UpdateUserUseCaseImplTest {
 
         verify(exactly = 0) {
             userRepositoryPort.existsByCpf(any())
+        }
+    }
+
+    @Test
+    fun `should update rg when it does not exist`() {
+        user = buildUser(rg = null)
+        val newRg = "05.123.456/2018-7"
+
+        mockExistingUser()
+        every { userRepositoryPort.existsByRg(newRg) } returns false
+        mockSuccessfulUpdate()
+
+        val result = execute(rg = newRg)
+
+        assertEquals(newRg, result.rg?.value)
+
+        verify(exactly = 1) {
+            userRepositoryPort.existsByRg(newRg)
+            userRepositoryPort.update(any())
         }
     }
 
