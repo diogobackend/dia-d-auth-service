@@ -22,12 +22,12 @@ import java.time.LocalDate
 import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
-class ListUsersUseCaseImplTest {
+class ListUsersUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var listUsersUseCaseImpl: ListUsersUseCaseImplementation
+    private lateinit var listUsersUseCaseImplementation: ListUsersUseCaseImplementation
 
     @ParameterizedTest
     @MethodSource("validFilterProvider")
@@ -43,14 +43,14 @@ class ListUsersUseCaseImplTest {
 
         val expected = buildPagedResult<User>()
 
-        every { userRepositoryPort.findAll(criteria) } returns expected
+        every { userRepositoryOutputPort.findAll(criteria) } returns expected
 
-        val result = listUsersUseCaseImpl.execute(criteria)
+        val result = listUsersUseCaseImplementation.execute(criteria)
 
         assertEquals(expected, result)
 
         verify(exactly = 1) {
-            userRepositoryPort.findAll(criteria)
+            userRepositoryOutputPort.findAll(criteria)
         }
     }
 
@@ -68,44 +68,44 @@ class ListUsersUseCaseImplTest {
 
         val exception =
             assertThrows<IllegalArgumentException> {
-                listUsersUseCaseImpl.execute(criteria)
+                listUsersUseCaseImplementation.execute(criteria)
             }
 
         assertEquals(FILTER_PARAMETERS_REQUIRED, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.findAll(any())
+            userRepositoryOutputPort.findAll(any())
         }
     }
 
     @ParameterizedTest
     @MethodSource("invalidDateFilterProvider")
-    fun `should reject date filters without date field`(criteria: UserSearchCriteria) {
+    fun `should reject date filters without date field`(userSearchCriteria: UserSearchCriteria) {
         val exception =
             assertThrows<IllegalArgumentException> {
-                listUsersUseCaseImpl.execute(criteria)
+                listUsersUseCaseImplementation.execute(userSearchCriteria)
             }
 
         assertEquals(DATE_FIELD_REQUIRED, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.findAll(any())
+            userRepositoryOutputPort.findAll(any())
         }
     }
 
     @ParameterizedTest
     @MethodSource("validDateFilterProvider")
-    fun `should list users with valid date filters`(criteria: UserSearchCriteria) {
+    fun `should list users with valid date filters`(userSearchCriteria: UserSearchCriteria) {
         val expected = buildPagedResult<User>()
 
-        every { userRepositoryPort.findAll(criteria) } returns expected
+        every { userRepositoryOutputPort.findAll(userSearchCriteria) } returns expected
 
-        val result = listUsersUseCaseImpl.execute(criteria)
+        val result = listUsersUseCaseImplementation.execute(userSearchCriteria)
 
         assertEquals(expected, result)
 
         verify(exactly = 1) {
-            userRepositoryPort.findAll(criteria)
+            userRepositoryOutputPort.findAll(userSearchCriteria)
         }
     }
 

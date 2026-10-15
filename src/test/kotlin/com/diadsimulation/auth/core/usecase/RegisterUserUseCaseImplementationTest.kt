@@ -25,15 +25,15 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
-class RegisterUserUseCaseImplTest {
+class RegisterUserUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @MockK
-    private lateinit var passwordEncoderPort: PasswordEncoderOutputPort
+    private lateinit var passwordEncoderOutputPort: PasswordEncoderOutputPort
 
     @InjectMockKs
-    private lateinit var useCase: RegisterUserUseCaseImplementation
+    private lateinit var registerUserUseCaseImplementation: RegisterUserUseCaseImplementation
 
     private lateinit var user: User
 
@@ -52,14 +52,14 @@ class RegisterUserUseCaseImplTest {
         mockAvailableUser()
         mockSuccessfulRegistration()
 
-        val result = useCase.execute(user)
+        val result = registerUserUseCaseImplementation.execute(user)
 
         assertSame(user, result)
         assertEquals(ENCODED_PASSWORD, result.passwordHash)
 
         verify(exactly = 1) {
-            passwordEncoderPort.encode(RAW_PASSWORD)
-            userRepositoryPort.save(user)
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
+            userRepositoryOutputPort.save(user)
         }
     }
 
@@ -75,17 +75,17 @@ class RegisterUserUseCaseImplTest {
         mockAvailableUser()
         mockSuccessfulRegistration()
 
-        val result = useCase.execute(user)
+        val result = registerUserUseCaseImplementation.execute(user)
 
         assertEquals(ENCODED_PASSWORD, result.passwordHash)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByCpf(any())
-            userRepositoryPort.existsByRg(any())
+            userRepositoryOutputPort.existsByCpf(any())
+            userRepositoryOutputPort.existsByRg(any())
         }
 
         verify(exactly = 1) {
-            userRepositoryPort.save(user)
+            userRepositoryOutputPort.save(user)
         }
     }
 
@@ -110,13 +110,13 @@ class RegisterUserUseCaseImplTest {
         mockAvailableUser()
 
         every {
-            passwordEncoderPort.encode(passwordHash)
+            passwordEncoderOutputPort.encode(passwordHash)
         } throws IllegalStateException(PASSWORD_ENCODING_FAILED)
 
         assertIllegalStateException(PASSWORD_ENCODING_FAILED)
 
         verify(exactly = 0) {
-            userRepositoryPort.save(any())
+            userRepositoryOutputPort.save(any())
         }
     }
 
@@ -126,30 +126,30 @@ class RegisterUserUseCaseImplTest {
         mockPasswordEncoding()
 
         every {
-            userRepositoryPort.save(user)
+            userRepositoryOutputPort.save(user)
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         assertIllegalStateException(PERSISTENCE_FAILED)
 
         verify(exactly = 1) {
-            userRepositoryPort.save(user)
+            userRepositoryOutputPort.save(user)
         }
     }
 
     private fun mockAvailableUser() {
         every {
-            userRepositoryPort.existsByEmail(email)
+            userRepositoryOutputPort.existsByEmail(email)
         } returns false
 
         cpf?.let {
             every {
-                userRepositoryPort.existsByCpf(it)
+                userRepositoryOutputPort.existsByCpf(it)
             } returns false
         }
 
         rg?.let {
             every {
-                userRepositoryPort.existsByRg(it)
+                userRepositoryOutputPort.existsByRg(it)
             } returns false
         }
     }
@@ -158,31 +158,31 @@ class RegisterUserUseCaseImplTest {
         when (field) {
             "email" -> {
                 every {
-                    userRepositoryPort.existsByEmail(email)
+                    userRepositoryOutputPort.existsByEmail(email)
                 } returns true
             }
 
             "cpf" -> {
                 every {
-                    userRepositoryPort.existsByEmail(email)
+                    userRepositoryOutputPort.existsByEmail(email)
                 } returns false
 
                 every {
-                    userRepositoryPort.existsByCpf(requireNotNull(cpf))
+                    userRepositoryOutputPort.existsByCpf(requireNotNull(cpf))
                 } returns true
             }
 
             "rg" -> {
                 every {
-                    userRepositoryPort.existsByEmail(email)
+                    userRepositoryOutputPort.existsByEmail(email)
                 } returns false
 
                 every {
-                    userRepositoryPort.existsByCpf(requireNotNull(cpf))
+                    userRepositoryOutputPort.existsByCpf(requireNotNull(cpf))
                 } returns false
 
                 every {
-                    userRepositoryPort.existsByRg(requireNotNull(rg))
+                    userRepositoryOutputPort.existsByRg(requireNotNull(rg))
                 } returns true
             }
         }
@@ -190,7 +190,7 @@ class RegisterUserUseCaseImplTest {
 
     private fun mockPasswordEncoding() {
         every {
-            passwordEncoderPort.encode(passwordHash)
+            passwordEncoderOutputPort.encode(passwordHash)
         } returns ENCODED_PASSWORD
     }
 
@@ -198,28 +198,28 @@ class RegisterUserUseCaseImplTest {
         mockPasswordEncoding()
 
         every {
-            userRepositoryPort.save(user)
+            userRepositoryOutputPort.save(user)
         } answers { firstArg() }
     }
 
     private fun assertUserAlreadyExists(expectedMessage: String) {
         val exception =
             assertThrows(UserAlreadyExistsException::class.java) {
-                useCase.execute(user)
+                registerUserUseCaseImplementation.execute(user)
             }
 
         assertEquals(expectedMessage, exception.message)
 
         verify(exactly = 0) {
-            passwordEncoderPort.encode(any())
-            userRepositoryPort.save(any())
+            passwordEncoderOutputPort.encode(any())
+            userRepositoryOutputPort.save(any())
         }
     }
 
     private fun assertIllegalStateException(expectedMessage: String) {
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                useCase.execute(user)
+                registerUserUseCaseImplementation.execute(user)
             }
 
         assertEquals(expectedMessage, exception.message)

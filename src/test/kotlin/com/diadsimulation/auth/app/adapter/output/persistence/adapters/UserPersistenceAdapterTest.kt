@@ -57,7 +57,7 @@ class UserPersistenceAdapterTest {
     private lateinit var userJpaRepository: UserJpaRepository
 
     @InjectMockKs
-    private lateinit var adapter: UserPersistenceAdapter
+    private lateinit var userPersistenceAdapter: UserPersistenceAdapter
 
     private lateinit var user: User
 
@@ -100,7 +100,7 @@ class UserPersistenceAdapterTest {
             )
         } answers { firstArg() }
 
-        val result = adapter.save(user)
+        val result = userPersistenceAdapter.save(user)
 
         assertEquals(userId, result.userId)
         assertEquals(name, result.name)
@@ -125,7 +125,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findById(userId)
         } returns Optional.of(UserPersistenceMapper.toEntity(user))
 
-        val result = adapter.findById(userId)
+        val result = userPersistenceAdapter.findById(userId)
 
         assertNotNull(result)
         assertEquals(userId, result?.userId)
@@ -138,7 +138,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findById(userId)
         } returns Optional.empty()
 
-        assertNull(adapter.findById(userId))
+        assertNull(userPersistenceAdapter.findById(userId))
     }
 
     @Test
@@ -147,7 +147,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findByEmail(email)
         } returns UserPersistenceMapper.toEntity(user)
 
-        val result = adapter.findByEmail(email)
+        val result = userPersistenceAdapter.findByEmail(email)
 
         assertNotNull(result)
         assertEquals(userId, result?.userId)
@@ -160,7 +160,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.findByEmail(email)
         } returns null
 
-        assertNull(adapter.findByEmail(email))
+        assertNull(userPersistenceAdapter.findByEmail(email))
     }
 
     @ParameterizedTest
@@ -168,7 +168,7 @@ class UserPersistenceAdapterTest {
     fun `should check if email exists`(exists: Boolean) {
         every { userJpaRepository.existsByEmail(email) } returns exists
 
-        assertEquals(exists, adapter.existsByEmail(email))
+        assertEquals(exists, userPersistenceAdapter.existsByEmail(email))
 
         verify(exactly = 1) {
             userJpaRepository.existsByEmail(email)
@@ -182,7 +182,7 @@ class UserPersistenceAdapterTest {
 
         every { userJpaRepository.existsByCpf(cpf) } returns exists
 
-        assertEquals(exists, adapter.existsByCpf(cpf))
+        assertEquals(exists, userPersistenceAdapter.existsByCpf(cpf))
 
         verify(exactly = 1) {
             userJpaRepository.existsByCpf(cpf)
@@ -196,7 +196,7 @@ class UserPersistenceAdapterTest {
 
         every { userJpaRepository.existsByRg(rg) } returns exists
 
-        assertEquals(exists, adapter.existsByRg(rg))
+        assertEquals(exists, userPersistenceAdapter.existsByRg(rg))
 
         verify(exactly = 1) {
             userJpaRepository.existsByRg(rg)
@@ -217,7 +217,7 @@ class UserPersistenceAdapterTest {
             )
         } returns page
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertEquals(1, result.content.size)
         assertEquals(userId, result.content.first().userId)
@@ -257,7 +257,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -292,7 +292,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -352,7 +352,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -395,7 +395,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -432,7 +432,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -472,7 +472,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -507,7 +507,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        adapter.findAll(criteria)
+        userPersistenceAdapter.findAll(criteria)
 
         verify(exactly = 1) {
             builder.equal(expression, value.lowercase())
@@ -550,7 +550,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        adapter.findAll(criteria)
+        userPersistenceAdapter.findAll(criteria)
 
         verify(exactly = 1) {
             builder.greaterThanOrEqualTo(datePath, dateFrom)
@@ -610,7 +610,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -646,7 +646,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -669,7 +669,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -710,7 +710,7 @@ class UserPersistenceAdapterTest {
 
         mockFindAll()
 
-        val result = adapter.findAll(criteria)
+        val result = userPersistenceAdapter.findAll(criteria)
 
         assertTrue(result.content.isEmpty())
 
@@ -730,12 +730,12 @@ class UserPersistenceAdapterTest {
             when (document) {
                 "cpf" -> {
                     every { userJpaRepository.findByCpf(cpf.toString()) } returns entity
-                    adapter.findByCpf(cpf.toString())
+                    userPersistenceAdapter.findByCpf(cpf.toString())
                 }
 
                 else -> {
                     every { userJpaRepository.findByRg(rg!!) } returns entity
-                    adapter.findByRg(rg!!)
+                    userPersistenceAdapter.findByRg(rg!!)
                 }
             }
 
@@ -750,12 +750,12 @@ class UserPersistenceAdapterTest {
             when (document) {
                 "cpf" -> {
                     every { userJpaRepository.findByCpf(cpf.toString()) } returns null
-                    adapter.findByCpf(cpf.toString())
+                    userPersistenceAdapter.findByCpf(cpf.toString())
                 }
 
                 else -> {
                     every { userJpaRepository.findByRg(rg!!) } returns null
-                    adapter.findByRg(rg!!)
+                    userPersistenceAdapter.findByRg(rg!!)
                 }
             }
 
@@ -782,7 +782,7 @@ class UserPersistenceAdapterTest {
                 updatedAt = updatedAt,
             )
 
-        val result = adapter.update(updatedUser)
+        val result = userPersistenceAdapter.update(updatedUser)
 
         assertEquals(updatedUser.userId, result.userId)
         assertEquals(updatedUser.name, result.name)
@@ -815,7 +815,7 @@ class UserPersistenceAdapterTest {
                 name = "Updated Name",
             )
 
-        val result = adapter.update(updatedUser)
+        val result = userPersistenceAdapter.update(updatedUser)
 
         assertEquals(userId, result.userId)
         assertEquals(role, result.role)
@@ -838,7 +838,7 @@ class UserPersistenceAdapterTest {
 
         val exception =
             assertThrows(NoSuchElementException::class.java) {
-                adapter.update(user)
+                userPersistenceAdapter.update(user)
             }
 
         assertEquals(USER_NOT_FOUND, exception.message)
@@ -858,7 +858,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.deleteById(userId)
         }
 
-        adapter.deleteById(userId)
+        userPersistenceAdapter.deleteById(userId)
 
         verify(exactly = 1) {
             userJpaRepository.deleteById(userId)
@@ -873,7 +873,7 @@ class UserPersistenceAdapterTest {
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                adapter.deleteById(userId)
+                userPersistenceAdapter.deleteById(userId)
             }
 
         assertEquals(PERSISTENCE_FAILED, exception.message)
@@ -905,7 +905,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.save(userEntity)
         } answers { firstArg() }
 
-        val result = adapter.updateAccess(updatedUser)
+        val result = userPersistenceAdapter.updateAccess(updatedUser)
 
         assertEquals(SCHOOL_ADMIN, result.role)
         assertEquals(BLOCKED, result.status)
@@ -938,7 +938,7 @@ class UserPersistenceAdapterTest {
             userJpaRepository.save(userEntity)
         } answers { firstArg() }
 
-        val result = adapter.updateAccess(updatedUser)
+        val result = userPersistenceAdapter.updateAccess(updatedUser)
 
         assertEquals(name, result.name)
         assertEquals(email, result.email.value)
@@ -959,7 +959,7 @@ class UserPersistenceAdapterTest {
 
         val exception =
             assertThrows(NoSuchElementException::class.java) {
-                adapter.updateAccess(user)
+                userPersistenceAdapter.updateAccess(user)
             }
 
         assertEquals(USER_NOT_FOUND, exception.message)
@@ -981,7 +981,7 @@ class UserPersistenceAdapterTest {
         every { userJpaRepository.findById(user.userId) } returns Optional.of(entity)
         every { userJpaRepository.save(any()) } answers { firstArg() }
 
-        val result = adapter.update(user)
+        val result = userPersistenceAdapter.update(user)
 
         assertNull(result.phone)
         assertNull(entity.phone)
@@ -994,7 +994,7 @@ class UserPersistenceAdapterTest {
 
         every { userJpaRepository.findById(user.userId) } returns Optional.of(entity)
 
-        val result = adapter.update(user)
+        val result = userPersistenceAdapter.update(user)
 
         assertNull(result.cpf)
         assertNull(entity.cpf)
@@ -1007,7 +1007,7 @@ class UserPersistenceAdapterTest {
 
         every { userJpaRepository.findById(user.userId) } returns Optional.of(entity)
 
-        val result = adapter.update(user)
+        val result = userPersistenceAdapter.update(user)
 
         assertNull(result.rg)
         assertNull(entity.rg)

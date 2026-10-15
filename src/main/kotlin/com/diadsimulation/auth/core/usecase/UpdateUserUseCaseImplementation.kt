@@ -20,8 +20,8 @@ import java.util.NoSuchElementException
 import java.util.UUID
 
 class UpdateUserUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
-    private val passwordEncoderPort: PasswordEncoderOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
+    private val passwordEncoderOutputPort: PasswordEncoderOutputPort,
 ) : UpdateUserInputPort {
     override fun execute(
         userId: UUID,
@@ -34,13 +34,13 @@ class UpdateUserUseCaseImplementation(
         rg: String?,
     ): User {
         val user =
-            userRepositoryPort.findById(userId)
+            userRepositoryOutputPort.findById(userId)
                 ?: throw NoSuchElementException(USER_NOT_FOUND)
 
         val newEmail = email?.takeIf { it.isNotBlank() }
 
         if (newEmail != null && !newEmail.equals(user.email.value, ignoreCase = true)) {
-            if (userRepositoryPort.findByEmail(newEmail.toString()) != null) {
+            if (userRepositoryOutputPort.findByEmail(newEmail.toString()) != null) {
                 throw UserAlreadyExistsException(EMAIL_ALREADY_EXISTS)
             }
         }
@@ -53,7 +53,7 @@ class UpdateUserUseCaseImplementation(
                 passwordHash =
                     password
                         ?.takeIf { it.isNotBlank() }
-                        ?.let(passwordEncoderPort::encode)
+                        ?.let(passwordEncoderOutputPort::encode)
                         ?: user.passwordHash,
                 role = user.role,
                 status = user.status,
@@ -66,7 +66,7 @@ class UpdateUserUseCaseImplementation(
                 updatedAt = OffsetDateTime.now(),
             )
 
-        return userRepositoryPort.update(updatedUser)
+        return userRepositoryOutputPort.update(updatedUser)
     }
 
     private fun updateCpf(
@@ -81,7 +81,7 @@ class UpdateUserUseCaseImplementation(
             throw UserAlreadyExistsException(CPF_ALREADY_REGISTERED)
         }
 
-        if (userRepositoryPort.existsByCpf(cpf.value)) {
+        if (userRepositoryOutputPort.existsByCpf(cpf.value)) {
             throw UserAlreadyExistsException(CPF_ALREADY_EXISTS)
         }
 
@@ -100,7 +100,7 @@ class UpdateUserUseCaseImplementation(
             throw UserAlreadyExistsException(RG_ALREADY_REGISTERED)
         }
 
-        if (userRepositoryPort.existsByRg(rg.value)) {
+        if (userRepositoryOutputPort.existsByRg(rg.value)) {
             throw UserAlreadyExistsException(RG_ALREADY_EXISTS)
         }
 

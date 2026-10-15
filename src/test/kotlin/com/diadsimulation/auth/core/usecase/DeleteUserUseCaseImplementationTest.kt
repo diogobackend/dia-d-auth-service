@@ -20,12 +20,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.util.NoSuchElementException
 
 @ExtendWith(MockKExtension::class)
-class DeleteUserUseCaseImplTest {
+class DeleteUserUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var deleteUserUseCaseImpl: DeleteUserUseCaseImplementation
+    private lateinit var deleteUserUseCaseImplementation: DeleteUserUseCaseImplementation
 
     private lateinit var user: User
 
@@ -34,65 +34,67 @@ class DeleteUserUseCaseImplTest {
         user = buildUser()
     }
 
+    private val userId get() = user.userId
+
     @Test
     fun `should delete user successfully`() {
         every {
-            userRepositoryPort.findById(user.userId)
+            userRepositoryOutputPort.findById(userId)
         } returns user
 
         justRun {
-            userRepositoryPort.deleteById(user.userId)
+            userRepositoryOutputPort.deleteById(userId)
         }
 
-        deleteUserUseCaseImpl.execute(user.userId)
+        deleteUserUseCaseImplementation.execute(userId)
 
         verifyOrder {
-            userRepositoryPort.findById(user.userId)
-            userRepositoryPort.deleteById(user.userId)
+            userRepositoryOutputPort.findById(userId)
+            userRepositoryOutputPort.deleteById(userId)
         }
 
         verify(exactly = 1) {
-            userRepositoryPort.deleteById(user.userId)
+            userRepositoryOutputPort.deleteById(userId)
         }
     }
 
     @Test
     fun `should throw exception when user does not exist`() {
         every {
-            userRepositoryPort.findById(user.userId)
+            userRepositoryOutputPort.findById(userId)
         } returns null
 
         val exception =
             assertThrows(NoSuchElementException::class.java) {
-                deleteUserUseCaseImpl.execute(user.userId)
+                deleteUserUseCaseImplementation.execute(userId)
             }
 
         assertEquals(USER_NOT_FOUND, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.deleteById(any())
+            userRepositoryOutputPort.deleteById(any())
         }
     }
 
     @Test
     fun `should propagate exception when deletion fails`() {
         every {
-            userRepositoryPort.findById(user.userId)
+            userRepositoryOutputPort.findById(userId)
         } returns user
 
         every {
-            userRepositoryPort.deleteById(user.userId)
+            userRepositoryOutputPort.deleteById(userId)
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                deleteUserUseCaseImpl.execute(user.userId)
+                deleteUserUseCaseImplementation.execute(userId)
             }
 
         assertEquals(PERSISTENCE_FAILED, exception.message)
 
         verify(exactly = 1) {
-            userRepositoryPort.deleteById(user.userId)
+            userRepositoryOutputPort.deleteById(userId)
         }
     }
 }

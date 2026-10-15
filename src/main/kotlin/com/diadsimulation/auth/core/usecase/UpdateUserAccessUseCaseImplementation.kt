@@ -11,7 +11,7 @@ import java.util.NoSuchElementException
 import java.util.UUID
 
 class UpdateUserAccessUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
 ) : UpdateUserAccessInputPort {
     override fun execute(
         userId: UUID,
@@ -19,7 +19,7 @@ class UpdateUserAccessUseCaseImplementation(
         status: UserStatus?,
     ): User {
         val user =
-            userRepositoryPort.findById(userId)
+            userRepositoryOutputPort.findById(userId)
                 ?: throw NoSuchElementException(USER_NOT_FOUND)
 
         val updatedUser =
@@ -39,6 +39,6 @@ class UpdateUserAccessUseCaseImplementation(
                 updatedAt = OffsetDateTime.now(),
             )
 
-        return userRepositoryPort.updateAccess(updatedUser)
+        return userRepositoryOutputPort.updateAccess(updatedUser)
     }
 }

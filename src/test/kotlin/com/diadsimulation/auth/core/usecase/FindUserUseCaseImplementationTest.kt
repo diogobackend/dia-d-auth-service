@@ -26,12 +26,12 @@ import java.util.NoSuchElementException
 import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
-class FindUserUseCaseImplTest {
+class FindUserUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var useCase: FindUserUseCaseImplementation
+    private lateinit var findUserUseCaseImplementation: FindUserUseCaseImplementation
 
     @ParameterizedTest
     @EnumSource(SearchType::class)
@@ -67,7 +67,7 @@ class FindUserUseCaseImplTest {
     fun `should throw exception when no search parameter is provided`() {
         val exception =
             assertThrows<NoSuchElementException> {
-                useCase.execute(
+                findUserUseCaseImplementation.execute(
                     userId = null,
                     email = null,
                     cpf = null,
@@ -78,12 +78,12 @@ class FindUserUseCaseImplTest {
         assertEquals(USER_NOT_FOUND, exception.message)
 
         verify {
-            userRepositoryPort wasNot Called
+            userRepositoryOutputPort wasNot Called
         }
     }
 
     private fun execute(request: FindUserTestData): User =
-        useCase.execute(
+        findUserUseCaseImplementation.execute(
             userId = request.userId,
             email = request.email,
             cpf = request.cpf,
@@ -97,25 +97,25 @@ class FindUserUseCaseImplTest {
         when (request.searchType) {
             USER_ID -> {
                 every {
-                    userRepositoryPort.findById(requireNotNull(request.userId))
+                    userRepositoryOutputPort.findById(requireNotNull(request.userId))
                 } returns user
             }
 
             EMAIL -> {
                 every {
-                    userRepositoryPort.findByEmail(requireNotNull(request.email))
+                    userRepositoryOutputPort.findByEmail(requireNotNull(request.email))
                 } returns user
             }
 
             CPF -> {
                 every {
-                    userRepositoryPort.findByCpf(requireNotNull(request.cpf))
+                    userRepositoryOutputPort.findByCpf(requireNotNull(request.cpf))
                 } returns user
             }
 
             RG -> {
                 every {
-                    userRepositoryPort.findByRg(requireNotNull(request.rg))
+                    userRepositoryOutputPort.findByRg(requireNotNull(request.rg))
                 } returns user
             }
         }
@@ -125,25 +125,25 @@ class FindUserUseCaseImplTest {
         when (request.searchType) {
             USER_ID -> {
                 verify(exactly = 1) {
-                    userRepositoryPort.findById(requireNotNull(request.userId))
+                    userRepositoryOutputPort.findById(requireNotNull(request.userId))
                 }
             }
 
             EMAIL -> {
                 verify(exactly = 1) {
-                    userRepositoryPort.findByEmail(requireNotNull(request.email))
+                    userRepositoryOutputPort.findByEmail(requireNotNull(request.email))
                 }
             }
 
             CPF -> {
                 verify(exactly = 1) {
-                    userRepositoryPort.findByCpf(requireNotNull(request.cpf))
+                    userRepositoryOutputPort.findByCpf(requireNotNull(request.cpf))
                 }
             }
 
             RG -> {
                 verify(exactly = 1) {
-                    userRepositoryPort.findByRg(requireNotNull(request.rg))
+                    userRepositoryOutputPort.findByRg(requireNotNull(request.rg))
                 }
             }
         }

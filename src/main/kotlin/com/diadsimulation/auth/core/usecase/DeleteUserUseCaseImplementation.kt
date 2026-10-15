@@ -7,13 +7,13 @@ import java.util.NoSuchElementException
 import java.util.UUID
 
 class DeleteUserUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
 ) : DeleteUserInputPort {
     override fun execute(userId: UUID) {
         val user =
-            userRepositoryPort.findById(userId)
+            userRepositoryOutputPort.findById(userId)
                 ?: throw NoSuchElementException(USER_NOT_FOUND)
 
-        userRepositoryPort.deleteById(user.userId)
+        userRepositoryOutputPort.deleteById(user.userId)
     }
 }

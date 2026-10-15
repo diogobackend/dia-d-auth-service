@@ -21,28 +21,29 @@ import org.springframework.context.annotation.Configuration
 class UserUseCaseConfiguration {
     @Bean
     fun registerUserUseCase(
-        userRepositoryPort: UserRepositoryOutputPort,
-        passwordEncoderPort: PasswordEncoderOutputPort,
-    ): RegisterUserInputPort = RegisterUserUseCaseImplementation(userRepositoryPort, passwordEncoderPort)
+        userRepositoryOutputPort: UserRepositoryOutputPort,
+        passwordEncoderOutputPort: PasswordEncoderOutputPort,
+    ): RegisterUserInputPort = RegisterUserUseCaseImplementation(userRepositoryOutputPort, passwordEncoderOutputPort)
 
     @Bean
-    fun listUsersUseCase(userRepositoryPort: UserRepositoryOutputPort): ListUsersInputPort =
-        ListUsersUseCaseImplementation(userRepositoryPort)
+    fun listUsersUseCase(userRepositoryOutputPort: UserRepositoryOutputPort): ListUsersInputPort =
+        ListUsersUseCaseImplementation(userRepositoryOutputPort)
 
     @Bean
-    fun findUserUseCase(userRepositoryPort: UserRepositoryOutputPort): FindUserInputPort = FindUserUseCaseImplementation(userRepositoryPort)
+    fun findUserUseCase(userRepositoryOutputPort: UserRepositoryOutputPort): FindUserInputPort =
+        FindUserUseCaseImplementation(userRepositoryOutputPort)
 
     @Bean
     fun updateUserUseCase(
-        userRepositoryPort: UserRepositoryOutputPort,
-        passwordEncoderPort: PasswordEncoderOutputPort,
-    ): UpdateUserInputPort = UpdateUserUseCaseImplementation(userRepositoryPort, passwordEncoderPort)
+        userRepositoryOutputPort: UserRepositoryOutputPort,
+        passwordEncoderOutputPort: PasswordEncoderOutputPort,
+    ): UpdateUserInputPort = UpdateUserUseCaseImplementation(userRepositoryOutputPort, passwordEncoderOutputPort)
 
     @Bean
-    fun updateUserAccessUseCase(userRepositoryPort: UserRepositoryOutputPort): UpdateUserAccessInputPort =
-        UpdateUserAccessUseCaseImplementation(userRepositoryPort)
+    fun updateUserAccessUseCase(userRepositoryOutputPort: UserRepositoryOutputPort): UpdateUserAccessInputPort =
+        UpdateUserAccessUseCaseImplementation(userRepositoryOutputPort)
 
     @Bean
-    fun deleteUserUseCase(userRepositoryPort: UserRepositoryOutputPort): DeleteUserInputPort =
-        DeleteUserUseCaseImplementation(userRepositoryPort)
+    fun deleteUserUseCase(userRepositoryOutputPort: UserRepositoryOutputPort): DeleteUserInputPort =
+        DeleteUserUseCaseImplementation(userRepositoryOutputPort)
 }

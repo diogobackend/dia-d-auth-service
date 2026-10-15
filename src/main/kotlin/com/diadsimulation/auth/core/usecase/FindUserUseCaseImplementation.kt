@@ -8,7 +8,7 @@ import java.util.NoSuchElementException
 import java.util.UUID
 
 class FindUserUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
 ) : FindUserInputPort {
     override fun execute(
         userId: UUID?,
@@ -17,10 +17,10 @@ class FindUserUseCaseImplementation(
         rg: String?,
     ): User =
         when {
-            userId != null -> userRepositoryPort.findById(userId)
-            email != null -> userRepositoryPort.findByEmail(email)
-            cpf != null -> userRepositoryPort.findByCpf(cpf)
-            rg != null -> userRepositoryPort.findByRg(rg)
+            userId != null -> userRepositoryOutputPort.findById(userId)
+            email != null -> userRepositoryOutputPort.findByEmail(email)
+            cpf != null -> userRepositoryOutputPort.findByCpf(cpf)
+            rg != null -> userRepositoryOutputPort.findByRg(rg)
             else -> null
         } ?: throw NoSuchElementException(USER_NOT_FOUND)
 }

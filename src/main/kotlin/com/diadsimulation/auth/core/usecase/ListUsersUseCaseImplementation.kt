@@ -9,7 +9,7 @@ import com.diadsimulation.auth.core.port.input.ListUsersInputPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 
 class ListUsersUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
 ) : ListUsersInputPort {
     override fun execute(criteria: UserSearchCriteria): PagedResult<User> {
         require(
@@ -29,6 +29,6 @@ class ListUsersUseCaseImplementation(
             DATE_FIELD_REQUIRED
         }
 
-        return userRepositoryPort.findAll(criteria)
+        return userRepositoryOutputPort.findAll(criteria)
     }
 }

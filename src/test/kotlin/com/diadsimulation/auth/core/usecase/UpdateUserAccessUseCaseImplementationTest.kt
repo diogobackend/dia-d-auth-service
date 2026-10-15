@@ -33,12 +33,12 @@ import java.util.UUID
 import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
-class UpdateUserAccessUseCaseImplTest {
+class UpdateUserAccessUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @InjectMockKs
-    private lateinit var updateUserAccessUseCaseImpl: UpdateUserAccessUseCaseImplementation
+    private lateinit var updateUserAccessUseCaseImplementation: UpdateUserAccessUseCaseImplementation
 
     private lateinit var user: User
 
@@ -62,14 +62,14 @@ class UpdateUserAccessUseCaseImplTest {
         role: UserRole?,
         status: UserStatus?,
     ) {
-        every { userRepositoryPort.findById(userId) } returns user
-        every { userRepositoryPort.updateAccess(any()) } answers { firstArg() }
+        every { userRepositoryOutputPort.findById(userId) } returns user
+        every { userRepositoryOutputPort.updateAccess(any()) } answers { firstArg() }
 
         val expectedRole = role ?: this.role
         val expectedStatus = status ?: this.status
 
         val result =
-            updateUserAccessUseCaseImpl.execute(
+            updateUserAccessUseCaseImplementation.execute(
                 userId = userId,
                 role = role,
                 status = status,
@@ -79,9 +79,9 @@ class UpdateUserAccessUseCaseImplTest {
         assertEquals(expectedStatus, result.status)
         assertEquals(userId, result.userId)
 
-        verify(exactly = 1) { userRepositoryPort.findById(userId) }
+        verify(exactly = 1) { userRepositoryOutputPort.findById(userId) }
         verify(exactly = 1) {
-            userRepositoryPort.updateAccess(
+            userRepositoryOutputPort.updateAccess(
                 match {
                     it.role == expectedRole &&
                         it.status == expectedStatus
@@ -92,11 +92,11 @@ class UpdateUserAccessUseCaseImplTest {
 
     @Test
     fun `should update user role and status`() {
-        every { userRepositoryPort.findById(userId) } returns user
-        every { userRepositoryPort.updateAccess(any()) } answers { firstArg() }
+        every { userRepositoryOutputPort.findById(userId) } returns user
+        every { userRepositoryOutputPort.updateAccess(any()) } answers { firstArg() }
 
         val result =
-            updateUserAccessUseCaseImpl.execute(
+            updateUserAccessUseCaseImplementation.execute(
                 userId = userId,
                 role = PLATFORM_ADMIN,
                 status = INACTIVE,
@@ -107,7 +107,7 @@ class UpdateUserAccessUseCaseImplTest {
         assertTrue(result.updatedAt >= updatedAt)
 
         verify(exactly = 1) {
-            userRepositoryPort.updateAccess(
+            userRepositoryOutputPort.updateAccess(
                 match {
                     it.role == PLATFORM_ADMIN &&
                         it.status == INACTIVE
@@ -118,11 +118,11 @@ class UpdateUserAccessUseCaseImplTest {
 
     @Test
     fun `should preserve user data when updating access`() {
-        every { userRepositoryPort.findById(userId) } returns user
-        every { userRepositoryPort.updateAccess(any()) } answers { firstArg() }
+        every { userRepositoryOutputPort.findById(userId) } returns user
+        every { userRepositoryOutputPort.updateAccess(any()) } answers { firstArg() }
 
         val result =
-            updateUserAccessUseCaseImpl.execute(
+            updateUserAccessUseCaseImplementation.execute(
                 userId = userId,
                 role = SCHOOL_ADMIN,
                 status = BLOCKED,
@@ -141,11 +141,11 @@ class UpdateUserAccessUseCaseImplTest {
 
     @Test
     fun `should throw exception when user does not exist`() {
-        every { userRepositoryPort.findById(userId) } returns null
+        every { userRepositoryOutputPort.findById(userId) } returns null
 
         val exception =
             assertThrows(NoSuchElementException::class.java) {
-                updateUserAccessUseCaseImpl.execute(
+                updateUserAccessUseCaseImplementation.execute(
                     userId = userId,
                     role = SCHOOL_ADMIN,
                     status = null,
@@ -154,20 +154,20 @@ class UpdateUserAccessUseCaseImplTest {
 
         assertEquals(USER_NOT_FOUND, exception.message)
 
-        verify(exactly = 1) { userRepositoryPort.findById(userId) }
-        verify(exactly = 0) { userRepositoryPort.updateAccess(any()) }
+        verify(exactly = 1) { userRepositoryOutputPort.findById(userId) }
+        verify(exactly = 0) { userRepositoryOutputPort.updateAccess(any()) }
     }
 
     @Test
     fun `should propagate exception when updating access fails`() {
-        every { userRepositoryPort.findById(userId) } returns user
+        every { userRepositoryOutputPort.findById(userId) } returns user
         every {
-            userRepositoryPort.updateAccess(any())
+            userRepositoryOutputPort.updateAccess(any())
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                updateUserAccessUseCaseImpl.execute(
+                updateUserAccessUseCaseImplementation.execute(
                     userId = userId,
                     role = SCHOOL_ADMIN,
                     status = null,
@@ -176,7 +176,7 @@ class UpdateUserAccessUseCaseImplTest {
 
         assertEquals(PERSISTENCE_FAILED, exception.message)
 
-        verify(exactly = 1) { userRepositoryPort.updateAccess(any()) }
+        verify(exactly = 1) { userRepositoryOutputPort.updateAccess(any()) }
     }
 
     companion object {

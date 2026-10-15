@@ -8,34 +8,34 @@ import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
 
 class RegisterUserUseCaseImplementation(
-    private val userRepositoryPort: UserRepositoryOutputPort,
-    private val passwordEncoderPort: PasswordEncoderOutputPort,
+    private val userRepositoryOutputPort: UserRepositoryOutputPort,
+    private val passwordEncoderOutputPort: PasswordEncoderOutputPort,
 ) : RegisterUserInputPort {
     override fun execute(user: User): User {
         val cpf = user.cpf?.value
         val rg = user.rg?.value
         val email = user.email.value
 
-        if (userRepositoryPort.existsByEmail(email)) {
+        if (userRepositoryOutputPort.existsByEmail(email)) {
             throw UserAlreadyExistsException(
                 "${USER_ALREADY_EXISTS}E-mail: $email",
             )
         }
 
-        if (cpf != null && userRepositoryPort.existsByCpf(cpf)) {
+        if (cpf != null && userRepositoryOutputPort.existsByCpf(cpf)) {
             throw UserAlreadyExistsException(
                 "${USER_ALREADY_EXISTS}CPF: $cpf",
             )
         }
 
-        if (rg != null && userRepositoryPort.existsByRg(rg)) {
+        if (rg != null && userRepositoryOutputPort.existsByRg(rg)) {
             throw UserAlreadyExistsException(
                 "${USER_ALREADY_EXISTS}RG: $rg",
             )
         }
 
-        user.passwordHash = passwordEncoderPort.encode(user.passwordHash)
+        user.passwordHash = passwordEncoderOutputPort.encode(user.passwordHash)
 
-        return userRepositoryPort.save(user)
+        return userRepositoryOutputPort.save(user)
     }
 }

@@ -17,32 +17,32 @@ class BCryptPasswordEncoderAdapterTest {
         private const val PASSWORD = "Diad@123456"
     }
 
-    private val encoder = BCryptPasswordEncoder()
-    private val adapter = BCryptPasswordEncoderAdapter(encoder)
+    private val bCryptPasswordEncoder = BCryptPasswordEncoder()
+    private val bCryptPasswordEncoderAdapter = BCryptPasswordEncoderAdapter(bCryptPasswordEncoder)
 
     @Test
     fun `should encode password successfully`() {
-        val hash = adapter.encode(PASSWORD)
+        val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
 
         assertNotEquals(PASSWORD, hash)
-        assertTrue(encoder.matches(PASSWORD, hash))
+        assertTrue(bCryptPasswordEncoder.matches(PASSWORD, hash))
     }
 
     @Test
     fun `should generate different hashes for same password`() {
-        val firstHash = adapter.encode(PASSWORD)
-        val secondHash = adapter.encode(PASSWORD)
+        val firstHash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
+        val secondHash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
 
         assertNotEquals(firstHash, secondHash)
-        assertTrue(encoder.matches(PASSWORD, firstHash))
-        assertTrue(encoder.matches(PASSWORD, secondHash))
+        assertTrue(bCryptPasswordEncoder.matches(PASSWORD, firstHash))
+        assertTrue(bCryptPasswordEncoder.matches(PASSWORD, secondHash))
     }
 
     @Test
     fun `should reject incorrect password`() {
-        val hash = adapter.encode(PASSWORD)
+        val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
 
-        assertFalse(encoder.matches("WrongPassword123", hash))
+        assertFalse(bCryptPasswordEncoder.matches("WrongPassword123", hash))
     }
 
     @Test
@@ -53,11 +53,11 @@ class BCryptPasswordEncoderAdapterTest {
             passwordEncoder.encode(any())
         } returns null
 
-        val adapter = BCryptPasswordEncoderAdapter(passwordEncoder)
+        val bCryptPasswordEncoderAdapter = BCryptPasswordEncoderAdapter(passwordEncoder)
 
         val exception =
             assertThrows<IllegalStateException> {
-                adapter.encode(PASSWORD)
+                bCryptPasswordEncoderAdapter.encode(PASSWORD)
             }
 
         assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
@@ -65,8 +65,8 @@ class BCryptPasswordEncoderAdapterTest {
 
     @Test
     fun `should encode password using default constructor`() {
-        val adapter = BCryptPasswordEncoderAdapter()
-        val hash = adapter.encode(PASSWORD)
+        val bCryptPasswordEncoderAdapter = BCryptPasswordEncoderAdapter()
+        val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
         assertTrue(BCryptPasswordEncoder().matches(PASSWORD, hash))
     }
 }

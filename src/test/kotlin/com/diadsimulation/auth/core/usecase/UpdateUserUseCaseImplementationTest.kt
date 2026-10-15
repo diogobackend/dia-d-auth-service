@@ -31,17 +31,31 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.util.NoSuchElementException
 
 @ExtendWith(MockKExtension::class)
-class UpdateUserUseCaseImplTest {
+class UpdateUserUseCaseImplementationTest {
     @MockK
-    private lateinit var userRepositoryPort: UserRepositoryOutputPort
+    private lateinit var userRepositoryOutputPort: UserRepositoryOutputPort
 
     @MockK
-    private lateinit var passwordEncoderPort: PasswordEncoderOutputPort
+    private lateinit var passwordEncoderOutputPort: PasswordEncoderOutputPort
 
     @InjectMockKs
     private lateinit var updateUserUseCaseImpl: UpdateUserUseCaseImplementation
 
     private lateinit var user: User
+
+    private val userId get() = user.userId
+    private val name get() = user.name
+    private val email get() = user.email
+    private val phone get() = user.phone
+    private val address get() = user.address
+    private val cpf get() = user.cpf
+    private val rg get() = user.rg
+    private val passwordHash get() = user.passwordHash
+    private val role get() = user.role
+    private val status get() = user.status
+    private val birthDate get() = user.birthDate
+    private val createdAt get() = user.createdAt
+    private val updatedAt get() = user.updatedAt
 
     @BeforeEach
     fun setUp() {
@@ -56,18 +70,18 @@ class UpdateUserUseCaseImplTest {
         val result = execute(name = "Updated Name")
 
         assertEquals("Updated Name", result.name)
-        assertEquals(user.email, result.email)
-        assertEquals(user.passwordHash, result.passwordHash)
-        assertEquals(user.phone, result.phone)
-        assertEquals(user.address, result.address)
+        assertEquals(email, result.email)
+        assertEquals(passwordHash, result.passwordHash)
+        assertEquals(phone, result.phone)
+        assertEquals(address, result.address)
 
         verify(exactly = 1) {
-            userRepositoryPort.findById(user.userId)
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.findById(userId)
+            userRepositoryOutputPort.update(any())
         }
 
         verify(exactly = 0) {
-            passwordEncoderPort.encode(any())
+            passwordEncoderOutputPort.encode(any())
         }
     }
 
@@ -76,7 +90,7 @@ class UpdateUserUseCaseImplTest {
         val newEmail = "updated@diad.com"
 
         mockExistingUser()
-        every { userRepositoryPort.findByEmail(newEmail) } returns null
+        every { userRepositoryOutputPort.findByEmail(newEmail) } returns null
         mockSuccessfulUpdate()
 
         val result = execute(email = newEmail)
@@ -84,8 +98,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(newEmail, result.email.value)
 
         verify(exactly = 1) {
-            userRepositoryPort.findByEmail(newEmail)
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.findByEmail(newEmail)
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -93,7 +107,7 @@ class UpdateUserUseCaseImplTest {
     fun `should update user password successfully`() {
         mockExistingUser()
         every {
-            passwordEncoderPort.encode(RAW_PASSWORD)
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
         } returns ENCODED_PASSWORD
         mockSuccessfulUpdate()
 
@@ -102,8 +116,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(ENCODED_PASSWORD, result.passwordHash)
 
         verify(exactly = 1) {
-            passwordEncoderPort.encode(RAW_PASSWORD)
-            userRepositoryPort.update(any())
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -115,7 +129,7 @@ class UpdateUserUseCaseImplTest {
         val result = execute(phone = VALID_PHONE)
 
         assertEquals(VALID_PHONE, result.phone?.value)
-        verify(exactly = 1) { userRepositoryPort.update(any()) }
+        verify(exactly = 1) { userRepositoryOutputPort.update(any()) }
     }
 
     @Test
@@ -126,7 +140,7 @@ class UpdateUserUseCaseImplTest {
         val result = execute(address = "Updated Address")
 
         assertEquals("Updated Address", result.address)
-        verify(exactly = 1) { userRepositoryPort.update(any()) }
+        verify(exactly = 1) { userRepositoryOutputPort.update(any()) }
     }
 
     @Test
@@ -134,9 +148,9 @@ class UpdateUserUseCaseImplTest {
         val newEmail = "updated@diad.com"
 
         mockExistingUser()
-        every { userRepositoryPort.findByEmail(newEmail) } returns null
+        every { userRepositoryOutputPort.findByEmail(newEmail) } returns null
         every {
-            passwordEncoderPort.encode(RAW_PASSWORD)
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
         } returns ENCODED_PASSWORD
         mockSuccessfulUpdate()
 
@@ -156,8 +170,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals("Updated Address", result.address)
 
         verify(exactly = 1) {
-            passwordEncoderPort.encode(RAW_PASSWORD)
-            userRepositoryPort.update(any())
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -168,15 +182,15 @@ class UpdateUserUseCaseImplTest {
 
         val result = execute()
 
-        assertEquals(user.name, result.name)
-        assertEquals(user.email, result.email)
-        assertEquals(user.passwordHash, result.passwordHash)
-        assertEquals(user.phone, result.phone)
-        assertEquals(user.address, result.address)
+        assertEquals(name, result.name)
+        assertEquals(email, result.email)
+        assertEquals(passwordHash, result.passwordHash)
+        assertEquals(phone, result.phone)
+        assertEquals(address, result.address)
 
         verify(exactly = 0) {
-            userRepositoryPort.findByEmail(any())
-            passwordEncoderPort.encode(any())
+            userRepositoryOutputPort.findByEmail(any())
+            passwordEncoderOutputPort.encode(any())
         }
     }
 
@@ -194,15 +208,15 @@ class UpdateUserUseCaseImplTest {
                 address = " ",
             )
 
-        assertEquals(user.name, result.name)
-        assertEquals(user.email, result.email)
-        assertEquals(user.passwordHash, result.passwordHash)
-        assertEquals(user.phone, result.phone)
-        assertEquals(user.address, result.address)
+        assertEquals(name, result.name)
+        assertEquals(email, result.email)
+        assertEquals(passwordHash, result.passwordHash)
+        assertEquals(phone, result.phone)
+        assertEquals(address, result.address)
 
         verify(exactly = 0) {
-            userRepositoryPort.findByEmail(any())
-            passwordEncoderPort.encode(any())
+            userRepositoryOutputPort.findByEmail(any())
+            passwordEncoderOutputPort.encode(any())
         }
     }
 
@@ -211,12 +225,12 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
         mockSuccessfulUpdate()
 
-        val result = execute(email = user.email.value)
+        val result = execute(email = email.value)
 
-        assertEquals(user.email, result.email)
+        assertEquals(email, result.email)
 
         verify(exactly = 0) {
-            userRepositoryPort.findByEmail(any())
+            userRepositoryOutputPort.findByEmail(any())
         }
     }
 
@@ -225,21 +239,21 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
         mockSuccessfulUpdate()
 
-        val newEmail = user.email.value.uppercase()
+        val newEmail = email.value.uppercase()
 
         val result = execute(email = newEmail)
 
         assertEquals(newEmail, result.email.value)
 
         verify(exactly = 0) {
-            userRepositoryPort.findByEmail(any())
+            userRepositoryOutputPort.findByEmail(any())
         }
     }
 
     @Test
     fun `should throw exception when user does not exist`() {
         every {
-            userRepositoryPort.findById(user.userId)
+            userRepositoryOutputPort.findById(userId)
         } returns null
 
         val exception =
@@ -250,8 +264,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(USER_NOT_FOUND, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.update(any())
-            passwordEncoderPort.encode(any())
+            userRepositoryOutputPort.update(any())
+            passwordEncoderOutputPort.encode(any())
         }
     }
 
@@ -261,7 +275,7 @@ class UpdateUserUseCaseImplTest {
 
         mockExistingUser()
         every {
-            userRepositoryPort.findByEmail(newEmail)
+            userRepositoryOutputPort.findByEmail(newEmail)
         } returns buildUser(email = newEmail)
 
         val exception =
@@ -272,8 +286,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(EMAIL_ALREADY_EXISTS, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.update(any())
-            passwordEncoderPort.encode(any())
+            userRepositoryOutputPort.update(any())
+            passwordEncoderOutputPort.encode(any())
         }
     }
 
@@ -282,7 +296,7 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
 
         every {
-            passwordEncoderPort.encode(RAW_PASSWORD)
+            passwordEncoderOutputPort.encode(RAW_PASSWORD)
         } throws IllegalStateException(PASSWORD_ENCODING_FAILED)
 
         val exception =
@@ -293,7 +307,7 @@ class UpdateUserUseCaseImplTest {
         assertEquals(PASSWORD_ENCODING_FAILED, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -302,7 +316,7 @@ class UpdateUserUseCaseImplTest {
         mockExistingUser()
 
         every {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         } throws IllegalStateException(PERSISTENCE_FAILED)
 
         val exception =
@@ -313,7 +327,7 @@ class UpdateUserUseCaseImplTest {
         assertEquals(PERSISTENCE_FAILED, exception.message)
 
         verify(exactly = 1) {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -324,14 +338,14 @@ class UpdateUserUseCaseImplTest {
 
         val result = execute(name = "Updated Name")
 
-        assertEquals(user.userId, result.userId)
-        assertEquals(user.role, result.role)
-        assertEquals(user.status, result.status)
-        assertEquals(user.cpf, result.cpf)
-        assertEquals(user.rg, result.rg)
-        assertEquals(user.birthDate, result.birthDate)
-        assertEquals(user.createdAt, result.createdAt)
-        assertTrue(result.updatedAt >= user.updatedAt)
+        assertEquals(userId, result.userId)
+        assertEquals(role, result.role)
+        assertEquals(status, result.status)
+        assertEquals(cpf, result.cpf)
+        assertEquals(rg, result.rg)
+        assertEquals(birthDate, result.birthDate)
+        assertEquals(createdAt, result.createdAt)
+        assertTrue(result.updatedAt >= updatedAt)
     }
 
     @Test
@@ -340,7 +354,7 @@ class UpdateUserUseCaseImplTest {
         val newCpf = "613.098.083-33"
 
         mockExistingUser()
-        every { userRepositoryPort.existsByCpf(newCpf) } returns false
+        every { userRepositoryOutputPort.existsByCpf(newCpf) } returns false
         mockSuccessfulUpdate()
 
         val result = execute(cpf = newCpf)
@@ -348,8 +362,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(newCpf, result.cpf?.value)
 
         verify(exactly = 1) {
-            userRepositoryPort.existsByCpf(newCpf)
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.existsByCpf(newCpf)
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -365,8 +379,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(CPF_ALREADY_REGISTERED, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByCpf(any())
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.existsByCpf(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -382,8 +396,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(RG_ALREADY_REGISTERED, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByRg(any())
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.existsByRg(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -393,7 +407,7 @@ class UpdateUserUseCaseImplTest {
         val newRg = "05.123.456/2018-7"
 
         mockExistingUser()
-        every { userRepositoryPort.existsByRg(newRg) } returns true
+        every { userRepositoryOutputPort.existsByRg(newRg) } returns true
 
         val exception =
             assertThrows<UserAlreadyExistsException> {
@@ -403,11 +417,11 @@ class UpdateUserUseCaseImplTest {
         assertEquals(RG_ALREADY_EXISTS, exception.message)
 
         verify(exactly = 1) {
-            userRepositoryPort.existsByRg(newRg)
+            userRepositoryOutputPort.existsByRg(newRg)
         }
 
         verify(exactly = 0) {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -420,10 +434,10 @@ class UpdateUserUseCaseImplTest {
 
         val result = execute(rg = newRg)
 
-        assertEquals(user.rg, result.rg)
+        assertEquals(rg, result.rg)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByRg(any())
+            userRepositoryOutputPort.existsByRg(any())
         }
     }
 
@@ -441,8 +455,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(RG_INVALID, exception.message)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByRg(any())
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.existsByRg(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -452,7 +466,7 @@ class UpdateUserUseCaseImplTest {
         val newCpf = "613.098.083-33"
 
         mockExistingUser()
-        every { userRepositoryPort.existsByCpf(newCpf) } returns true
+        every { userRepositoryOutputPort.existsByCpf(newCpf) } returns true
 
         val exception =
             assertThrows<UserAlreadyExistsException> {
@@ -462,11 +476,11 @@ class UpdateUserUseCaseImplTest {
         assertEquals(CPF_ALREADY_EXISTS, exception.message)
 
         verify(exactly = 1) {
-            userRepositoryPort.existsByCpf(newCpf)
+            userRepositoryOutputPort.existsByCpf(newCpf)
         }
 
         verify(exactly = 0) {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -479,10 +493,10 @@ class UpdateUserUseCaseImplTest {
 
         val result = execute(cpf = newCpf)
 
-        assertEquals(user.cpf, result.cpf)
+        assertEquals(cpf, result.cpf)
 
         verify(exactly = 0) {
-            userRepositoryPort.existsByCpf(any())
+            userRepositoryOutputPort.existsByCpf(any())
         }
     }
 
@@ -492,7 +506,7 @@ class UpdateUserUseCaseImplTest {
         val newRg = "05.123.456/2018-7"
 
         mockExistingUser()
-        every { userRepositoryPort.existsByRg(newRg) } returns false
+        every { userRepositoryOutputPort.existsByRg(newRg) } returns false
         mockSuccessfulUpdate()
 
         val result = execute(rg = newRg)
@@ -500,8 +514,8 @@ class UpdateUserUseCaseImplTest {
         assertEquals(newRg, result.rg?.value)
 
         verify(exactly = 1) {
-            userRepositoryPort.existsByRg(newRg)
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.existsByRg(newRg)
+            userRepositoryOutputPort.update(any())
         }
     }
 
@@ -515,7 +529,7 @@ class UpdateUserUseCaseImplTest {
         rg: String? = null,
     ): User =
         updateUserUseCaseImpl.execute(
-            userId = user.userId,
+            userId = userId,
             name = name,
             email = email,
             password = password,
@@ -527,13 +541,13 @@ class UpdateUserUseCaseImplTest {
 
     private fun mockExistingUser() {
         every {
-            userRepositoryPort.findById(user.userId)
+            userRepositoryOutputPort.findById(userId)
         } returns user
     }
 
     private fun mockSuccessfulUpdate() {
         every {
-            userRepositoryPort.update(any())
+            userRepositoryOutputPort.update(any())
         } answers { firstArg() }
     }
 
