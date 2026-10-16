@@ -1,16 +1,19 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
 import com.diadsimulation.auth.builders.buildFieldError
+import com.diadsimulation.auth.core.common.Messages.ACCESS_DENIED
 import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_INVALID_FORMAT
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.FILTER_PARAMETERS_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
+import com.diadsimulation.auth.core.common.Messages.INVALID_CREDENTIALS
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.REGISTER_USER_REQUEST
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
 import com.diadsimulation.auth.core.common.Messages.SENSITIVE_DATABASE_INFORMATION
 import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.USER_NOT_ACTIVE
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import io.mockk.every
@@ -27,11 +30,15 @@ import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.mock.http.MockHttpInputMessage
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -254,6 +261,56 @@ class GlobalExceptionHandlerTest {
         assertError(response, NOT_FOUND, expectedMessage)
     }
 
+    @ParameterizedTest
+    @MethodSource("badCredentialsProvider")
+    fun `should return unauthorized for invalid credentials`(
+        message: String?,
+        expectedMessage: String,
+    ) {
+        val response =
+            handler.handleBadCredentials(
+                BadCredentialsException(message),
+                request,
+            )
+
+        assertError(response, UNAUTHORIZED, expectedMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("illegalStateProvider")
+    fun `should return forbidden for illegal state`(
+        message: String?,
+        expectedMessage: String,
+    ) {
+        val response =
+            handler.handleIllegalState(
+                IllegalStateException(message),
+                request,
+            )
+
+        assertError(response, FORBIDDEN, expectedMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("accessDeniedProvider")
+    fun `should return forbidden for access denied`(
+        message: String?,
+        expectedMessage: String,
+    ) {
+        val exception =
+            mockk<AccessDeniedException> {
+                every { this@mockk.message } returns message
+            }
+
+        val response =
+            handler.handleAccessDenied(
+                exception,
+                request,
+            )
+
+        assertError(response, FORBIDDEN, expectedMessage)
+    }
+
     private fun unreadableException(
         message: String,
         cause: Throwable? = null,
@@ -336,6 +393,27 @@ class GlobalExceptionHandlerTest {
             Stream.of(
                 Arguments.of(USER_NOT_FOUND, USER_NOT_FOUND),
                 Arguments.of(null, USER_NOT_FOUND),
+            )
+
+        @JvmStatic
+        fun badCredentialsProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(INVALID_CREDENTIALS, INVALID_CREDENTIALS),
+                Arguments.of(null, INVALID_CREDENTIALS),
+            )
+
+        @JvmStatic
+        fun illegalStateProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(USER_NOT_ACTIVE, USER_NOT_ACTIVE),
+                Arguments.of(null, ACCESS_DENIED),
+            )
+
+        @JvmStatic
+        fun accessDeniedProvider(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(ACCESS_DENIED, ACCESS_DENIED),
+                Arguments.of(null, ACCESS_DENIED),
             )
     }
 }

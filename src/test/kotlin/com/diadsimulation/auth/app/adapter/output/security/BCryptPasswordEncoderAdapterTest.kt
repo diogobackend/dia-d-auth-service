@@ -69,4 +69,18 @@ class BCryptPasswordEncoderAdapterTest {
         val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
         assertTrue(BCryptPasswordEncoder().matches(PASSWORD, hash))
     }
+
+    @Test
+    fun `should return true when password matches`() {
+        val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
+
+        assertTrue(bCryptPasswordEncoderAdapter.matches(PASSWORD, hash))
+    }
+
+    @Test
+    fun `should return false when password does not match`() {
+        val hash = bCryptPasswordEncoderAdapter.encode(PASSWORD)
+
+        assertFalse(bCryptPasswordEncoderAdapter.matches("WrongPassword123", hash))
+    }
 }

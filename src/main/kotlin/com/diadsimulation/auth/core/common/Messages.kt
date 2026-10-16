@@ -69,4 +69,13 @@ object Messages {
     const val USER_NOT_ACTIVE = "Usuário não está ativo"
     const val ACCESS_DENIED = "Acesso negado"
     const val UNAUTHORIZED_ACCESS = "Autenticação necessária ou inválida"
+    const val AUTHORIZATION = "Authorization"
+    const val VALID_TOKEN = "valid-token"
+    const val INVALID_TOKEN = "invalid-token"
+
+    const val BASIC_CREDENTIALS = "Basic credentials"
+    const val LOWERCASE_BEARER_TOKEN = "bearer valid-token"
+    const val INVALID_JWT = "Invalid JWT"
+    const val INVALID_TOKEN_MESSAGE = "Invalid token"
+    const val INVALID_CLAIMS_TYPE = "Invalid claims type"
 }
