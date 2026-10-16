@@ -63,4 +63,10 @@ object Messages {
     const val ADDRESS_MAX_LENGTH = "Endereço deve possuir no máximo 500 caracteres"
     const val CPF_MAX_LENGTH = "CPF deve possuir no máximo 14 caracteres"
     const val RG_MAX_LENGTH = "RG deve possuir no máximo 20 caracteres"
+
+    // Autenticação
+    const val INVALID_CREDENTIALS = "Credenciais inválidas"
+    const val USER_NOT_ACTIVE = "Usuário não está ativo"
+    const val ACCESS_DENIED = "Acesso negado"
+    const val UNAUTHORIZED_ACCESS = "Autenticação necessária ou inválida"
 }

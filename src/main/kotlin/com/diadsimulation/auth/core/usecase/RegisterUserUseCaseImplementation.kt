@@ -1,6 +1,7 @@
 package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.core.common.Messages.USER_ALREADY_EXISTS
+import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.port.input.RegisterUserInputPort
@@ -12,6 +13,7 @@ class RegisterUserUseCaseImplementation(
     private val passwordEncoderOutputPort: PasswordEncoderOutputPort,
 ) : RegisterUserInputPort {
     override fun execute(user: User): User {
+        user.role = CANDIDATE
         val cpf = user.cpf?.value
         val rg = user.rg?.value
         val email = user.email.value

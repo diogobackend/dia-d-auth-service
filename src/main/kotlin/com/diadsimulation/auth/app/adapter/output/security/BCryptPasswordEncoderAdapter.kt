@@ -13,4 +13,9 @@ class BCryptPasswordEncoderAdapter(
     override fun encode(rawPassword: String): String =
         passwordEncoder.encode(rawPassword)
             ?: throw IllegalStateException(PASSWORD_ENCODING_FAILED)
+
+    override fun matches(
+        rawPassword: String,
+        encodedPassword: String,
+    ): Boolean = passwordEncoder.matches(rawPassword, encodedPassword)
 }

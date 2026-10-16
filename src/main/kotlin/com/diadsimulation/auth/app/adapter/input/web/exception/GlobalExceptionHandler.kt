@@ -1,7 +1,9 @@
 package com.diadsimulation.auth.app.adapter.input.web.exception
 
+import com.diadsimulation.auth.core.common.Messages.ACCESS_DENIED
 import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_INVALID_FORMAT
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
+import com.diadsimulation.auth.core.common.Messages.INVALID_CREDENTIALS
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.REQUEST_CONFLICT
@@ -11,10 +13,14 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -123,5 +129,38 @@ class GlobalExceptionHandler {
                 message = message,
                 path = request.requestURI,
             ),
+        )
+
+    @ExceptionHandler(BadCredentialsException::class)
+    fun handleBadCredentials(
+        exception: BadCredentialsException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> =
+        buildResponse(
+            status = UNAUTHORIZED,
+            message = exception.message ?: INVALID_CREDENTIALS,
+            request = request,
+        )
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalState(
+        exception: IllegalStateException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> =
+        buildResponse(
+            status = FORBIDDEN,
+            message = exception.message ?: ACCESS_DENIED,
+            request = request,
+        )
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDenied(
+        exception: AccessDeniedException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> =
+        buildResponse(
+            status = FORBIDDEN,
+            message = exception.message ?: ACCESS_DENIED,
+            request = request,
         )
 }

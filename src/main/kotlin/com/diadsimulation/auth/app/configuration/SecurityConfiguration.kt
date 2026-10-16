@@ -1,19 +1,57 @@
 package com.diadsimulation.auth.app.configuration
 
+import com.diadsimulation.auth.app.adapter.input.web.exception.JwtAccessDeniedHandler
+import com.diadsimulation.auth.app.adapter.input.web.exception.JwtAuthenticationEntryPoint
+import com.diadsimulation.auth.app.adapter.input.web.security.JwtAuthenticationFilter
+import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
+import com.diadsimulation.auth.core.domain.enums.UserRole.PLATFORM_ADMIN
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpMethod.PATCH
+import org.springframework.http.HttpMethod.POST
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-class SecurityConfiguration {
+class SecurityConfiguration(
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint,
+    private val jwtAccessDeniedHandler: JwtAccessDeniedHandler,
+) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .authorizeHttpRequests {
-                it.anyRequest().permitAll()
-            }
+            .sessionManagement {
+                it.sessionCreationPolicy(STATELESS)
+            }.exceptionHandling {
+                it
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    .accessDeniedHandler(jwtAccessDeniedHandler)
+            }.authorizeHttpRequests {
+                it
+                    .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                    ).permitAll()
+                    .requestMatchers(POST, "/login", "/users")
+                    .permitAll()
+                    .requestMatchers(GET, "/users/id")
+                    .hasAnyRole(CANDIDATE.name, PLATFORM_ADMIN.name)
+                    .requestMatchers(PATCH, "/users/*")
+                    .hasAnyRole(CANDIDATE.name, PLATFORM_ADMIN.name)
+                    .requestMatchers("/users/**")
+                    .hasRole(PLATFORM_ADMIN.name)
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter::class.java,
+            )
 
         return http.build()
     }

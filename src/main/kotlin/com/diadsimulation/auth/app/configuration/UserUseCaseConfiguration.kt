@@ -1,5 +1,6 @@
 package com.diadsimulation.auth.app.configuration
 
+import com.diadsimulation.auth.core.port.input.AuthenticateUserInputPort
 import com.diadsimulation.auth.core.port.input.DeleteUserInputPort
 import com.diadsimulation.auth.core.port.input.FindUserInputPort
 import com.diadsimulation.auth.core.port.input.ListUsersInputPort
@@ -7,7 +8,9 @@ import com.diadsimulation.auth.core.port.input.RegisterUserInputPort
 import com.diadsimulation.auth.core.port.input.UpdateUserAccessInputPort
 import com.diadsimulation.auth.core.port.input.UpdateUserInputPort
 import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
+import com.diadsimulation.auth.core.port.output.TokenGeneratorOutputPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
+import com.diadsimulation.auth.core.usecase.AuthenticateUserUseCaseImplementation
 import com.diadsimulation.auth.core.usecase.DeleteUserUseCaseImplementation
 import com.diadsimulation.auth.core.usecase.FindUserUseCaseImplementation
 import com.diadsimulation.auth.core.usecase.ListUsersUseCaseImplementation
@@ -46,4 +49,16 @@ class UserUseCaseConfiguration {
     @Bean
     fun deleteUserUseCase(userRepositoryOutputPort: UserRepositoryOutputPort): DeleteUserInputPort =
         DeleteUserUseCaseImplementation(userRepositoryOutputPort)
+
+    @Bean
+    fun authenticateUserUseCase(
+        userRepositoryOutputPort: UserRepositoryOutputPort,
+        passwordEncoderOutputPort: PasswordEncoderOutputPort,
+        tokenGeneratorOutputPort: TokenGeneratorOutputPort,
+    ): AuthenticateUserInputPort =
+        AuthenticateUserUseCaseImplementation(
+            userRepositoryOutputPort,
+            passwordEncoderOutputPort,
+            tokenGeneratorOutputPort,
+        )
 }
