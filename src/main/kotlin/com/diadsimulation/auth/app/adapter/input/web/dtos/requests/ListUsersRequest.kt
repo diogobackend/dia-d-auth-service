@@ -22,19 +22,20 @@ data class ListUsersRequest(
     @field:Max(value = 100, message = PAGE_SIZE_MAX_INVALID)
     val size: Int = 10,
     @field:Pattern(
-        regexp = "userId|name|email|role|status|phone|cpf|rg|address|birthDate|createdAt|updatedAt",
+        regexp = "userId|name|email|login|role|status|phone|cpf|rg|address|birthDate|createdAt|updatedAt",
         message = INVALID_SORT_FIELD,
     )
     val sortBy: String = "name",
     val direction: Direction = ASC,
     @field:Pattern(
-        regexp = "name|email|role|status|phone|cpf|rg|address",
+        regexp = "name|email|login|role|status|phone|cpf|rg|address",
         message = INVALID_FILTER_FIELD,
     )
     val filterBy: String? = null,
     val filterValue: String? = null,
     val name: String? = null,
     val email: String? = null,
+    val login: String? = null,
     val phone: String? = null,
     val cpf: String? = null,
     val rg: String? = null,

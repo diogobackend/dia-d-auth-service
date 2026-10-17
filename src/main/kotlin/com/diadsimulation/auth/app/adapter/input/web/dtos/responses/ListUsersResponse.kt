@@ -10,6 +10,7 @@ data class ListUsersResponse(
     val userId: UUID,
     val name: String,
     val email: String,
+    val login: String,
     val role: UserRole,
     val status: UserStatus,
     val phone: String?,

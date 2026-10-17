@@ -72,7 +72,7 @@ class UserPersistenceAdapter(
                     val pattern = "%${filterValue.trim().lowercase()}%"
 
                     when (filterBy) {
-                        "name", "email", "phone", "cpf", "rg", "address" -> {
+                        "name", "email", "login", "phone", "cpf", "rg", "address" -> {
                             predicates.add(
                                 builder.like(
                                     builder.lower(root.get<String>(filterBy)),
@@ -97,6 +97,7 @@ class UserPersistenceAdapter(
                 mapOf(
                     "name" to criteria.name,
                     "email" to criteria.email,
+                    "login" to criteria.login,
                     "phone" to criteria.phone,
                     "cpf" to criteria.cpf,
                     "rg" to criteria.rg,

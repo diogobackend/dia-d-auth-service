@@ -13,6 +13,7 @@ data class UserSearchCriteria(
     val filterValue: String? = null,
     val name: String? = null,
     val email: String? = null,
+    val login: String? = null,
     val phone: String? = null,
     val cpf: String? = null,
     val rg: String? = null,

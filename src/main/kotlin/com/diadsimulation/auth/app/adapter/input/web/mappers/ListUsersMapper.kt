@@ -9,6 +9,7 @@ object ListUsersMapper {
             userId = user.userId,
             name = user.name,
             email = user.email.value,
+            login = user.login.value,
             role = user.role,
             status = user.status,
             phone = user.phone?.value,

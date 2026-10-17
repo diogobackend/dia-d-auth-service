@@ -145,7 +145,7 @@ interface UserApi {
 
     @Operation(
         summary = "Buscar usuário",
-        description = "Busca um único usuário por userId, email, CPF ou RG. Apenas um parâmetro deve ser informado.",
+        description = "Busca um único usuário por userId, E-mail, Login CPF ou RG. Apenas um parâmetro deve ser informado.",
     )
     @ApiResponses(
         value = [

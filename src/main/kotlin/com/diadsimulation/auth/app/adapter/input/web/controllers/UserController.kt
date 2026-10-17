@@ -76,6 +76,7 @@ class UserController(
                 filterValue = request.filterValue,
                 name = request.name,
                 email = request.email,
+                login = request.login,
                 phone = request.phone,
                 cpf = request.cpf,
                 rg = request.rg,
