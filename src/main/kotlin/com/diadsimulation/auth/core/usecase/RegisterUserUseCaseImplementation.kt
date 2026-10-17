@@ -14,13 +14,20 @@ class RegisterUserUseCaseImplementation(
 ) : RegisterUserInputPort {
     override fun execute(user: User): User {
         user.role = CANDIDATE
+        val email = user.email.value
+        val login = user.login.value
         val cpf = user.cpf?.value
         val rg = user.rg?.value
-        val email = user.email.value
 
         if (userRepositoryOutputPort.existsByEmail(email)) {
             throw UserAlreadyExistsException(
                 "${USER_ALREADY_EXISTS}E-mail: $email",
+            )
+        }
+
+        if (userRepositoryOutputPort.existsByLogin(login)) {
+            throw UserAlreadyExistsException(
+                "${USER_ALREADY_EXISTS}Login: $login",
             )
         }
 

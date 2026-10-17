@@ -12,6 +12,8 @@ interface UserRepositoryOutputPort {
 
     fun existsByEmail(email: String): Boolean
 
+    fun existsByLogin(login: String): Boolean
+
     fun existsByCpf(cpf: String): Boolean
 
     fun existsByRg(rg: String): Boolean

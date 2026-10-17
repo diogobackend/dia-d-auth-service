@@ -7,6 +7,7 @@ import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 import java.time.LocalDate
@@ -17,6 +18,7 @@ fun buildUser(
     userId: UUID = UUID.randomUUID(),
     name: String = "Diogo Ferreira",
     email: String = "candidate@diadsimulation.com",
+    login: String = "diogo123",
     passwordHash: String = "encoded-password",
     role: UserRole = CANDIDATE,
     status: UserStatus = ACTIVE,
@@ -32,6 +34,7 @@ fun buildUser(
         userId = userId,
         name = name,
         email = Email(email),
+        login = Login(login),
         passwordHash = passwordHash,
         role = role,
         status = status,

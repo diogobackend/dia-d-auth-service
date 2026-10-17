@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -136,10 +137,34 @@ class RegisterUserUseCaseImplementationTest {
         }
     }
 
+    @Test
+    fun `should throw exception when login already exists`() {
+        val user = buildUser()
+
+        every { userRepositoryOutputPort.existsByEmail(user.email.value) } returns false
+        every { userRepositoryOutputPort.existsByLogin(user.login.value) } returns true
+
+        val exception =
+            assertThrows<UserAlreadyExistsException> {
+                registerUserUseCaseImplementation.execute(user)
+            }
+
+        assertEquals(
+            "${USER_ALREADY_EXISTS}Login: ${user.login.value}",
+            exception.message,
+        )
+
+        verify(exactly = 0) {
+            userRepositoryOutputPort.save(any())
+        }
+    }
+
     private fun mockAvailableUser() {
         every {
             userRepositoryOutputPort.existsByEmail(email)
         } returns false
+
+        every { userRepositoryOutputPort.existsByLogin(any()) } returns false
 
         cpf?.let {
             every {
@@ -155,6 +180,7 @@ class RegisterUserUseCaseImplementationTest {
     }
 
     private fun mockDuplicateField(field: String) {
+        every { userRepositoryOutputPort.existsByLogin(any()) } returns false
         when (field) {
             "email" -> {
                 every {

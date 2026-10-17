@@ -8,6 +8,7 @@ import java.time.LocalDate
 fun buildRegisterUserRequest(
     email: String = "candidate@diadsimulation.com",
     name: String = "Diogo Ferreira",
+    login: String = "dio123",
     password: String = "Diad@123456",
     role: UserRole = CANDIDATE,
     phone: String? = null,
@@ -18,6 +19,7 @@ fun buildRegisterUserRequest(
 ) = RegisterUserRequest(
     email = email,
     name = name,
+    login = login,
     password = password,
     role = role,
     phone = phone,

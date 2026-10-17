@@ -6,6 +6,7 @@ import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 import org.junit.jupiter.api.Assertions.assertAll
@@ -24,6 +25,7 @@ class UserTest {
             User(
                 name = "Diogo Ferreira",
                 email = Email("candidate@diadsimulation.com"),
+                login = Login("diogo123"),
                 passwordHash = "encoded-password",
                 role = CANDIDATE,
                 status = ACTIVE,
@@ -111,6 +113,15 @@ class UserTest {
         }
 
         assertUserFields(expected, user)
+    }
+
+    @Test
+    fun `should update user login`() {
+        val user = buildUser()
+
+        user.login = Login("novologin123")
+
+        assertEquals("novologin123", user.login.value)
     }
 
     private fun assertUserFields(

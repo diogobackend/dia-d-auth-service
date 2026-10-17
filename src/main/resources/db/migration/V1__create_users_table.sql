@@ -10,6 +10,7 @@ CREATE TABLE users (
     address VARCHAR(500),
     cpf VARCHAR(14),
     rg VARCHAR(20),
+    login VARCHAR(35) NOT NULL,
     birth_date DATE,
 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -17,7 +18,8 @@ CREATE TABLE users (
 
     CONSTRAINT uk_users_email UNIQUE (email),
     CONSTRAINT uk_users_cpf UNIQUE (cpf),
-    CONSTRAINT uk_users_rg UNIQUE (rg)
+    CONSTRAINT uk_users_rg UNIQUE (rg),
+    CONSTRAINT uk_users_login UNIQUE (login)
 );
 
 CREATE INDEX idx_users_status

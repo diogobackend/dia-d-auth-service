@@ -6,6 +6,11 @@ import com.diadsimulation.auth.core.common.Messages.CPF_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.EMAIL_INVALID
 import com.diadsimulation.auth.core.common.Messages.EMAIL_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.EMAIL_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.LOGIN_LENGTH
+import com.diadsimulation.auth.core.common.Messages.LOGIN_LOWERCASE_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.LOGIN_MUST_START_WITH_LETTER
+import com.diadsimulation.auth.core.common.Messages.LOGIN_REQUIRED
+import com.diadsimulation.auth.core.common.Messages.LOGIN_WHITESPACE_NOT_ALLOWED
 import com.diadsimulation.auth.core.common.Messages.NAME_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.NAME_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_LENGTH
@@ -18,6 +23,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PastOrPresent
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
 
@@ -29,6 +35,21 @@ data class RegisterUserRequest(
     @field:Email(message = EMAIL_INVALID)
     @field:Size(max = 255, message = EMAIL_MAX_LENGTH)
     val email: String,
+    @field:NotBlank(message = LOGIN_REQUIRED)
+    @field:Size(min = 3, max = 35, message = LOGIN_LENGTH)
+    @field:Pattern(
+        regexp = "^[a-z].*$",
+        message = LOGIN_MUST_START_WITH_LETTER,
+    )
+    @field:Pattern(
+        regexp = "^[^A-Z]*$",
+        message = LOGIN_LOWERCASE_REQUIRED,
+    )
+    @field:Pattern(
+        regexp = "^\\S+$",
+        message = LOGIN_WHITESPACE_NOT_ALLOWED,
+    )
+    val login: String,
     @field:NotBlank(message = PASSWORD_REQUIRED)
     @field:Size(
         min = 8,

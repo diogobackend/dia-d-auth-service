@@ -4,6 +4,7 @@ import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntit
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 
@@ -13,6 +14,7 @@ object UserPersistenceMapper {
             userId = user.userId,
             name = user.name,
             email = user.email.value,
+            login = user.login.value,
             passwordHash = user.passwordHash,
             role = user.role,
             status = user.status,
@@ -30,6 +32,7 @@ object UserPersistenceMapper {
             userId = entity.userId,
             name = entity.name,
             email = Email(entity.email),
+            login = Login(entity.login),
             passwordHash = entity.passwordHash,
             role = entity.role,
             status = entity.status,

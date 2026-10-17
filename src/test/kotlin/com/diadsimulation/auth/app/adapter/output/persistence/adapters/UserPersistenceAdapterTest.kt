@@ -1013,6 +1013,18 @@ class UserPersistenceAdapterTest {
         assertNull(entity.rg)
     }
 
+    @Test
+    fun `should check if login exists`() {
+        val login = "diogo123"
+
+        every { userJpaRepository.existsByLogin(login) } returns true
+
+        val result = userPersistenceAdapter.existsByLogin(login)
+
+        assertTrue(result)
+        verify(exactly = 1) { userJpaRepository.existsByLogin(login) }
+    }
+
     private fun mockFindAll() {
         every {
             userJpaRepository.findAll(

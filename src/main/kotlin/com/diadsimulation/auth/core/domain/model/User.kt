@@ -4,6 +4,7 @@ import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 import java.time.LocalDate
@@ -14,6 +15,7 @@ class User(
     val userId: UUID = UUID.randomUUID(),
     var name: String,
     var email: Email,
+    var login: Login,
     var passwordHash: String,
     var role: UserRole,
     var status: UserStatus,

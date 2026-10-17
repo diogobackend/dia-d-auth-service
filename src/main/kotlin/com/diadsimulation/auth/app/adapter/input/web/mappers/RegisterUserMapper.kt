@@ -6,6 +6,7 @@ import com.diadsimulation.auth.core.domain.enums.UserStatus.ACTIVE
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 
@@ -14,6 +15,7 @@ object RegisterUserMapper {
         User(
             email = Email(request.email),
             name = request.name,
+            login = Login(request.login),
             passwordHash = request.password,
             role = request.role,
             status = ACTIVE,
@@ -29,6 +31,7 @@ object RegisterUserMapper {
             userId = user.userId,
             name = user.name,
             email = user.email.value,
+            login = user.login.value,
             role = user.role,
             status = user.status,
             phone = user.phone?.value,

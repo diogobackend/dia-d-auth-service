@@ -286,4 +286,6 @@ class UserPersistenceAdapter(
             userJpaRepository.save(userEntity),
         )
     }
+
+    override fun existsByLogin(login: String): Boolean = userJpaRepository.existsByLogin(login)
 }

@@ -50,6 +50,7 @@ class UpdateUserUseCaseImplementation(
                 userId = user.userId,
                 name = name?.takeIf { it.isNotBlank() } ?: user.name,
                 email = newEmail?.let(::Email) ?: user.email,
+                login = user.login,
                 passwordHash =
                     password
                         ?.takeIf { it.isNotBlank() }

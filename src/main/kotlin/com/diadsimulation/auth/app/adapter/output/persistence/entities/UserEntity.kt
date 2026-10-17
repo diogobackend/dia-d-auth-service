@@ -4,7 +4,7 @@ import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.enums.UserStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
+import jakarta.persistence.EnumType.STRING
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
@@ -22,12 +22,14 @@ class UserEntity(
     var name: String,
     @Column(nullable = false, unique = true, length = 255)
     var email: String,
+    @Column(nullable = false, unique = true, length = 35)
+    var login: String,
     @Column(name = "password_hash", nullable = false, length = 255)
     var passwordHash: String,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     @Column(nullable = false, length = 50)
     var role: UserRole,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     @Column(nullable = false, length = 30)
     var status: UserStatus,
     @Column(length = 30)

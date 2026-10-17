@@ -27,6 +27,7 @@ class UpdateUserAccessUseCaseImplementation(
                 userId = user.userId,
                 name = user.name,
                 email = user.email,
+                login = user.login,
                 passwordHash = user.passwordHash,
                 role = role ?: user.role,
                 status = status ?: user.status,
