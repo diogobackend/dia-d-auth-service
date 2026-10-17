@@ -7,6 +7,7 @@ import java.util.UUID
 data class FindUserRequest(
     val userId: UUID? = null,
     val email: String? = null,
+    val login: String? = null,
     val cpf: String? = null,
     val rg: String? = null,
 ) {
@@ -16,6 +17,7 @@ data class FindUserRequest(
             listOf(
                 userId != null,
                 !email.isNullOrBlank(),
+                !login.isNullOrBlank(),
                 !cpf.isNullOrBlank(),
                 !rg.isNullOrBlank(),
             ).count { it } == 1

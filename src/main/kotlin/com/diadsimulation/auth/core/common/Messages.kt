@@ -49,7 +49,7 @@ object Messages {
 
     // Parâmetros de requisição
     const val INVALID_USER_UPDATE_PARAMS = "Informe pelo menos um campo para atualização"
-    const val INVALID_USER_SEARCH_PARAMS = "Informe apenas um parâmetro: userId, email, cpf ou rg"
+    const val INVALID_USER_SEARCH_PARAMS = "Informe apenas um parâmetro: userId, email, login, cpf ou rg"
 
     // Paginação
     const val PAGE_CANNOT_BE_NEGATIVE = "A página não pode ser negativa"

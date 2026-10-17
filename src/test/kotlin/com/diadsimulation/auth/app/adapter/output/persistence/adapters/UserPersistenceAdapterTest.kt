@@ -67,6 +67,7 @@ class UserPersistenceAdapterTest {
     private lateinit var predicate: Predicate
 
     private val email get() = user.email.value
+    private val login get() = user.login.value
     private val userId get() = user.userId
     private val name get() = user.name
     private val cpf get() = user.cpf?.value
@@ -1023,6 +1024,36 @@ class UserPersistenceAdapterTest {
 
         assertTrue(result)
         verify(exactly = 1) { userJpaRepository.existsByLogin(login) }
+    }
+
+    @Test
+    fun `should find user by login`() {
+        every {
+            userJpaRepository.findByLogin(login)
+        } returns UserPersistenceMapper.toEntity(user)
+
+        val result = userPersistenceAdapter.findByLogin(login)
+
+        assertNotNull(result)
+        assertEquals(userId, result?.userId)
+        assertEquals(login, result?.login?.value)
+
+        verify(exactly = 1) {
+            userJpaRepository.findByLogin(login)
+        }
+    }
+
+    @Test
+    fun `should return null when login does not exist`() {
+        every {
+            userJpaRepository.findByLogin(login)
+        } returns null
+
+        assertNull(userPersistenceAdapter.findByLogin(login))
+
+        verify(exactly = 1) {
+            userJpaRepository.findByLogin(login)
+        }
     }
 
     private fun mockFindAll() {

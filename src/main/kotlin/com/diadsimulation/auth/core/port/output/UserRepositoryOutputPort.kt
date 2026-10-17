@@ -10,6 +10,8 @@ interface UserRepositoryOutputPort {
 
     fun findByEmail(email: String): User?
 
+    fun findByLogin(login: String): User?
+
     fun existsByEmail(email: String): Boolean
 
     fun existsByLogin(login: String): Boolean

@@ -10,6 +10,8 @@ interface UserJpaRepository :
     JpaSpecificationExecutor<UserEntity> {
     fun findByEmail(email: String): UserEntity?
 
+    fun findByLogin(login: String): UserEntity?
+
     fun existsByEmail(email: String): Boolean
 
     fun existsByLogin(login: String): Boolean

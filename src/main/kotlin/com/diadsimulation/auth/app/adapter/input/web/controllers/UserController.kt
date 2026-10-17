@@ -111,6 +111,7 @@ class UserController(
             findUserInputPort.execute(
                 userId = request.userId,
                 email = request.email,
+                login = request.login,
                 cpf = request.cpf,
                 rg = request.rg,
             )

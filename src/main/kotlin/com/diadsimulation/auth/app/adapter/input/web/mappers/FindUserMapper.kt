@@ -9,6 +9,7 @@ object FindUserMapper {
             userId = user.userId,
             name = user.name,
             email = user.email.value,
+            login = user.login.value,
             role = user.role.name,
             status = user.status.name,
             phone = user.phone?.value,

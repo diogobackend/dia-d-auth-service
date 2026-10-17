@@ -43,6 +43,8 @@ class UserPersistenceAdapter(
         return UserPersistenceMapper.toDomain(userEntity)
     }
 
+    override fun findByLogin(login: String): User? = userJpaRepository.findByLogin(login)?.let(UserPersistenceMapper::toDomain)
+
     override fun existsByEmail(email: String): Boolean = userJpaRepository.existsByEmail(email)
 
     override fun existsByCpf(cpf: String): Boolean = userJpaRepository.existsByCpf(cpf)

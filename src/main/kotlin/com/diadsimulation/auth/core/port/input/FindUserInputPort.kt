@@ -7,6 +7,7 @@ interface FindUserInputPort {
     fun execute(
         userId: UUID?,
         email: String?,
+        login: String?,
         cpf: String?,
         rg: String?,
     ): User

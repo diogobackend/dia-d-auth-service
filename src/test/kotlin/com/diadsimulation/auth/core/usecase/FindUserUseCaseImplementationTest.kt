@@ -4,6 +4,7 @@ import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
 import com.diadsimulation.auth.core.domain.enums.SearchType
 import com.diadsimulation.auth.core.domain.enums.SearchType.CPF
 import com.diadsimulation.auth.core.domain.enums.SearchType.EMAIL
+import com.diadsimulation.auth.core.domain.enums.SearchType.LOGIN
 import com.diadsimulation.auth.core.domain.enums.SearchType.RG
 import com.diadsimulation.auth.core.domain.enums.SearchType.USER_ID
 import com.diadsimulation.auth.core.domain.model.User
@@ -70,6 +71,7 @@ class FindUserUseCaseImplementationTest {
                 findUserUseCaseImplementation.execute(
                     userId = null,
                     email = null,
+                    login = null,
                     cpf = null,
                     rg = null,
                 )
@@ -86,6 +88,7 @@ class FindUserUseCaseImplementationTest {
         findUserUseCaseImplementation.execute(
             userId = request.userId,
             email = request.email,
+            login = request.login,
             cpf = request.cpf,
             rg = request.rg,
         )
@@ -104,6 +107,12 @@ class FindUserUseCaseImplementationTest {
             EMAIL -> {
                 every {
                     userRepositoryOutputPort.findByEmail(requireNotNull(request.email))
+                } returns user
+            }
+
+            LOGIN -> {
+                every {
+                    userRepositoryOutputPort.findByLogin(requireNotNull(request.login))
                 } returns user
             }
 
@@ -132,6 +141,12 @@ class FindUserUseCaseImplementationTest {
             EMAIL -> {
                 verify(exactly = 1) {
                     userRepositoryOutputPort.findByEmail(requireNotNull(request.email))
+                }
+            }
+
+            LOGIN -> {
+                verify(exactly = 1) {
+                    userRepositoryOutputPort.findByLogin(requireNotNull(request.login))
                 }
             }
 
@@ -165,6 +180,13 @@ class FindUserUseCaseImplementationTest {
                 )
             }
 
+            LOGIN -> {
+                FindUserTestData(
+                    searchType = searchType,
+                    login = "diogo123",
+                )
+            }
+
             CPF -> {
                 FindUserTestData(
                     searchType = searchType,
@@ -184,6 +206,7 @@ class FindUserUseCaseImplementationTest {
         val searchType: SearchType,
         val userId: UUID? = null,
         val email: String? = null,
+        val login: String? = null,
         val cpf: String? = null,
         val rg: String? = null,
     )

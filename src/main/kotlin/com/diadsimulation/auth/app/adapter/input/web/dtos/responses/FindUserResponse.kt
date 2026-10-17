@@ -8,6 +8,7 @@ data class FindUserResponse(
     val userId: UUID,
     val name: String,
     val email: String,
+    val login: String,
     val role: String,
     val status: String,
     val phone: String?,
