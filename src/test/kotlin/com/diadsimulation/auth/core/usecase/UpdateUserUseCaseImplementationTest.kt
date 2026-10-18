@@ -1,6 +1,8 @@
 package com.diadsimulation.auth.core.usecase
 
 import com.diadsimulation.auth.builders.buildUser
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_ALREADY_REGISTERED
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_CANNOT_BE_FUTURE
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
+import java.time.LocalDate
 import java.util.NoSuchElementException
 
 @ExtendWith(MockKExtension::class)
@@ -589,6 +592,65 @@ class UpdateUserUseCaseImplementationTest {
         verify(exactly = 0) { userRepositoryOutputPort.update(any()) }
     }
 
+    @Test
+    fun `should update birth date when current birth date is null`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val birthDate = LocalDate.of(2000, 5, 15)
+
+        val result = execute(birthDate = birthDate)
+
+        assertEquals(birthDate, result.birthDate)
+    }
+
+    @Test
+    fun `should keep current birth date when new birth date is null`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(birthDate = null)
+
+        assertEquals(user.birthDate, result.birthDate)
+    }
+
+    @Test
+    fun `should throw exception when birth date is in the future`() {
+        mockExistingUser()
+
+        val birthDate = LocalDate.now().plusDays(1)
+
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                execute(birthDate = birthDate)
+            }
+
+        assertEquals(BIRTH_DATE_CANNOT_BE_FUTURE, exception.message)
+        verify(exactly = 0) { userRepositoryOutputPort.update(any()) }
+    }
+
+    @Test
+    fun `should throw exception when birth date is already registered`() {
+        val existingUser =
+            buildUser(
+                userId = userId,
+                birthDate = LocalDate.of(2000, 5, 15),
+            )
+
+        every { userRepositoryOutputPort.findById(userId) } returns existingUser
+
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                execute(birthDate = LocalDate.of(1995, 10, 20))
+            }
+
+        assertEquals(BIRTH_DATE_ALREADY_REGISTERED, exception.message)
+
+        verify(exactly = 0) {
+            userRepositoryOutputPort.update(any())
+        }
+    }
+
     private fun execute(
         name: String? = null,
         email: String? = null,
@@ -598,6 +660,7 @@ class UpdateUserUseCaseImplementationTest {
         address: String? = null,
         cpf: String? = null,
         rg: String? = null,
+        birthDate: LocalDate? = null,
     ): User =
         updateUserUseCaseImpl.execute(
             userId = userId,
@@ -609,6 +672,7 @@ class UpdateUserUseCaseImplementationTest {
             address = address,
             cpf = cpf,
             rg = rg,
+            birthDate = birthDate,
         )
 
     private fun mockExistingUser() {

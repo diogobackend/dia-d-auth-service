@@ -139,6 +139,7 @@ class UserController(
                 address = request.address,
                 cpf = request.cpf,
                 rg = request.rg,
+                birthDate = request.birthDate,
             )
 
         return ResponseEntity.ok(UpdateUserMapper.toResponse(user))

@@ -265,6 +265,7 @@ class UserPersistenceAdapter(
         entity.cpf = user.cpf?.value
         entity.rg = user.rg?.value
         entity.address = user.address
+        entity.birthDate = user.birthDate
         entity.updatedAt = user.updatedAt
 
         return UserPersistenceMapper.toDomain(entity)

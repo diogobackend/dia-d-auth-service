@@ -14,6 +14,7 @@ object UpdateUserMapper {
             address = user.address,
             cpf = user.cpf?.value,
             rg = user.rg?.value,
+            birthDate = user.birthDate,
             updatedAt = user.updatedAt,
         )
 }

@@ -50,6 +50,8 @@ object Messages {
     // Parâmetros de requisição
     const val INVALID_USER_UPDATE_PARAMS = "Informe pelo menos um campo para atualização"
     const val INVALID_USER_SEARCH_PARAMS = "Informe apenas um parâmetro: userId, email, login, cpf ou rg"
+    const val BIRTH_DATE_ALREADY_REGISTERED = "A data de nascimento já está cadastrada"
+    const val BIRTH_DATE_CANNOT_BE_FUTURE = "A data de nascimento não pode ser futura"
 
     // Paginação
     const val PAGE_CANNOT_BE_NEGATIVE = "A página não pode ser negativa"

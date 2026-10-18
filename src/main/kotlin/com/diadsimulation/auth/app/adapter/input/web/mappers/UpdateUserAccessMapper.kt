@@ -11,6 +11,7 @@ object UpdateUserAccessMapper {
             email = user.email.value,
             role = user.role,
             status = user.status,
+            birthDate = user.birthDate,
             updatedAt = user.updatedAt,
         )
 }

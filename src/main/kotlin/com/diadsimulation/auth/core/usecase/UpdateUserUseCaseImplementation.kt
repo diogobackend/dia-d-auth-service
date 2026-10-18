@@ -1,5 +1,7 @@
 package com.diadsimulation.auth.core.usecase
 
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_ALREADY_REGISTERED
+import com.diadsimulation.auth.core.common.Messages.BIRTH_DATE_CANNOT_BE_FUTURE
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
@@ -17,6 +19,7 @@ import com.diadsimulation.auth.core.domain.valueobject.Rg
 import com.diadsimulation.auth.core.port.input.UpdateUserInputPort
 import com.diadsimulation.auth.core.port.output.PasswordEncoderOutputPort
 import com.diadsimulation.auth.core.port.output.UserRepositoryOutputPort
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.NoSuchElementException
 import java.util.UUID
@@ -35,6 +38,7 @@ class UpdateUserUseCaseImplementation(
         address: String?,
         cpf: String?,
         rg: String?,
+        birthDate: LocalDate?,
     ): User {
         val user =
             userRepositoryOutputPort.findById(userId)
@@ -73,7 +77,7 @@ class UpdateUserUseCaseImplementation(
                 cpf = updateCpf(user.cpf, cpf),
                 rg = updateRg(user.rg, rg),
                 address = address?.takeIf { it.isNotBlank() } ?: user.address,
-                birthDate = user.birthDate,
+                birthDate = updateBirthDate(user.birthDate, birthDate),
                 createdAt = user.createdAt,
                 updatedAt = OffsetDateTime.now(),
             )
@@ -117,5 +121,22 @@ class UpdateUserUseCaseImplementation(
         }
 
         return rg
+    }
+
+    private fun updateBirthDate(
+        currentBirthDate: LocalDate?,
+        newBirthDate: LocalDate?,
+    ): LocalDate? {
+        if (newBirthDate == null) return currentBirthDate
+
+        require(!newBirthDate.isAfter(LocalDate.now())) {
+            BIRTH_DATE_CANNOT_BE_FUTURE
+        }
+
+        require(currentBirthDate == null) {
+            BIRTH_DATE_ALREADY_REGISTERED
+        }
+
+        return newBirthDate
     }
 }
