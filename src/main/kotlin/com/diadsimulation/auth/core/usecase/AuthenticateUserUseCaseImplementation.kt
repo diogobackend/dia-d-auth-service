@@ -15,12 +15,16 @@ class AuthenticateUserUseCaseImplementation(
     private val tokenGeneratorOutputPort: TokenGeneratorOutputPort,
 ) : AuthenticateUserInputPort {
     override fun execute(
-        email: String,
+        email: String?,
+        login: String?,
         password: String,
     ): String {
         val user =
-            userRepositoryOutputPort.findByEmail(email)
-                ?: throw BadCredentialsException(INVALID_CREDENTIALS)
+            when {
+                !email.isNullOrBlank() -> userRepositoryOutputPort.findByEmail(email.toString())
+                !login.isNullOrBlank() -> userRepositoryOutputPort.findByLogin(login.toString())
+                else -> null
+            } ?: throw BadCredentialsException(INVALID_CREDENTIALS)
 
         if (!passwordEncoderOutputPort.matches(password, user.passwordHash)) {
             throw BadCredentialsException(INVALID_CREDENTIALS)

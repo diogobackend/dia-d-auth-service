@@ -23,6 +23,7 @@ import org.hibernate.internal.util.collections.CollectionHelper.listOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -84,6 +85,7 @@ class AuthenticateUserUseCaseImplementationTest {
             authenticateUserUseCaseImplementation.execute(
                 email = EMAIL,
                 password = PASSWORD,
+                login = LOGIN,
             )
 
         assertEquals(TOKEN, result)
@@ -108,6 +110,7 @@ class AuthenticateUserUseCaseImplementationTest {
                 authenticateUserUseCaseImplementation.execute(
                     email = EMAIL,
                     password = PASSWORD,
+                    login = LOGIN,
                 )
             }
 
@@ -137,6 +140,7 @@ class AuthenticateUserUseCaseImplementationTest {
                 authenticateUserUseCaseImplementation.execute(
                     email = EMAIL,
                     password = PASSWORD,
+                    login = LOGIN,
                 )
             }
 
@@ -167,6 +171,7 @@ class AuthenticateUserUseCaseImplementationTest {
                 authenticateUserUseCaseImplementation.execute(
                     email = EMAIL,
                     password = PASSWORD,
+                    login = LOGIN,
                 )
             }
 
@@ -182,9 +187,157 @@ class AuthenticateUserUseCaseImplementationTest {
         }
     }
 
+    @Test
+    fun `should authenticate user by login successfully`() {
+        val user = user(role = CANDIDATE)
+
+        every { userRepositoryOutputPort.findByLogin(LOGIN) } returns user
+        mockPasswordMatches(true)
+
+        every {
+            tokenGeneratorOutputPort.generate(user.userId, CANDIDATE.name)
+        } returns TOKEN
+
+        val result =
+            authenticateUserUseCaseImplementation.execute(
+                email = null,
+                login = LOGIN,
+                password = PASSWORD,
+            )
+
+        assertEquals(TOKEN, result)
+
+        verify(exactly = 1) {
+            userRepositoryOutputPort.findByLogin(LOGIN)
+            passwordEncoderOutputPort.matches(PASSWORD, PASSWORD_HASH)
+            tokenGeneratorOutputPort.generate(user.userId, CANDIDATE.name)
+        }
+
+        verify(exactly = 0) {
+            userRepositoryOutputPort.findByEmail(any())
+        }
+    }
+
+    @Test
+    fun `should throw bad credentials when login does not exist`() {
+        every { userRepositoryOutputPort.findByLogin(LOGIN) } returns null
+
+        val exception =
+            assertThrows<BadCredentialsException> {
+                authenticateUserUseCaseImplementation.execute(
+                    email = null,
+                    login = LOGIN,
+                    password = PASSWORD,
+                )
+            }
+
+        assertEquals(INVALID_CREDENTIALS, exception.message)
+
+        verify(exactly = 1) {
+            userRepositoryOutputPort.findByLogin(LOGIN)
+        }
+
+        verify {
+            passwordEncoderOutputPort wasNot Called
+            tokenGeneratorOutputPort wasNot Called
+        }
+    }
+
+    @Test
+    fun `should throw bad credentials when email and login are null`() {
+        val exception =
+            assertThrows<BadCredentialsException> {
+                authenticateUserUseCaseImplementation.execute(
+                    email = null,
+                    login = null,
+                    password = PASSWORD,
+                )
+            }
+
+        assertEquals(INVALID_CREDENTIALS, exception.message)
+
+        verify {
+            userRepositoryOutputPort wasNot Called
+            passwordEncoderOutputPort wasNot Called
+            tokenGeneratorOutputPort wasNot Called
+        }
+    }
+
+    @Test
+    fun `should authenticate by login when email is blank`() {
+        val user = user(role = CANDIDATE)
+
+        every { userRepositoryOutputPort.findByLogin(LOGIN) } returns user
+        mockPasswordMatches(true)
+
+        every {
+            tokenGeneratorOutputPort.generate(user.userId, CANDIDATE.name)
+        } returns TOKEN
+
+        val result =
+            authenticateUserUseCaseImplementation.execute(
+                email = "",
+                login = LOGIN,
+                password = PASSWORD,
+            )
+
+        assertEquals(TOKEN, result)
+
+        verify(exactly = 1) {
+            userRepositoryOutputPort.findByLogin(LOGIN)
+            passwordEncoderOutputPort.matches(PASSWORD, PASSWORD_HASH)
+            tokenGeneratorOutputPort.generate(user.userId, CANDIDATE.name)
+        }
+
+        verify(exactly = 0) {
+            userRepositoryOutputPort.findByEmail(any())
+        }
+    }
+
+    @Test
+    fun `should throw bad credentials when login is blank and email is null`() {
+        val exception =
+            assertThrows<BadCredentialsException> {
+                authenticateUserUseCaseImplementation.execute(
+                    email = null,
+                    login = "",
+                    password = PASSWORD,
+                )
+            }
+
+        assertEquals(INVALID_CREDENTIALS, exception.message)
+
+        verify {
+            userRepositoryOutputPort wasNot Called
+            passwordEncoderOutputPort wasNot Called
+            tokenGeneratorOutputPort wasNot Called
+        }
+    }
+
+    @Test
+    fun `should throw bad credentials when email and login are blank`() {
+        val exception =
+            assertThrows<BadCredentialsException> {
+                authenticateUserUseCaseImplementation.execute(
+                    email = "",
+                    login = "",
+                    password = PASSWORD,
+                )
+            }
+
+        assertEquals(INVALID_CREDENTIALS, exception.message)
+
+        verify {
+            userRepositoryOutputPort wasNot Called
+            passwordEncoderOutputPort wasNot Called
+            tokenGeneratorOutputPort wasNot Called
+        }
+    }
+
     companion object {
         private const val EMAIL = "teste@email.com"
         private const val PASSWORD = "Diad@123456"
+        private const val LOGIN = "dio123"
         private const val PASSWORD_HASH = "encoded-password"
         private const val TOKEN = "generated-jwt-token"
 

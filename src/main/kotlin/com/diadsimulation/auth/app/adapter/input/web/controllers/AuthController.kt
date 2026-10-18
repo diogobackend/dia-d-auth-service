@@ -20,6 +20,7 @@ class AuthController(
             authenticateUserInputPort.execute(
                 email = request.email,
                 password = request.password,
+                login = request.login,
             )
 
         return ResponseEntity.ok(

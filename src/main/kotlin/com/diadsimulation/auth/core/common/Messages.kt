@@ -70,6 +70,7 @@ object Messages {
     const val ACCESS_DENIED = "Acesso negado"
     const val UNAUTHORIZED_ACCESS = "Autenticação necessária ou inválida"
     const val AUTHORIZATION = "Authorization"
+    const val INVALID_LOGIN_PARAMS = "Informe apenas e-mail ou login"
 
     // Tokens e dados auxiliares de testes
     const val VALID_TOKEN = "valid-token"

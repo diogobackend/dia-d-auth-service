@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 interface AuthApi {
     @Operation(
         summary = "Autenticar usuário",
-        description = "Valida e-mail e senha e retorna um token JWT para autenticação.",
+        description = "Valida e-mail ou login e senha e retorna um token JWT para autenticação.",
     )
     @ApiResponses(
         value = [
