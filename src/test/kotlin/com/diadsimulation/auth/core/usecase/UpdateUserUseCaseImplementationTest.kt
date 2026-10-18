@@ -519,9 +519,80 @@ class UpdateUserUseCaseImplementationTest {
         }
     }
 
+    @Test
+    fun `should update login successfully`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        every { userRepositoryOutputPort.existsByLogin("novologin") } returns false
+
+        val result = execute(login = "novologin")
+
+        assertEquals("novologin", result.login.value)
+        verify(exactly = 1) { userRepositoryOutputPort.existsByLogin("novologin") }
+    }
+
+    @Test
+    fun `should throw exception when login already exists`() {
+        mockExistingUser()
+
+        every { userRepositoryOutputPort.existsByLogin("loginexistente") } returns true
+
+        assertThrows<UserAlreadyExistsException> {
+            execute(login = "loginexistente")
+        }
+
+        verify(exactly = 0) { userRepositoryOutputPort.update(any()) }
+    }
+
+    @Test
+    fun `should keep current login when same login is provided`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(login = user.login.value)
+
+        assertEquals(user.login, result.login)
+        verify(exactly = 0) { userRepositoryOutputPort.existsByLogin(any()) }
+    }
+
+    @Test
+    fun `should keep current login when login is null`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(login = null)
+
+        assertEquals(user.login, result.login)
+        verify(exactly = 0) { userRepositoryOutputPort.existsByLogin(any()) }
+    }
+
+    @Test
+    fun `should keep current login when login is blank`() {
+        mockExistingUser()
+        mockSuccessfulUpdate()
+
+        val result = execute(login = "")
+
+        assertEquals(user.login, result.login)
+        verify(exactly = 0) { userRepositoryOutputPort.existsByLogin(any()) }
+    }
+
+    @Test
+    fun `should reject invalid login`() {
+        mockExistingUser()
+
+        assertThrows<IllegalArgumentException> {
+            execute(login = "LoginInvalido")
+        }
+
+        verify(exactly = 0) { userRepositoryOutputPort.update(any()) }
+    }
+
     private fun execute(
         name: String? = null,
         email: String? = null,
+        login: String? = null,
         password: String? = null,
         phone: String? = null,
         address: String? = null,
@@ -532,6 +603,7 @@ class UpdateUserUseCaseImplementationTest {
             userId = userId,
             name = name,
             email = email,
+            login = login,
             password = password,
             phone = phone,
             address = address,

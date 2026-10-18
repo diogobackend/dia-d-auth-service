@@ -3,6 +3,7 @@ package com.diadsimulation.auth.core.usecase
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.CPF_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
+import com.diadsimulation.auth.core.common.Messages.LOGIN_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.RG_ALREADY_REGISTERED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
@@ -10,6 +11,7 @@ import com.diadsimulation.auth.core.domain.exceptions.UserAlreadyExistsException
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.valueobject.Cpf
 import com.diadsimulation.auth.core.domain.valueobject.Email
+import com.diadsimulation.auth.core.domain.valueobject.Login
 import com.diadsimulation.auth.core.domain.valueobject.Phone
 import com.diadsimulation.auth.core.domain.valueobject.Rg
 import com.diadsimulation.auth.core.port.input.UpdateUserInputPort
@@ -27,6 +29,7 @@ class UpdateUserUseCaseImplementation(
         userId: UUID,
         name: String?,
         email: String?,
+        login: String?,
         password: String?,
         phone: String?,
         address: String?,
@@ -45,12 +48,20 @@ class UpdateUserUseCaseImplementation(
             }
         }
 
+        val newLogin = login?.takeIf { it.isNotBlank() }?.let(::Login)
+
+        if (newLogin != null && newLogin.value != user.login.value) {
+            if (userRepositoryOutputPort.existsByLogin(newLogin.value)) {
+                throw UserAlreadyExistsException(LOGIN_ALREADY_EXISTS)
+            }
+        }
+
         val updatedUser =
             User(
                 userId = user.userId,
                 name = name?.takeIf { it.isNotBlank() } ?: user.name,
                 email = newEmail?.let(::Email) ?: user.email,
-                login = user.login,
+                login = newLogin ?: user.login,
                 passwordHash =
                     password
                         ?.takeIf { it.isNotBlank() }

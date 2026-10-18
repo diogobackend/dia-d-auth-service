@@ -133,6 +133,7 @@ class UserController(
                 userId = userId,
                 name = request.name,
                 email = request.email,
+                login = request.login,
                 password = request.password,
                 phone = request.phone,
                 address = request.address,

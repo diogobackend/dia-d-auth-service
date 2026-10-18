@@ -8,6 +8,7 @@ interface UpdateUserInputPort {
         userId: UUID,
         name: String?,
         email: String?,
+        login: String?,
         password: String?,
         phone: String?,
         address: String?,
