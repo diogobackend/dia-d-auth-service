@@ -7,6 +7,8 @@ import com.diadsimulation.auth.builders.buildUser
 import com.diadsimulation.auth.builders.buildUserSearchCriteria
 import com.diadsimulation.auth.core.common.Messages.PERSISTENCE_FAILED
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
+import com.diadsimulation.auth.core.domain.enums.UserRole
+import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.PLATFORM_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import com.diadsimulation.auth.core.domain.enums.UserStatus.BLOCKED
@@ -49,6 +51,7 @@ import java.time.ZoneOffset.UTC
 import java.util.Collections.emptyList
 import java.util.NoSuchElementException
 import java.util.Optional
+import java.util.UUID
 import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
@@ -1053,6 +1056,42 @@ class UserPersistenceAdapterTest {
 
         verify(exactly = 1) {
             userJpaRepository.findByLogin(login)
+        }
+    }
+
+    @Test
+    fun `should restrict users to candidates and authenticated school admin`() {
+        val criteria =
+            buildUserSearchCriteria().copy(
+                allowedRole = CANDIDATE,
+                allowedUserId = userId,
+            )
+
+        val rolePath = mockk<Path<UserRole>>()
+        val userIdPath = mockk<Path<UUID>>()
+        val rolePredicate = mockk<Predicate>()
+        val userIdPredicate = mockk<Predicate>()
+        val accessPredicate = mockk<Predicate>()
+
+        every { root.get<UserRole>("role") } returns rolePath
+        every { root.get<UUID>("userId") } returns userIdPath
+
+        every { builder.equal(rolePath, CANDIDATE) } returns rolePredicate
+        every { builder.equal(userIdPath, userId) } returns userIdPredicate
+        every { builder.or(rolePredicate, userIdPredicate) } returns accessPredicate
+        every { builder.and(accessPredicate) } returns predicate
+
+        mockFindAll()
+
+        val result = userPersistenceAdapter.findAll(criteria)
+
+        assertTrue(result.content.isEmpty())
+
+        verify(exactly = 1) {
+            builder.equal(rolePath, CANDIDATE)
+            builder.equal(userIdPath, userId)
+            builder.or(rolePredicate, userIdPredicate)
+            builder.and(accessPredicate)
         }
     }
 

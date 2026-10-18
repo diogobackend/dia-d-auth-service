@@ -19,5 +19,7 @@ class UserSearchCriteriaTest {
         assertNull(userSearchCriteria.dateField)
         assertNull(userSearchCriteria.dateFrom)
         assertNull(userSearchCriteria.dateTo)
+        assertNull(userSearchCriteria.allowedRole)
+        assertNull(userSearchCriteria.allowedUserId)
     }
 }

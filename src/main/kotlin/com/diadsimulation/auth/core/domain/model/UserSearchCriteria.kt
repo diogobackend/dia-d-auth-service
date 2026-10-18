@@ -2,7 +2,9 @@ package com.diadsimulation.auth.core.domain.model
 
 import com.diadsimulation.auth.core.domain.enums.SortDirection
 import com.diadsimulation.auth.core.domain.enums.SortDirection.ASC
+import com.diadsimulation.auth.core.domain.enums.UserRole
 import java.time.LocalDate
+import java.util.UUID
 
 data class UserSearchCriteria(
     val page: Int = 0,
@@ -27,4 +29,6 @@ data class UserSearchCriteria(
     val birthDate: LocalDate? = null,
     val createdAt: LocalDate? = null,
     val updatedAt: LocalDate? = null,
+    val allowedRole: UserRole? = null,
+    val allowedUserId: UUID? = null,
 )

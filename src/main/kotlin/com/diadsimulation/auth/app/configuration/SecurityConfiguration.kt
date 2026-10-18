@@ -5,6 +5,7 @@ import com.diadsimulation.auth.app.adapter.input.web.exception.JwtAuthentication
 import com.diadsimulation.auth.app.adapter.input.web.security.JwtAuthenticationFilter
 import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.enums.UserRole.PLATFORM_ADMIN
+import com.diadsimulation.auth.core.domain.enums.UserRole.SCHOOL_ADMIN
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod.GET
@@ -40,13 +41,23 @@ class SecurityConfiguration(
                     ).permitAll()
                     .requestMatchers(POST, "/login", "/users")
                     .permitAll()
-                    .requestMatchers(GET, "/users/id")
-                    .hasAnyRole(CANDIDATE.name, PLATFORM_ADMIN.name)
-                    .requestMatchers(PATCH, "/users/*")
-                    .hasAnyRole(CANDIDATE.name, PLATFORM_ADMIN.name)
-                    .requestMatchers("/users/**")
+                    .requestMatchers(PATCH, "/users/*/access")
                     .hasRole(PLATFORM_ADMIN.name)
-                    .anyRequest()
+                    .requestMatchers(GET, "/users/id")
+                    .hasAnyRole(
+                        CANDIDATE.name,
+                        SCHOOL_ADMIN.name,
+                        PLATFORM_ADMIN.name,
+                    ).requestMatchers(PATCH, "/users/*")
+                    .hasAnyRole(
+                        CANDIDATE.name,
+                        SCHOOL_ADMIN.name,
+                        PLATFORM_ADMIN.name,
+                    ).requestMatchers("/users/**")
+                    .hasAnyRole(
+                        SCHOOL_ADMIN.name,
+                        PLATFORM_ADMIN.name,
+                    ).anyRequest()
                     .authenticated()
             }.addFilterBefore(
                 jwtAuthenticationFilter,

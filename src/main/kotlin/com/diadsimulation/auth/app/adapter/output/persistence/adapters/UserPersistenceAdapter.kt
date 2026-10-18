@@ -4,6 +4,7 @@ import com.diadsimulation.auth.app.adapter.output.persistence.entities.UserEntit
 import com.diadsimulation.auth.app.adapter.output.persistence.mappers.UserPersistenceMapper
 import com.diadsimulation.auth.app.adapter.output.persistence.repositories.UserJpaRepository
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
+import com.diadsimulation.auth.core.domain.enums.UserRole
 import com.diadsimulation.auth.core.domain.model.PagedResult
 import com.diadsimulation.auth.core.domain.model.User
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
@@ -64,6 +65,15 @@ class UserPersistenceAdapter(
         val specification =
             Specification<UserEntity> { root, _, builder ->
                 val predicates = mutableListOf<Predicate>()
+
+                if (criteria.allowedRole != null && criteria.allowedUserId != null) {
+                    predicates.add(
+                        builder.or(
+                            builder.equal(root.get<UserRole>("role"), criteria.allowedRole),
+                            builder.equal(root.get<UUID>("userId"), criteria.allowedUserId),
+                        ),
+                    )
+                }
 
                 val filterBy = criteria.filterBy
                 val filterValue = criteria.filterValue

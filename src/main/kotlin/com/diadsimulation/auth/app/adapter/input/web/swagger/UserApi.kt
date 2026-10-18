@@ -12,7 +12,6 @@ import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.RegisterUser
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserAccessUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.dtos.responses.UpdateUserResponse
 import com.diadsimulation.auth.app.adapter.input.web.exception.ApiErrorResponse
-import com.diadsimulation.auth.core.common.Messages.EMAIL_ALREADY_EXISTS
 import com.diadsimulation.auth.core.common.Messages.INTERNAL_SERVER_ERROR_MESSAGE
 import com.diadsimulation.auth.core.common.Messages.INVALID_REQUEST_DATA
 import com.diadsimulation.auth.core.common.Messages.USER_NOT_FOUND
@@ -37,7 +36,7 @@ import java.util.UUID
 interface UserApi {
     @Operation(
         summary = "Cadastrar usuário",
-        description = "Cria um novo usuário na plataforma.",
+        description = "Cria um novo usuário na plataforma com o perfil CANDIDATE.",
     )
     @ApiResponses(
         value = [
@@ -47,10 +46,7 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema =
-                            Schema(
-                                implementation = RegisterUserResponse::class,
-                            ),
+                        schema = Schema(implementation = RegisterUserResponse::class),
                     ),
                 ],
             ),
@@ -60,23 +56,17 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema =
-                            Schema(
-                                implementation = ApiErrorResponse::class,
-                            ),
+                        schema = Schema(implementation = ApiErrorResponse::class),
                     ),
                 ],
             ),
             ApiResponse(
                 responseCode = "409",
-                description = "E-mail, CPF ou RG já cadastrado",
+                description = "E-mail, login, CPF ou RG já cadastrado",
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema =
-                            Schema(
-                                implementation = ApiErrorResponse::class,
-                            ),
+                        schema = Schema(implementation = ApiErrorResponse::class),
                     ),
                 ],
             ),
@@ -86,10 +76,7 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema =
-                            Schema(
-                                implementation = ApiErrorResponse::class,
-                            ),
+                        schema = Schema(implementation = ApiErrorResponse::class),
                     ),
                 ],
             ),
@@ -103,7 +90,10 @@ interface UserApi {
         summary = "Listar usuários",
         description =
             "Lista usuários com paginação, ordenação ASC/DESC e filtros parciais. " +
-                "A pesquisa ignora maiúsculas e minúsculas e considera apenas caracteres consecutivos.",
+                "A pesquisa ignora maiúsculas e minúsculas e considera apenas caracteres consecutivos. " +
+                "PLATFORM_ADMIN pode listar todos os usuários. " +
+                "SCHOOL_ADMIN pode listar candidatos e seu próprio usuário. " +
+                "CANDIDATE não possui permissão para listar usuários.",
     )
     @ApiResponses(
         value = [
@@ -120,6 +110,26 @@ interface UserApi {
             ApiResponse(
                 responseCode = "400",
                 description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Autenticação necessária ou token inválido",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Usuário sem permissão para listar usuários",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -145,7 +155,12 @@ interface UserApi {
 
     @Operation(
         summary = "Buscar usuário",
-        description = "Busca um único usuário por userId, E-mail, Login CPF ou RG. Apenas um parâmetro deve ser informado.",
+        description =
+            "Busca um único usuário por userId, e-mail, login, CPF ou RG. " +
+                "Apenas um parâmetro deve ser informado. " +
+                "PLATFORM_ADMIN pode consultar qualquer usuário. " +
+                "SCHOOL_ADMIN pode consultar candidatos e seu próprio usuário. " +
+                "CANDIDATE pode consultar apenas seu próprio usuário.",
     )
     @ApiResponses(
         value = [
@@ -162,6 +177,26 @@ interface UserApi {
             ApiResponse(
                 responseCode = "400",
                 description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Autenticação necessária ou token inválido",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Usuário sem permissão para consultar o usuário solicitado",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -197,7 +232,11 @@ interface UserApi {
 
     @Operation(
         summary = "Atualizar usuário",
-        description = "Atualiza parcialmente os dados de perfil de um usuário.",
+        description =
+            "Atualiza parcialmente os dados de perfil de um usuário. " +
+                "PLATFORM_ADMIN pode atualizar qualquer usuário. " +
+                "SCHOOL_ADMIN pode atualizar candidatos e seu próprio usuário. " +
+                "CANDIDATE pode atualizar apenas seu próprio usuário.",
     )
     @ApiResponses(
         value = [
@@ -222,6 +261,26 @@ interface UserApi {
                 ],
             ),
             ApiResponse(
+                responseCode = "401",
+                description = "Autenticação necessária ou token inválido",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Usuário sem permissão para atualizar o usuário solicitado",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = USER_NOT_FOUND,
                 content = [
@@ -233,7 +292,7 @@ interface UserApi {
             ),
             ApiResponse(
                 responseCode = "409",
-                description = EMAIL_ALREADY_EXISTS,
+                description = "E-mail, login, CPF ou RG já cadastrado ou documento já registrado",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -260,19 +319,77 @@ interface UserApi {
 
     @Operation(
         summary = "Excluir usuário",
-        description = "Exclui permanentemente um usuário pelo ID",
+        description =
+            "Exclui permanentemente um usuário pelo ID. " +
+                "PLATFORM_ADMIN pode excluir qualquer usuário. " +
+                "SCHOOL_ADMIN pode excluir candidatos e seu próprio usuário. " +
+                "CANDIDATE não possui permissão para excluir usuários.",
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "204", description = "Usuário excluído com sucesso"),
-            ApiResponse(responseCode = "404", description = USER_NOT_FOUND),
+            ApiResponse(
+                responseCode = "204",
+                description = "Usuário excluído com sucesso",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Autenticação necessária ou token inválido",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Usuário sem permissão para excluir o usuário solicitado",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = USER_NOT_FOUND,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = INTERNAL_SERVER_ERROR_MESSAGE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
         ],
     )
     fun deleteUser(userId: UUID)
 
     @Operation(
         summary = "Atualizar acesso do usuário",
-        description = "Atualiza parcialmente o perfil de acesso (role) e/ou o status de um usuário.",
+        description =
+            "Atualiza parcialmente o perfil de acesso (role) e/ou o status de um usuário. " +
+                "Operação exclusiva do PLATFORM_ADMIN.",
     )
     @ApiResponses(
         value = [
@@ -282,13 +399,33 @@ interface UserApi {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = UpdateUserResponse::class),
+                        schema = Schema(implementation = UpdateUserAccessUserResponse::class),
                     ),
                 ],
             ),
             ApiResponse(
                 responseCode = "400",
                 description = INVALID_REQUEST_DATA,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Autenticação necessária ou token inválido",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Operação permitida apenas para PLATFORM_ADMIN",
                 content = [
                     Content(
                         mediaType = "application/json",

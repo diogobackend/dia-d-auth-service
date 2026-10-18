@@ -19,7 +19,6 @@ import com.diadsimulation.auth.app.adapter.input.web.mappers.UpdateUserMapper
 import com.diadsimulation.auth.app.adapter.input.web.security.UserAccessAuthorization
 import com.diadsimulation.auth.app.adapter.input.web.swagger.UserApi
 import com.diadsimulation.auth.core.domain.enums.SortDirection
-import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import com.diadsimulation.auth.core.domain.model.UserSearchCriteria
 import com.diadsimulation.auth.core.port.input.DeleteUserInputPort
 import com.diadsimulation.auth.core.port.input.FindUserInputPort
@@ -65,6 +64,8 @@ class UserController(
 
     @GetMapping
     override fun listUsers(request: ListUsersRequest): ResponseEntity<PagedResponse<ListUsersResponse>> {
+        val (allowedRole, allowedUserId) = userAccessAuthorization.getListAccess()
+
         val criteria =
             UserSearchCriteria(
                 page = request.page,
@@ -89,6 +90,8 @@ class UserController(
                 birthDate = request.birthDate,
                 createdAt = request.createdAt,
                 updatedAt = request.updatedAt,
+                allowedRole = allowedRole,
+                allowedUserId = allowedUserId,
             )
 
         val result = listUsersInputPort.execute(criteria)
@@ -149,6 +152,7 @@ class UserController(
     override fun deleteUser(
         @PathVariable userId: UUID,
     ) {
+        userAccessAuthorization.authorize(userId)
         deleteUserInputPort.execute(userId)
     }
 
