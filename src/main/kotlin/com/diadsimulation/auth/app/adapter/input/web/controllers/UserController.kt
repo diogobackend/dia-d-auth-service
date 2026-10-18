@@ -56,7 +56,6 @@ class UserController(
     @PostMapping
     override fun register(request: RegisterUserRequest): ResponseEntity<RegisterUserResponse> {
         val user = RegisterUserMapper.toDomain(request)
-        user.role = CANDIDATE
         val registeredUser = registerUserInputPort.execute(user)
 
         return ResponseEntity

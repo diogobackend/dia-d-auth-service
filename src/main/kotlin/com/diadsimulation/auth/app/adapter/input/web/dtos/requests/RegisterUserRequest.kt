@@ -17,11 +17,8 @@ import com.diadsimulation.auth.core.common.Messages.PASSWORD_LENGTH
 import com.diadsimulation.auth.core.common.Messages.PASSWORD_REQUIRED
 import com.diadsimulation.auth.core.common.Messages.PHONE_MAX_LENGTH
 import com.diadsimulation.auth.core.common.Messages.RG_MAX_LENGTH
-import com.diadsimulation.auth.core.common.Messages.ROLE_REQUIRED
-import com.diadsimulation.auth.core.domain.enums.UserRole
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PastOrPresent
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
@@ -57,8 +54,6 @@ data class RegisterUserRequest(
         message = PASSWORD_LENGTH,
     )
     val password: String,
-    @field:NotNull(message = ROLE_REQUIRED)
-    val role: UserRole,
     @field:Size(max = 30, message = PHONE_MAX_LENGTH)
     val phone: String? = null,
     @field:Size(max = 500, message = ADDRESS_MAX_LENGTH)

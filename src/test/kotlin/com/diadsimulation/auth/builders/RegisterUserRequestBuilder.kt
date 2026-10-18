@@ -1,8 +1,6 @@
 package com.diadsimulation.auth.builders
 
 import com.diadsimulation.auth.app.adapter.input.web.dtos.requests.RegisterUserRequest
-import com.diadsimulation.auth.core.domain.enums.UserRole
-import com.diadsimulation.auth.core.domain.enums.UserRole.CANDIDATE
 import java.time.LocalDate
 
 fun buildRegisterUserRequest(
@@ -10,7 +8,6 @@ fun buildRegisterUserRequest(
     name: String = "Diogo Ferreira",
     login: String = "dio123",
     password: String = "Diad@123456",
-    role: UserRole = CANDIDATE,
     phone: String? = null,
     address: String? = null,
     cpf: String? = null,
@@ -21,7 +18,6 @@ fun buildRegisterUserRequest(
     name = name,
     login = login,
     password = password,
-    role = role,
     phone = phone,
     address = address,
     cpf = cpf,
