@@ -1,6 +1,6 @@
 # DIAD Auth Service
 
-**Serviço central de identidade, autenticação e autorização do ecossistema DIAD Simulation.**
+**Serviço de identidade, autenticação e autorização do ecossistema DIAD Simulation.**
 
 ## Sumário
 
@@ -23,101 +23,186 @@
 
 ## Visão geral
 
-**Documentação/repositório principal** -> https://github.com/diogobackend/diad-simulation-platform
+**Documentação/repositório principal** → https://github.com/diogobackend/diad-simulation-platform
 
-O **DIAD Simulation** é um ecossistema de aplicações voltadas à gestão de usuários e experiências educacionais, como avaliações, simulados, resultados e comunicação. O **Auth Service** atua como autoridade central de identidade, responsável por autenticar usuários e fornecer informações verificáveis de acesso às demais aplicações.
+O **DIAD Simulation** é uma plataforma de simulação de provas, vestibulares, ENEM, concursos e certificações. O **DIAD Auth Service** concentra a identidade dos usuários, o cadastro, a autenticação e o controle de acesso às operações de gerenciamento de usuários.
 
-**Responsabilidades principais:** identidade, credenciais, autenticação, autorização, tokens, sessões, auditoria e publicação de eventos de identidade.
+O serviço já disponibiliza uma API REST para cadastro, login, consulta, listagem, atualização, exclusão e administração de perfil de acesso. As operações protegidas utilizam autenticação JWT e autorização baseada em papéis e no usuário-alvo.
 
 ## Funcionalidades
 
-- Cadastro, consulta, atualização, ativação, desativação e gerenciamento de usuários.
+### Implementadas
+
+- Cadastro público de usuários com atribuição automática e obrigatória da role `CANDIDATE`.
+- Login por **e-mail ou login (username)** e senha, com emissão de token JWT.
+- Armazenamento seguro de senha com **BCrypt**.
 - Perfis `CANDIDATE`, `SCHOOL_ADMIN` e `PLATFORM_ADMIN`.
-- Validação de e-mail, CPF, RG e demais dados cadastrais, com prevenção de duplicidades.
-- Proteção de senhas com BCrypt e política de credenciais.
-- Login, logout, recuperação e redefinição de senha.
-- Emissão de **access tokens JWT**, renovação com **refresh tokens** e revogação de sessões.
-- Validação de assinatura, expiração, emissor, audiência e permissões dos tokens.
-- Controle de acesso por **RBAC** (papéis e permissões) e regras de negócio.
-- Autorização das requisições recebidas pelas aplicações do ecossistema.
-- Registro de eventos de autenticação e trilha de auditoria.
-- Publicação de eventos de usuários e segurança via **Apache Kafka**.
-- Processamento assíncrono de comandos e notificações via **RabbitMQ**.
-- Documentação OpenAPI/Swagger, tratamento padronizado de erros e observabilidade.
+- Controle de acesso por **RBAC**, complementado por autorização sobre o usuário consultado ou modificado.
+- Consulta de usuário por ID, e-mail, login, CPF ou RG, com validação dos parâmetros de busca.
+- Listagem paginada, com ordenação ascendente/descendente e filtros por dados cadastrais, role, status e datas.
+- Pesquisa textual parcial sem diferenciação entre maiúsculas e minúsculas.
+- Atualização parcial de dados de perfil.
+- CPF, RG e data de nascimento preenchíveis apenas quando ainda não definidos; data de nascimento futura não é permitida.
+- Exclusão de usuários conforme as permissões do perfil autenticado.
+- Alteração de `role` e `status` exclusivamente por `PLATFORM_ADMIN`.
+- Validação de dados e prevenção de duplicidades conforme as regras implementadas.
+- Tratamento de respostas HTTP e documentação OpenAPI/Swagger.
+- Testes automatizados com JUnit 5 e MockK e verificação de cobertura com JaCoCo.
+
+### Planejadas para a evolução do serviço
+
+- Refresh tokens, rotação e revogação de sessões.
+- Logout com invalidação de sessão/token, conforme estratégia a definir.
+- Recuperação e redefinição de senha.
+- Auditoria persistente de autenticações e alterações sensíveis.
+- Publicação de eventos de identidade via Kafka e processamento assíncrono via RabbitMQ.
+- Integração de verificação de tokens entre serviços, incluindo eventual uso de JWKS.
+- Instrumentação de observabilidade distribuída.
 
 ## Tecnologias
 
-| Camada | Tecnologias                                       |
-|---|---------------------------------------------------|
-| Linguagem | Kotlin 2.4.20, Java 25                            |
-| Framework | Spring Boot 4.0.8, Spring WEB                     |
-| Segurança | Spring Security, BCrypt, JWT, RBAC                |
+| Camada | Tecnologias |
+|---|---|
+| Linguagem | Kotlin 2.4.20, Java 25 |
+| Framework | Spring Boot 4.0.8, Spring Web |
+| Segurança | Spring Security, BCrypt, JWT, RBAC |
 | Persistência | PostgreSQL 17, Spring Data JPA, Hibernate, Flyway |
-| Mensageria | Apache Kafka, RabbitMQ                            |
-| API | REST, JSON, OpenAPI / Swagger UI                  |
-| Observabilidade | Spring Boot Actuator, OpenTelemetry               |
-| Infraestrutura | Docker, Docker Compose                            |
-| Testes | JUnit 5, MockK, JaCoCo                            |
-| Padronização | ktlint                                            |
+| Mensageria planejada | Apache Kafka, RabbitMQ |
+| API | REST, JSON, OpenAPI / Swagger UI |
+| Observabilidade planejada | Spring Boot Actuator, OpenTelemetry |
+| Infraestrutura local | Docker, Docker Compose |
+| Testes | JUnit 5, MockK, JaCoCo |
+| Padronização | ktlint |
 
+> As versões acima foram preservadas da documentação fornecida. Consulte `build.gradle.kts` para confirmar as versões efetivamente configuradas na revisão atual do repositório.
 
 ## Arquitetura da solução
+
 ![img.png](docs/images/img.png)
 
-O serviço adota **arquitetura hexagonal (Ports & Adapters)**, isolando as regras de negócio de HTTP, banco de dados, mensageria e bibliotecas de segurança.
+O serviço utiliza **arquitetura hexagonal (Ports & Adapters)**, separando regras de domínio, casos de uso e integrações externas.
 
 **Divisão de responsabilidades:**
 
-- **Core/domain:** entidades, regras de negócio, exceções e contratos de domínio.
-- **Core/usecase:** orquestração das operações de identidade e acesso.
-- **Ports:** interfaces de entrada e saída, independentes de infraestrutura.
-- **Adapters/input:** controladores REST e consumidores de mensagens.
-- **Adapters/output:** persistência, criptografia, tokens, publicadores de eventos e integrações.
-- **Configuration:** segurança, injeção de dependências e infraestrutura.
+- **Core/domain:** modelo de usuário, value objects, enums, critérios de busca e regras de domínio.
+- **Core/usecase:** casos de uso de cadastro, autenticação, consulta, listagem, atualização, exclusão e alteração de acesso.
+- **Ports:** contratos de entrada e saída que desacoplam os casos de uso da infraestrutura.
+- **Adapters/input:** controladores REST, requests/responses, mapeadores e documentação da API.
+- **Adapters/output:** adaptadores de persistência JPA e demais integrações implementadas.
+- **Configuration/security:** configuração de autenticação JWT, regras HTTP e autorização por usuário-alvo.
+
+A classe `UserAccessAuthorization` centraliza regras de acesso ao usuário solicitado e a definição do escopo permitido para a listagem. O `UserPersistenceAdapter` aplica esse escopo na consulta ao banco.
 
 ## Integração entre serviços
 
-| Canal | Finalidade | Exemplos |
+| Canal | Situação | Finalidade |
 |---|---|---|
-| HTTP/REST | Cadastro, login, consulta de identidade e administração | `POST /users`, `POST /auth/login` |
-| JWT/JWKS | Verificação descentralizada de tokens pelos serviços consumidores | Assinatura, claims, permissões |
-| Kafka | Eventos de domínio distribuídos para outros microsserviços | `identity.user.created`, `identity.user.updated`, `identity.user.disabled` |
-| RabbitMQ | Processamento assíncrono de comandos e tarefas direcionadas | Solicitação de e-mail de recuperação, notificação de segurança |
-| PostgreSQL | Dados transacionais do Auth Service | Usuários, sessões, credenciais e auditoria |
+| HTTP/REST | Implementado | Cadastro, login e gerenciamento de usuários |
+| JWT | Implementado no fluxo de autenticação | Identificação e autorização de requisições protegidas |
+| PostgreSQL | Implementado | Persistência de usuários |
+| Kafka | Planejado | Eventos de identidade para outros microsserviços |
+| RabbitMQ | Planejado | Comandos e notificações assíncronas |
+| JWKS | Planejado/a confirmar | Distribuição de chaves para validação de tokens por outros serviços |
 
 ### Fluxo de autenticação
 
 ![img_1.png](docs/images/img_1.png)
 
+**Fluxo atual:**
+
+1. O cliente envia e-mail **ou** login e senha para `POST /login`.
+2. O serviço valida as credenciais e as condições de acesso do usuário.
+3. Em caso de sucesso, retorna um token JWT.
+4. O cliente utiliza o token nas operações protegidas.
+5. O Spring Security verifica a autenticação e as roles; nas operações sobre usuários, `UserAccessAuthorization` também verifica a permissão sobre o alvo.
+
+> O diagrama acima foi mantido como no README original. Elementos de refresh token, sessão ou revogação eventualmente representados nele fazem parte da evolução planejada, não do fluxo confirmado nesta etapa.
+
 ## Modelagem de dados
 
-**Modelo lógico de referência da solução completa.** A migração atualmente versionada no repositório contempla a tabela inicial de usuários; as demais entidades abaixo representam a modelagem-alvo.
+**Modelo lógico de referência da solução completa.** A implementação atual utiliza persistência de usuários e suas informações cadastrais e de acesso. As entidades de sessões, refresh tokens, auditoria e outbox representadas no modelo de referência não devem ser interpretadas como já implementadas.
 
 ![img_3.png](docs/images/img_3.png)
 
-### Cardinalidades
+### Modelo de usuário utilizado na API
 
-- **Usuário ↔ perfil:** N:N, por `USER_ROLES`.
-- **Perfil ↔ permissão:** N:N, por `ROLE_PERMISSIONS`.
-- **Usuário → sessão:** 1:N.
-- **Sessão → refresh token:** 1:N, para suportar rotação e histórico.
-- **Usuário → recuperação de senha:** 1:N.
-- **Usuário → auditoria:** 1:N.
-- **Usuário → evento de outbox:** 1:N.
+| Campo | Descrição |
+|---|---|
+| `userId` | Identificador UUID |
+| `name` | Nome do usuário |
+| `email` | E-mail de autenticação e contato |
+| `login` | Login alternativo ao e-mail |
+| `passwordHash` | Hash da senha, não exposto nas respostas públicas |
+| `role` | `CANDIDATE`, `SCHOOL_ADMIN` ou `PLATFORM_ADMIN` |
+| `status` | Estado de acesso do usuário |
+| `phone` | Telefone |
+| `cpf` | CPF, quando informado |
+| `rg` | RG, quando informado |
+| `address` | Endereço |
+| `birthDate` | Data de nascimento |
+| `createdAt` / `updatedAt` | Datas de criação e atualização |
 
-As chaves, constraints, índices e políticas de retenção devem ser definidos nas migrações Flyway correspondentes.
+**Regras relevantes:**
+
+- O cadastro público sempre define `role = CANDIDATE`; o cliente não escolhe a role no `RegisterUserRequest`.
+- A alteração de `role` ou `status` é uma operação administrativa separada.
+- CPF, RG e data de nascimento não podem ser substituídos após preenchidos, conforme a regra de atualização implementada.
+- A data de nascimento não pode ser futura.
+
+### Cardinalidades da modelagem-alvo
+
+- **Usuário ↔ perfil:** N:N por `USER_ROLES` no modelo de referência; **na implementação atual, cada usuário possui uma única role**.
+- **Perfil ↔ permissão:** N:N por `ROLE_PERMISSIONS` no modelo de referência; **na implementação atual, as permissões são definidas pelas roles e regras de autorização no código**.
+- **Usuário → sessão:** 1:N, planejado.
+- **Sessão → refresh token:** 1:N, planejado.
+- **Usuário → recuperação de senha:** 1:N, planejado.
+- **Usuário → auditoria:** 1:N, planejado.
+- **Usuário → evento de outbox:** 1:N, planejado.
+
+As tabelas e migrações futuras devem refletir a modelagem que vier a ser efetivamente adotada.
 
 ## Autenticação e autorização
 
-O modelo de segurança combina:
+A segurança combina **Spring Security**, autenticação por JWT, verificação de role no nível da rota e autorização sobre o usuário-alvo.
 
-1. **Autenticação:** credenciais validadas pelo Auth Service.
-2. **Autorização:** permissões associadas a papéis e contexto da operação.
-3. **JWT:** access tokens assinados, de curta duração, com `sub`, `iss`, `aud`, `exp` e claims necessárias.
-4. **Refresh token:** armazenamento seguro por hash, rotação e revogação.
-5. **Integração:** API Gateway e microsserviços verificam JWT e aplicam suas regras específicas.
+### Perfis de acesso
 
-**Princípios:** menor privilégio, HTTPS, segredos fora do repositório, não exposição de senhas, proteção contra abuso e auditoria de operações sensíveis.
+| Operação | `CANDIDATE` | `SCHOOL_ADMIN` | `PLATFORM_ADMIN` |
+|---|---|---|---|
+| `POST /users` (cadastro público) | Permitido | Permitido | Permitido |
+| `POST /login` | Permitido | Permitido | Permitido |
+| Listar usuários (`GET /users`) | Negado | Candidatos + próprio registro | Todos |
+| Buscar usuário (`GET /users/id`) | Somente próprio registro | Candidatos + próprio registro | Qualquer usuário |
+| Atualizar perfil (`PATCH /users/{userId}`) | Somente próprio registro | Candidatos + próprio registro | Qualquer usuário |
+| Excluir usuário (`DELETE /users/{userId}`) | Negado | Candidatos + próprio registro | Qualquer usuário |
+| Alterar role/status (`PATCH /users/{userId}/access`) | Negado | Negado | Permitido |
+
+**Restrições importantes:**
+
+- `SCHOOL_ADMIN` não pode consultar, alterar ou excluir outro `SCHOOL_ADMIN` nem um `PLATFORM_ADMIN`.
+- `SCHOOL_ADMIN` pode consultar e atualizar o próprio perfil e, conforme a autorização implementada, também excluir o próprio registro.
+- `CANDIDATE` não pode listar usuários nem acessar registros de terceiros.
+- `PLATFORM_ADMIN` tem acesso administrativo a todos os usuários.
+- O endpoint de alteração de acesso é reservado a `PLATFORM_ADMIN`, inclusive quando a alteração solicitada se refere ao próprio usuário.
+
+### Escopo seguro da listagem
+
+O cliente **não envia** os parâmetros internos `allowedRole` e `allowedUserId`. O backend os define a partir do usuário autenticado:
+
+- `PLATFORM_ADMIN`: listagem sem restrição adicional de role/ID.
+- `SCHOOL_ADMIN`: condição equivalente a `role = CANDIDATE OR userId = ID_DO_ADMIN_AUTENTICADO`.
+- `CANDIDATE`: requisição de listagem rejeitada.
+
+Os filtros informados na API são combinados com essa restrição, não a substituem. Assim, um `SCHOOL_ADMIN` que solicite filtrar por `PLATFORM_ADMIN` não recebe registros administrativos.
+
+> A restrição da listagem depende de o fluxo de consulta preencher os campos internos de autorização. Novos consumidores do caso de uso/repositório devem preservar essa regra.
+
+### Respostas de segurança
+
+- **401 Unauthorized:** ausência de autenticação válida ou token inválido, conforme a configuração de segurança.
+- **403 Forbidden:** autenticação válida, porém sem permissão para a rota ou para o usuário-alvo.
+
+O comportamento das permissões foi exercitado no Swagger com usuários de diferentes roles. Tokens e senhas de teste não devem ser incluídos na documentação.
 
 ## API REST e Swagger
 
@@ -126,27 +211,45 @@ O modelo de segurança combina:
 - **Swagger UI:** http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON:** http://localhost:8080/v3/api-docs
 
-### Contratos da solução completa
+### Endpoints implementados
 
-| Método | Rota de referência | Responsabilidade |
-|---|---|---|
-| `POST` | `/auth/login` | Autenticar e emitir tokens |
-| `POST` | `/auth/refresh` | Renovar credenciais |
-| `POST` | `/auth/logout` | Revogar sessão |
-| `POST` | `/auth/password/forgot` | Solicitar recuperação de senha |
-| `POST` | `/auth/password/reset` | Redefinir senha |
-| `GET` | `/users/me` | Consultar identidade autenticada |
-| `GET` | `/users/{id}` | Consultar usuário conforme autorização |
-| `PATCH` | `/users/{id}` | Atualizar usuário |
-| `PATCH` | `/users/{id}/status` | Alterar status |
+| Método | Rota | Responsabilidade | Respostas documentadas |
+|---|---|---|---|
+| `POST` | `/users` | Cadastrar usuário como `CANDIDATE` | `201`, `400`, `409`, `500` |
+| `POST` | `/login` | Autenticar por e-mail ou login e emitir JWT | `200`, `400`, `401`, `403`, `500` |
+| `GET` | `/users` | Listar com paginação, ordenação, filtros e escopo por role | `200`, `400`, `401`, `403`, `500` |
+| `GET` | `/users/id` | Buscar usuário por identificador ou dado cadastral | `200`, `400`, `401`, `403`, `404`, `500` |
+| `PATCH` | `/users/{userId}` | Atualizar parcialmente o perfil | `200`, `400`, `401`, `403`, `404`, `409`, `500` |
+| `DELETE` | `/users/{userId}` | Excluir usuário conforme permissão | `204`, `400`, `401`, `403`, `404`, `500` |
+| `PATCH` | `/users/{userId}/access` | Atualizar role e/ou status (somente `PLATFORM_ADMIN`) | `200`, `400`, `401`, `403`, `404`, `500` |
+
+> As respostas indicadas correspondem aos contratos OpenAPI discutidos. A ocorrência efetiva de cada erro depende da validação e dos handlers configurados.
+
+### Regras das requisições
+
+- `POST /users` é público, mas **não aceita seleção de role** pelo cliente.
+- `POST /login` aceita e-mail **ou** login e senha.
+- `GET /users` suporta paginação (`page`, `size`), ordenação (`sortBy`, `direction`) e filtros de texto, enums e datas.
+- `GET /users/id` permite localizar por `userId`, e-mail, login, CPF ou RG, informando apenas um identificador por requisição.
+- `PATCH /users/{userId}` atualiza campos de perfil sem conceder permissão para alterar role/status.
+- `PATCH /users/{userId}/access` recebe as alterações administrativas de role e/ou status.
+
+### Endpoints planejados, ainda não confirmados como implementados
+
+- Renovação de token (`refresh`).
+- Logout e revogação de sessão.
+- Recuperação/redefinição de senha.
+- Consulta dedicada de identidade autenticada (`/users/me`), se necessária.
 
 ## Estrutura do projeto
 
 ![img_4.png](docs/images/img_4.png)
 
+A estrutura segue o padrão de camadas e adaptadores descrito na seção de arquitetura. O diagrama foi preservado sem alterações no caminho da imagem.
+
 ## Pré-requisitos
 
-- **JDK 25**.
+- **JDK 25**, conforme a configuração documentada.
 - **Docker** com Docker Compose.
 - **Git**.
 
@@ -176,7 +279,7 @@ No Linux/macOS, substitua `.\gradlew.bat` por `./gradlew`.
 
 ## Docker
 
-O `compose.yml` atual provisiona **apenas o PostgreSQL**, não o contêiner da aplicação, Kafka ou RabbitMQ.
+O `compose.yml` descrito nesta documentação provisiona **apenas o PostgreSQL**, não a aplicação, Kafka ou RabbitMQ.
 
 ```powershell
 # Subir PostgreSQL em segundo plano
@@ -207,19 +310,20 @@ docker compose down -v
 | Usuário | `diad_auth` |
 | Senha de desenvolvimento | `diad_auth` |
 
-O volume nomeado `diad_auth_postgres_data` preserva os dados entre reinicializações.
+O volume nomeado `diad_auth_postgres_data` preserva os dados entre reinicializações. A credencial acima é apenas de desenvolvimento local e não deve ser reutilizada em outros ambientes.
 
 ## Configurações
 
-A configuração atual fica em `src/main/resources/application.yml`:
+Configurações documentadas em `src/main/resources/application.yml`:
 
 - `spring.datasource.*`: conexão PostgreSQL.
-- `spring.jpa.hibernate.ddl-auto: validate`: valida o esquema, sem criá-lo automaticamente.
-- `spring.flyway.enabled: true`: aplica migrações versionadas.
+- `spring.jpa.hibernate.ddl-auto: validate`: valida o esquema sem criá-lo automaticamente.
+- `spring.flyway.enabled: true`: executa migrações versionadas.
 - `springdoc.swagger-ui.path: /swagger-ui.html`.
 - `springdoc.api-docs.path: /v3/api-docs`.
+- Configuração de segurança JWT: conferir as propriedades e variáveis efetivamente declaradas no projeto.
 
-**Configurações da arquitetura completa:** chave de assinatura JWT, emissor/audiência, TTL de tokens, Kafka, RabbitMQ, observabilidade e políticas de segurança devem ser parametrizados por ambiente, sem credenciais versionadas.
+**Configurações futuras:** Kafka, RabbitMQ, refresh tokens, auditoria e observabilidade devem ser parametrizados por ambiente. Chaves de assinatura e credenciais reais não devem ser versionadas.
 
 ## Build, testes e qualidade
 
@@ -241,7 +345,7 @@ Comandos principais no Windows:
 # Build completo
 .\gradlew.bat clean build
 
-# Relatório de cobertura
+# Gerar relatório de cobertura
 .\gradlew.bat jacocoTestReport
 
 # Validar limite configurado de cobertura
@@ -254,36 +358,68 @@ Comandos principais no Windows:
 .\gradlew.bat ktlintFormat ktlintCheck test jacocoTestCoverageVerification check clean build
 ```
 
-**Observações importantes:**
+### Cobertura de testes
 
-- O projeto usa **ktlint** para formatação e padronização; **Detekt não está habilitado**.
-- O JaCoCo possui regra de cobertura mínima de **100%** na verificação configurada. O `build.gradle.kts` também possui exclusões específicas para o relatório; isso não equivale, por si só, a afirmar 100% de cobertura de toda a aplicação.
-- O hook `.git/hooks/pre-commit` é **local** e não é distribuído pelo repositório automaticamente.
-- O `ktlintFormat` pode alterar arquivos; revise e adicione essas mudanças ao Git antes do commit.
+Os testes utilizam **JUnit 5** e **MockK**, incluindo cenários de sucesso, validação, autorização e falhas de persistência. A cobertura é inspecionada com **JaCoCo**.
+
+Entre os componentes testados nesta etapa estão:
+
+- `UserSearchCriteria`, incluindo os campos internos `allowedRole` e `allowedUserId`.
+- `UserPersistenceAdapter`, incluindo a composição de filtros JPA e a restrição de listagem para `SCHOOL_ADMIN`.
+- `UserAccessAuthorization`, incluindo permissões dos três perfis, acesso ao próprio registro, restrição a outros administradores e escopo de listagem.
+
+O projeto possui regra de **100% de cobertura mínima** na verificação configurada. A conclusão dos testes e a validação funcional no Swagger foram relatadas durante o desenvolvimento; isso não substitui a conferência do relatório JaCoCo atualizado para todo o projeto e de eventuais exclusões configuradas.
+
+**Observações:**
+
+- O projeto usa **ktlint**; **Detekt não está habilitado** na configuração documentada.
+- O hook `.git/hooks/pre-commit` é local e não é distribuído automaticamente pelo Git.
+- `ktlintFormat` pode alterar arquivos: revise as mudanças antes do commit.
 
 ## Observabilidade e segurança
 
-A solução completa considera:
+### Segurança implementada
+
+- Autenticação por JWT e controle de acesso HTTP com Spring Security.
+- Proteção de senhas com BCrypt.
+- RBAC para `CANDIDATE`, `SCHOOL_ADMIN` e `PLATFORM_ADMIN`.
+- Autorização por identidade do usuário-alvo.
+- Escopo de listagem aplicado na consulta de persistência.
+- Validações de entrada, restrições de alteração cadastral e respostas de erro documentadas.
+
+### Evolução planejada
 
 - Health checks e métricas com Spring Boot Actuator.
-- Logs estruturados, correlação de requisições e rastreamento distribuído com OpenTelemetry.
-- Auditoria de login, logout, falhas de autenticação, revogação e mudanças de permissões.
-- Monitoramento de falhas de publicação e processamento de mensagens.
-- Segregação de ambientes e proteção de credenciais e chaves criptográficas.
-- Estratégias de retry, dead-letter queue e idempotência para consumidores assíncronos.
+- Logs estruturados e rastreamento distribuído com OpenTelemetry.
+- Auditoria de login, logout, falhas e mudanças de permissão.
+- Monitoramento de mensageria e políticas de retry, DLQ e idempotência.
+- Rotação e revogação de tokens/sessões.
+- Segregação de ambientes, proteção de segredos e endurecimento de segurança para produção.
 
 ## Status da implementação
 
-| Componente | Situação no repositório |
+| Componente | Situação |
 |---|---|
-| Cadastro de usuários | Implementado |
-| Validação de entrada e duplicidade | Implementado |
+| Cadastro público com role `CANDIDATE` | Implementado |
+| Login por e-mail ou login | Implementado |
+| Emissão de JWT | Implementado |
 | BCrypt | Implementado |
-| PostgreSQL, JPA e Flyway | Configurados |
-| Swagger/OpenAPI | Configurado |
-| Testes, JaCoCo e ktlint | Configurados |
-| Login e emissão de JWT | Arquitetura-alvo |
-| Refresh tokens, sessões e revogação | Arquitetura-alvo |
-| RBAC completo e permissões | Arquitetura-alvo |
-| Kafka e RabbitMQ | Arquitetura-alvo |
-| Observabilidade distribuída | Arquitetura-alvo |
+| Perfis `CANDIDATE`, `SCHOOL_ADMIN`, `PLATFORM_ADMIN` | Implementados |
+| Regras RBAC e autorização por usuário-alvo | Implementadas |
+| Listagem paginada, ordenação e filtros | Implementada |
+| Escopo de listagem por role | Implementado |
+| Busca por ID, e-mail, login, CPF ou RG | Implementada |
+| Atualização parcial de perfil | Implementada |
+| Restrição de CPF, RG e data de nascimento | Implementada |
+| Exclusão de usuários conforme permissão | Implementada |
+| Alteração administrativa de role/status | Implementada |
+| PostgreSQL, JPA e Flyway | Configurados/implementados |
+| Swagger/OpenAPI | Implementado e validado funcionalmente |
+| JUnit 5, MockK, JaCoCo e ktlint | Configurados, com testes ampliados |
+| Refresh tokens, sessões e revogação | Planejado |
+| Logout e recuperação de senha | Planejados |
+| Kafka e RabbitMQ | Planejados |
+| Auditoria persistente | Planejada |
+| Observabilidade distribuída | Planejada |
+
+**Próxima evolução:** definir e implementar o gerenciamento de escolas e o vínculo entre `SCHOOL_ADMIN` e escola, mantendo os controles de identidade no Auth Service e as regras de negócio escolares nos serviços correspondentes.
